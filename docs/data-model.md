@@ -43,31 +43,31 @@ erDiagram
 > Google ログイン時に名前・メール・画像 URL が渡され、アダプタが自動で保存する。
 > **このモデル全体が Prisma アダプタの要求仕様に従う**。`emailVerified` のように自分では使わないフィールドも、アダプタが要求するため勝手に削らない。
 
-| 項目 | 型 | 必須 | 備考 |
-|---|---|---|---|
-| id | string | ○ | 主キー |
-| name | string? | – | Google から取得 |
-| email | string? | – | Google から取得（一意） |
-| emailVerified | datetime? | – | **アダプタが要求するフィールド**（Google OAuth では実質未使用だが削らない） |
-| image | string? | – | **Google のプロフィール画像 URL**。文字列が入るだけで実装コストは無い |
-| createdAt | datetime | ○ | 作成日時 |
+| 項目          | 型        | 必須 | 備考                                                                        |
+| ------------- | --------- | ---- | --------------------------------------------------------------------------- |
+| id            | string    | ○    | 主キー                                                                      |
+| name          | string?   | –    | Google から取得                                                             |
+| email         | string?   | –    | Google から取得（一意）                                                     |
+| emailVerified | datetime? | –    | **アダプタが要求するフィールド**（Google OAuth では実質未使用だが削らない） |
+| image         | string?   | –    | **Google のプロフィール画像 URL**。文字列が入るだけで実装コストは無い       |
+| createdAt     | datetime  | ○    | 作成日時                                                                    |
 
 ## 項目仕様：Bottle
 
-| 項目 | 型 | 入力必須 | 既定 | 備考 |
-|---|---|---|---|---|
-| id | string | –（自動） | 自動 | 主キー |
-| userId | string | –（自動） | — | 所有者（ログインユーザーから設定。User への FK） |
-| name | string | **○** | — | 銘柄名。**唯一の必須項目** |
-| region | string? | – | — | 国。**固定リスト選択式**（表記ゆれ防止。リストの中身は父と確定：TODO） |
-| subRegion | string? | – | — | 地域（アイラ／スペイサイド等）。region が選ばれている前提の任意項目。地域までやるかは父の回答待ち（TODO） |
-| age | int? | – | — | 年数。**null は「NAS」と「未入力」の両方を意味する（区別しない）** |
-| caskType | string? | – | — | 樽（シェリー、バーボン樽 等） |
-| isLimited | boolean | – | false | 限定版フラグ |
-| quantity | int | – | 1 | 同一物の所持本数（1 以上） |
-| photoUrl | string? | – | — | 写真 URL。**次点機能で使用**（今は未使用） |
-| note | string? | – | — | メモ |
-| createdAt / updatedAt | datetime | –（自動） | 自動 | 作成・更新日時 |
+| 項目                  | 型       | 入力必須  | 既定  | 備考                                                                                                      |
+| --------------------- | -------- | --------- | ----- | --------------------------------------------------------------------------------------------------------- |
+| id                    | string   | –（自動） | 自動  | 主キー                                                                                                    |
+| userId                | string   | –（自動） | —     | 所有者（ログインユーザーから設定。User への FK）                                                          |
+| name                  | string   | **○**     | —     | 銘柄名。**唯一の必須項目**                                                                                |
+| region                | string?  | –         | —     | 国。**固定リスト選択式**（表記ゆれ防止。リストの中身は父と確定：TODO）                                    |
+| subRegion             | string?  | –         | —     | 地域（アイラ／スペイサイド等）。region が選ばれている前提の任意項目。地域までやるかは父の回答待ち（TODO） |
+| age                   | int?     | –         | —     | 年数。**null は「NAS」と「未入力」の両方を意味する（区別しない）**                                        |
+| caskType              | string?  | –         | —     | 樽（シェリー、バーボン樽 等）                                                                             |
+| isLimited             | boolean  | –         | false | 限定版フラグ                                                                                              |
+| quantity              | int      | –         | 1     | 同一物の所持本数（1 以上）                                                                                |
+| photoUrl              | string?  | –         | —     | 写真 URL。**次点機能で使用**（今は未使用）                                                                |
+| note                  | string?  | –         | —     | メモ                                                                                                      |
+| createdAt / updatedAt | datetime | –（自動） | 自動  | 作成・更新日時                                                                                            |
 
 > **Bottle の 1 行（1 レコード）は、現実の何に対応するか**：
 > 父が「これは別の酒だ」と思う 1 種類 = 1 行。まったく同じ物が増えても行は増やさず `quantity` を足す。

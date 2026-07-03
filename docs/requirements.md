@@ -72,13 +72,13 @@
 
 ## 6. 技術スタック（確定）
 
-| 領域 | 採用 |
-|---|---|
+| 領域           | 採用                                                |
+| -------------- | --------------------------------------------------- |
 | フロント / API | Next.js（App Router）＋ Route Handlers / TypeScript |
-| DB / ORM | Postgres（Neon）+ Prisma |
-| 認証 | auth.js（Google） |
-| デプロイ | Vercel |
-| 画像（次点） | UploadThing もしくは Vercel Blob |
+| DB / ORM       | Postgres（Neon）+ Prisma                            |
+| 認証           | auth.js（Google）                                   |
+| デプロイ       | Vercel                                              |
+| 画像（次点）   | UploadThing もしくは Vercel Blob                    |
 
 ## 7. 用語
 
