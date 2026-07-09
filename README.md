@@ -80,16 +80,20 @@ flowchart LR
 # 1. 依存をインストール
 pnpm install
 
-# 2. 環境変数を設定（.env）※ 雛形は .env.example を参照
-#    DATABASE_URL=...            # Neon の接続文字列（Vercel では pooled 接続文字列（-pooler 付き）を使う）
+# 2. Vercel プロジェクトにリンクして DB 環境変数を取得
+#    （DATABASE_URL / DATABASE_URL_UNPOOLED が .env に入る）
+vercel link
+vercel env pull .env
+
+# 3. AUTH 系の環境変数を .env に手動追記
 #    AUTH_GOOGLE_ID=...          # Google OAuth
 #    AUTH_GOOGLE_SECRET=...
 #    AUTH_SECRET=...
 
-# 3. DB マイグレーション
+# 4. DB マイグレーション
 pnpm prisma migrate dev
 
-# 4. 開発サーバ起動
+# 5. 開発サーバ起動
 pnpm dev
 ```
 

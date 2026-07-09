@@ -55,13 +55,20 @@
 # 1. 依存をインストール
 pnpm install
 
-# 2. 環境変数を設定（.env.example をコピーして値を埋める）
-cp .env.example .env
+# 2. Vercel プロジェクトにリンクして DB 環境変数を取得
+#    （DATABASE_URL / DATABASE_URL_UNPOOLED が .env に入る）
+vercel link
+vercel env pull .env
 
-# 3. DB マイグレーション
+# 3. AUTH 系の環境変数を .env に手動追記
+#    AUTH_GOOGLE_ID=...          # Google OAuth
+#    AUTH_GOOGLE_SECRET=...
+#    AUTH_SECRET=...
+
+# 4. DB マイグレーション
 pnpm prisma migrate dev
 
-# 4. 開発サーバ起動
+# 5. 開発サーバ起動
 pnpm dev
 ```
 
