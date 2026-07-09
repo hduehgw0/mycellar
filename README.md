@@ -74,7 +74,7 @@ flowchart LR
 
 ## セットアップ
 
-<!-- TODO（実装後）: 実際のコマンド・必要な環境変数を確定して埋める -->
+<!-- TODO（#2 実装後）: Prisma 導入後に `pnpm prisma migrate dev` の検証結果を反映する -->
 
 ```bash
 # 1. 依存をインストール
