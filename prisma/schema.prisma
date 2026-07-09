@@ -11,3 +11,34 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime? // アダプタが要求するフィールド（削らない）
+  image         String?
+  createdAt     DateTime  @default(now())
+  bottles       Bottle[]
+  // このモデル全体が auth.js Prisma アダプタの要求仕様に従う（勝手に削らない）。
+  // Account / Session / VerificationToken もアダプタのドキュメント通りに追加（手設計しない）
+}
+
+model Bottle {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name      String // 銘柄名（必須）
+  region    String? // 国（固定リスト選択式。選択肢は zod 側で管理）
+  subRegion String? // 地域（アイラ等・任意）
+  age       Int? // 年数（null = NAS または未入力）
+  caskType  String? // 樽
+  isLimited Boolean  @default(false)
+  quantity  Int      @default(1)
+  photoUrl  String? // 写真（次点で使用）
+  note      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
