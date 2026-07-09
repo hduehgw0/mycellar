@@ -55,13 +55,16 @@
 # 1. 依存をインストール
 pnpm install
 
-# 2. 環境変数を設定（.env.example をコピーして値を埋める）
-cp .env.example .env
+# 2. 環境変数（DB）：Vercel の Neon 統合から取得
+pnpm dlx vercel link            # 初回のみ：Vercel プロジェクトに紐付け
+pnpm dlx vercel env pull .env   # DATABASE_URL などを .env に書き出す
 
-# 3. DB マイグレーション
+# 3. 環境変数（認証）：AUTH_ 系を .env に手動で追記（項目は .env.example 参照）
+
+# 4. DB マイグレーション
 pnpm prisma migrate dev
 
-# 4. 開発サーバ起動
+# 5. 開発サーバ起動
 pnpm dev
 ```
 
