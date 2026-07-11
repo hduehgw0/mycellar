@@ -21,7 +21,6 @@ CREATE TABLE "Bottle" (
     "caskType" TEXT,
     "isLimited" BOOLEAN NOT NULL DEFAULT false,
     "quantity" INTEGER NOT NULL DEFAULT 1,
-    "photoUrl" TEXT,
     "note" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,

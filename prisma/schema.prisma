@@ -35,7 +35,6 @@ model Bottle {
   caskType  String? // 樽
   isLimited Boolean  @default(false)
   quantity  Int      @default(1)
-  photoUrl  String? // 写真（次点で使用）
   note      String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
