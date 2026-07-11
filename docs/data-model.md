@@ -74,49 +74,21 @@ erDiagram
 > 年数・樽・限定版のどれかが違えば「別の酒」なので新しい行を作る。
 > （ひとことで：**同じ物が増える → 本数を足す／違う物 → 行を足す**）
 
-## Prisma スキーマ下地
+## Prisma スキーマ（正本は実ファイル）
 
-```prisma
-generator client {
-  provider = "prisma-client-js"
-}
+> 実装済みのため、スキーマの正本はリポジトリの実ファイル。本ドキュメントにコードの複製は置かない（二重管理防止）。本ドキュメントが持つのは「項目仕様」と「設計判断」まで。
 
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
+| 実ファイル             | 内容                                                 |
+| ---------------------- | ---------------------------------------------------- |
+| `prisma/schema.prisma` | モデル定義（正本）                                   |
+| `prisma.config.ts`     | 接続設定（Prisma 7 形式）                            |
+| `prisma/migrations/`   | 適用済みマイグレーション（DB に流れた実 SQL の履歴） |
 
-model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String?   @unique
-  emailVerified DateTime? // アダプタが要求するフィールド（削らない）
-  image         String?
-  createdAt     DateTime  @default(now())
-  bottles       Bottle[]
-  // このモデル全体が auth.js Prisma アダプタの要求仕様に従う（勝手に削らない）。
-  // Account / Session / VerificationToken もアダプタのドキュメント通りに追加（手設計しない）
-}
+**Prisma 7 での主な変更点**（当初この節に置いていた下地は Prisma 6 形式だった）：
 
-model Bottle {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  name      String   // 銘柄名（必須）
-  region    String?  // 国（固定リスト選択式。選択肢は zod 側で管理）
-  subRegion String?  // 地域（アイラ等・任意）
-  age       Int?     // 年数（null = NAS または未入力）
-  caskType  String?  // 樽
-  isLimited Boolean  @default(false)
-  quantity  Int      @default(1)
-  photoUrl  String?  // 写真（次点で使用）
-  note      String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([userId])
-}
-```
+- 接続 URL は `schema.prisma` の datasource ではなく **`prisma.config.ts` で指定**する（schema 側は `provider = "postgresql"` のみ）
+- **`directUrl` は廃止**。config の `url` は CLI（migrate 等）専用のため **direct（`DATABASE_URL_UNPOOLED`）**を指定し、アプリ実行時は pooled（`DATABASE_URL`）をクライアント初期化コード側で指定する
+- generator は `prisma-client`（旧 `prisma-client-js`）で、クライアントは **`src/generated/prisma`** に生成される（git 管理外・`prisma generate` で生成）
 
 ## 設計判断（ADR 候補のメモ）
 
