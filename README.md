@@ -35,7 +35,7 @@ flowchart LR
     end
     API --> P["Prisma"] --> DB[("PostgreSQL / Neon")]
     UI --> P
-    APP -. ログイン .-> AUTH["auth.js + Google OAuth"]
+    APP -. ログイン .-> AUTH["Better Auth + Google OAuth"]
 ```
 
 1 リポジトリ・1 デプロイ（Vercel）で完結。読み取りは Server Component が Prisma を直接呼び、書き込みは Route Handler が認可・バリデーション・DB アクセスを担う。
@@ -44,22 +44,22 @@ flowchart LR
 
 > 「重い分岐があった決定」は ADR（`docs/adr.md`）に記録。下表は各スタックの一言理由。
 
-| 技術                         | 役割          | 選んだ理由（一言）                                                              |
-| ---------------------------- | ------------- | ------------------------------------------------------------------------------- |
-| Next.js（App Router）        | フロント＋API | フロントと API を 1 つに閉じられる主スタック。現行標準（→ ADR-0002 / ADR-0008） |
-| TypeScript                   | 言語          | 型安全で、フォーム〜API〜DB を一貫した型で繋ぐ                                  |
-| Route Handlers               | バックエンド  | 書き込みAPIを自分で実装。読みは Server Component 直読み（→ ADR-0002）           |
-| Prisma                       | ORM           | スキーマ駆動で型安全・マイグレーションが一貫（→ ADR-0007）                      |
-| PostgreSQL（Neon）           | DB            | 定番のリレーショナル DB。サーバーレスで無料枠あり                               |
-| auth.js（Google）            | 認証          | パスワードを保持せず安全。父も使える（→ ADR-0003）                              |
-| Tailwind CSS                 | スタイル      | モバイルファーストを高速に書ける                                                |
-| shadcn/ui                    | UI 部品       | アクセシブルな部品を「自分のコード」として持てる                                |
-| react-hook-form ＋ zod       | フォーム/検証 | フォーム管理と型安全なバリデーション                                            |
-| Recharts                     | 可視化        | React と相性が良く、傾向グラフを手早く                                          |
-| Vercel                       | デプロイ      | Next.js に最適。push で前後まとめてデプロイ                                     |
-| ESLint ＋ Prettier           | 規約          | コーディング規約をツールで強制（文書化しない）                                  |
-| Playwright ＋ GitHub Actions | テスト/CI     | 主要フローの E2E と継続的インテグレーション                                     |
-| UploadThing / Vercel Blob    | 画像（次点）  | 写真保存をマネージドで軽く（→ ADR-0005）                                        |
+| 技術                         | 役割          | 選んだ理由（一言）                                                                             |
+| ---------------------------- | ------------- | ---------------------------------------------------------------------------------------------- |
+| Next.js（App Router）        | フロント＋API | フロントと API を 1 つに閉じられる主スタック。現行標準（→ ADR-0002 / ADR-0008）                |
+| TypeScript                   | 言語          | 型安全で、フォーム〜API〜DB を一貫した型で繋ぐ                                                 |
+| Route Handlers               | バックエンド  | 書き込みAPIを自分で実装。読みは Server Component 直読み（→ ADR-0002）                          |
+| Prisma                       | ORM           | スキーマ駆動で型安全・マイグレーションが一貫（→ ADR-0007）                                     |
+| PostgreSQL（Neon）           | DB            | 定番のリレーショナル DB。サーバーレスで無料枠あり                                              |
+| Better Auth（Google）        | 認証          | パスワードを保持せず安全。父も使える。auth.js のメンテナンスモード化を受け再選定（→ ADR-0010） |
+| Tailwind CSS                 | スタイル      | モバイルファーストを高速に書ける                                                               |
+| shadcn/ui                    | UI 部品       | アクセシブルな部品を「自分のコード」として持てる                                               |
+| react-hook-form ＋ zod       | フォーム/検証 | フォーム管理と型安全なバリデーション                                                           |
+| Recharts                     | 可視化        | React と相性が良く、傾向グラフを手早く                                                         |
+| Vercel                       | デプロイ      | Next.js に最適。push で前後まとめてデプロイ                                                    |
+| ESLint ＋ Prettier           | 規約          | コーディング規約をツールで強制（文書化しない）                                                 |
+| Playwright ＋ GitHub Actions | テスト/CI     | 主要フローの E2E と継続的インテグレーション                                                    |
+| UploadThing / Vercel Blob    | 画像（次点）  | 写真保存をマネージドで軽く（→ ADR-0005）                                                       |
 
 ## ドキュメント
 

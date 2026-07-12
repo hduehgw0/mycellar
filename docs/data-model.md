@@ -15,9 +15,10 @@ erDiagram
         string id PK
         string name
         string email
-        datetime emailVerified
+        boolean emailVerified
         string image
         datetime createdAt
+        datetime updatedAt
     }
 
     Bottle {
@@ -39,18 +40,19 @@ erDiagram
 
 ## 項目仕様：User
 
-> auth.js（Google 認証）が管理するため、これらは**自分で設計・実装しない**。
-> Google ログイン時に名前・メール・画像 URL が渡され、アダプタが自動で保存する。
-> **このモデル全体が Prisma アダプタの要求仕様に従う**。`emailVerified` のように自分では使わないフィールドも、アダプタが要求するため勝手に削らない。
+> Better Auth（Google 認証）が管理するため、これらは**自分で設計・実装しない**（→ ADR-0010）。
+> Google ログイン時に名前・メール・画像 URL が渡され、Better Auth が自動で保存する。
+> **このモデル全体が Better Auth の要求スキーマに従う**（CLI で自動生成し、手で設計・削除しない）。`emailVerified` のように自分では使わないフィールドも、要求されるため勝手に削らない。
+> 認証用の `Session`・`Account`・`Verification` テーブルも CLI 生成に従って追加する（#4 で実装）。**フィールドの最終形は実装時の CLI 生成が正**で、下表は現時点の想定。
 
-| 項目          | 型        | 必須 | 備考                                                                        |
-| ------------- | --------- | ---- | --------------------------------------------------------------------------- |
-| id            | string    | ○    | 主キー                                                                      |
-| name          | string?   | –    | Google から取得                                                             |
-| email         | string?   | –    | Google から取得（一意）                                                     |
-| emailVerified | datetime? | –    | **アダプタが要求するフィールド**（Google OAuth では実質未使用だが削らない） |
-| image         | string?   | –    | **Google のプロフィール画像 URL**。文字列が入るだけで実装コストは無い       |
-| createdAt     | datetime  | ○    | 作成日時                                                                    |
+| 項目                  | 型       | 必須 | 備考                                                                  |
+| --------------------- | -------- | ---- | --------------------------------------------------------------------- |
+| id                    | string   | ○    | 主キー                                                                |
+| name                  | string?  | –    | Google から取得                                                       |
+| email                 | string?  | –    | Google から取得（一意）                                               |
+| emailVerified         | boolean  | –    | **Better Auth が要求**（Google OAuth では実質未使用だが削らない）     |
+| image                 | string?  | –    | **Google のプロフィール画像 URL**。文字列が入るだけで実装コストは無い |
+| createdAt / updatedAt | datetime | ○    | 作成・更新日時（Better Auth が要求）                                  |
 
 ## 項目仕様：Bottle
 
@@ -65,7 +67,7 @@ erDiagram
 | caskType              | string?  | –         | —     | 樽（シェリー、バーボン樽 等）                                                                             |
 | isLimited             | boolean  | –         | false | 限定版フラグ                                                                                              |
 | quantity              | int      | –         | 1     | 同一物の所持本数（1 以上）                                                                                |
-| photoUrl              | string?  | –         | —     | 写真 URL。**次点機能で使用**（現行スキーマには未追加。写真機能着手時にマイグレーションで追加）           |
+| photoUrl              | string?  | –         | —     | 写真 URL。**次点機能で使用**（現行スキーマには未追加。写真機能着手時にマイグレーションで追加）            |
 | note                  | string?  | –         | —     | メモ                                                                                                      |
 | createdAt / updatedAt | datetime | –（自動） | 自動  | 作成・更新日時                                                                                            |
 
