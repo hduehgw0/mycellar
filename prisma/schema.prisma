@@ -16,12 +16,16 @@ model User {
   id            String    @id @default(cuid())
   name          String?
   email         String?   @unique
-  emailVerified DateTime? // アダプタが要求するフィールド（削らない）
+  emailVerified Boolean   @default(false)
   image         String?
   createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
   bottles       Bottle[]
-  // このモデル全体が auth.js Prisma アダプタの要求仕様に従う（勝手に削らない）。
-  // Account / Session / VerificationToken もアダプタのドキュメント通りに追加（手設計しない）
+  sessions      Session[]
+  accounts      Account[]
+  // Better Auth の要求スキーマに従う（better-auth CLI 生成・手設計しない → ADR-0010）。
+
+  @@map("user")
 }
 
 model Bottle {
@@ -40,4 +44,52 @@ model Bottle {
   updatedAt DateTime @updatedAt
 
   @@index([userId])
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([token])
+  @@index([userId])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+  @@map("verification")
 }
