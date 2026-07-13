@@ -21,7 +21,7 @@
 
 ### MVP の芯（必ず作る）
 
-- **Google 認証**（auth.js）でユーザーごとにデータを分離
+- **Google 認証**（Better Auth）でユーザーごとにデータを分離
 - **ボトルの CRUD**（登録・一覧・詳細・編集・削除）＋所有権制御（自分のデータのみ操作可）
 - **記録項目**（リッチだが必須は最小）：
   - 銘柄名 …**必須**
@@ -76,7 +76,7 @@
 | -------------- | --------------------------------------------------- |
 | フロント / API | Next.js（App Router）＋ Route Handlers / TypeScript |
 | DB / ORM       | Postgres（Neon）+ Prisma                            |
-| 認証           | auth.js（Google）                                   |
+| 認証           | Better Auth（Google）                               |
 | デプロイ       | Vercel                                              |
 | 画像（次点）   | UploadThing もしくは Vercel Blob                    |
 

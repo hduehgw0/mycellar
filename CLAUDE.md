@@ -6,7 +6,7 @@
 
 - Next.js（App Router）/ TypeScript
 - Prisma + PostgreSQL（Neon）
-- auth.js（Google OAuth）
+- Better Auth（Google OAuth）
 - Tailwind CSS + shadcn/ui
 - react-hook-form + zod / Recharts
 - Deploy: Vercel ／ Package manager: pnpm（Node 22）
