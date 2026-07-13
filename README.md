@@ -85,8 +85,8 @@ pnpm install
 pnpm dlx vercel link
 pnpm dlx vercel env pull .env
 
-# 3. 環境変数（認証）：AUTH_ 系を .env に手動で追記 ※ 雛形は .env.example を参照
-#    AUTH_GOOGLE_ID / AUTH_GOOGLE_SECRET / AUTH_SECRET
+# 3. 環境変数（認証）：Better Auth 系を .env に手動で追記 ※ 雛形は .env.example を参照
+#    GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET / BETTER_AUTH_SECRET / BETTER_AUTH_URL
 
 # 4. DB マイグレーション
 pnpm prisma migrate dev
