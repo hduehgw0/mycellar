@@ -85,8 +85,8 @@ pnpm install
 pnpm dlx vercel link
 pnpm dlx vercel env pull .env
 
-# 3. 環境変数（認証）：AUTH_ 系を .env に手動で追記 ※ 雛形は .env.example を参照
-#    AUTH_GOOGLE_ID / AUTH_GOOGLE_SECRET / AUTH_SECRET
+# 3. 環境変数（認証）：Better Auth 系を .env に手動で追記 ※ 雛形は .env.example を参照
+#    GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET / BETTER_AUTH_SECRET / BETTER_AUTH_URL
 
 # 4. DB マイグレーション
 pnpm prisma migrate dev
@@ -94,6 +94,11 @@ pnpm prisma migrate dev
 # 5. 開発サーバ起動
 pnpm dev
 ```
+
+> **Google OAuth のリダイレクト URI 登録**（`.env` だけでは不足）：Google Cloud Console の OAuth クライアントで「承認済みのリダイレクト URI」に以下を登録する。未登録だとログインが `redirect_uri_mismatch` で失敗する。
+>
+> - ローカル：`http://localhost:3000/api/auth/callback/google`
+> - 本番：`{BETTER_AUTH_URL}/api/auth/callback/google`（例：`https://<本番ドメイン>/api/auth/callback/google`）
 
 ## ステータス
 

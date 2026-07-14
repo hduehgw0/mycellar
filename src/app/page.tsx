@@ -1,7 +1,7 @@
-export default function Home() {
-  return (
-    <main>
-      <h1>MyCellar</h1>
-    </main>
-  );
+import { redirect } from "next/navigation";
+import { getSession } from "@/lib/session";
+
+export default async function Home() {
+  const session = await getSession();
+  redirect(session ? "/bottles" : "/login");
 }
