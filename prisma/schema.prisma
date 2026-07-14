@@ -44,6 +44,7 @@ model Bottle {
   updatedAt DateTime @updatedAt
 
   @@index([userId])
+  @@map("bottle")
 }
 
 model Session {
