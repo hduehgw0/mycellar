@@ -95,6 +95,11 @@ pnpm prisma migrate dev
 pnpm dev
 ```
 
+> **Google OAuth のリダイレクト URI 登録**（`.env` だけでは不足）：Google Cloud Console の OAuth クライアントで「承認済みのリダイレクト URI」に以下を登録する。未登録だとログインが `redirect_uri_mismatch` で失敗する。
+>
+> - ローカル：`http://localhost:3000/api/auth/callback/google`
+> - 本番：`{BETTER_AUTH_URL}/api/auth/callback/google`（例：`https://<本番ドメイン>/api/auth/callback/google`）
+
 ## ステータス
 
 開発中（MVP）。進捗は GitHub Issues / Projects を参照。
