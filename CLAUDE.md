@@ -17,6 +17,7 @@
 - `pnpm dev` – 開発サーバ
 - `pnpm build` – 本番ビルド（型チェック含む）
 - `pnpm lint` – ESLint
+- `pnpm test` – Vitest（単体・結合）
 - `pnpm prisma migrate dev` – DB マイグレーション
 
 ## Project Structure

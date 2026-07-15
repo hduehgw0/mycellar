@@ -47,7 +47,7 @@
 | 結合（最重要） | Route Handler：検証 → 認可（自分の `userId` のみ）→ DB  | Vitest     | 実装と併走 |
 | E2E            | ログイン→登録→一覧→編集→削除→グラフ の主要導線 1 本     | Playwright | 第 4 週    |
 
-> テストランナー（Vitest / Playwright）の導入は別 Issue。
+> E2E ランナー（Playwright）の導入は別 Issue（第 4 週）。
 
 ## Issue 起票
 
@@ -98,6 +98,7 @@ pnpm dev
 
 ```bash
 pnpm lint    # ESLint
+pnpm test    # Vitest（単体・結合）
 pnpm build   # 型エラー含めビルドが通るか
 ```
 
