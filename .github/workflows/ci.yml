@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+# 最小権限：CI はリポジトリを読むだけ（push しない）。
+permissions:
+  contents: read
+
+jobs:
+  static-analysis:
+    runs-on: ubuntu-latest
+    env:
+      # prisma.config.ts が env() で必須化しているため、postinstall の prisma generate 用にダミーを渡す。
+      # generate は DB へ接続しないので実接続は不要。
+      DATABASE_URL_UNPOOLED: postgresql://user:password@localhost:5432/db
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # 後続の pnpm install 等でトークンが露出しないよう、認証情報を保存しない。
+          persist-credentials: false
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm lint
+      - run: pnpm format:check
+      - run: pnpm typecheck

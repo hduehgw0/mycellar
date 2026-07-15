@@ -23,11 +23,15 @@ export function LoginButton() {
             // 成功時は Google へ遷移するため以降は実行されない。
             // 失敗時のみここに到達するので、理由を伝えて再操作可能に戻す。
             if (error) {
-              setError("ログインを開始できませんでした。もう一度お試しください。");
+              setError(
+                "ログインを開始できませんでした。もう一度お試しください。",
+              );
               setPending(false);
             }
           } catch {
-            setError("ログインを開始できませんでした。もう一度お試しください。");
+            setError(
+              "ログインを開始できませんでした。もう一度お試しください。",
+            );
             setPending(false);
           }
         }}
