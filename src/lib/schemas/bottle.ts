@@ -27,7 +27,7 @@ export const bottleSchema = z.object({
   subRegion: optionalText,
   age: z
     .number()
-    .int()
+    .int("年数は1以上の整数で入力してください")
     .min(1, "年数は1以上の整数で入力してください")
     .optional(),
   caskType: optionalText,
