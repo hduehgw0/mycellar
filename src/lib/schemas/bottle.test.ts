@@ -8,8 +8,8 @@ describe("bottleSchema", () => {
     expect(result).toEqual({ name: "山崎", quantity: 1, isLimited: false });
   });
 
-  it("全項目を指定して通る", () => {
-    const result = bottleSchema.parse({
+  it("全項目を指定するとそのまま通る", () => {
+    const input = {
       name: "ラフロイグ 10年",
       region: "スコットランド",
       subRegion: "アイラ",
@@ -18,9 +18,8 @@ describe("bottleSchema", () => {
       isLimited: true,
       quantity: 2,
       note: "父の誕生日に開封",
-    });
-    expect(result.region).toBe("スコットランド");
-    expect(result.quantity).toBe(2);
+    };
+    expect(bottleSchema.parse(input)).toEqual(input);
   });
 
   it.each(["", "   "])("銘柄名が空（%j）なら通らない", (name) => {
