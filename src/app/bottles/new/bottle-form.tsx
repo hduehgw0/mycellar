@@ -67,11 +67,34 @@ export function BottleForm() {
   });
 
   return (
-    <form onSubmit={onSubmit} noValidate>
+    <form
+      onSubmit={onSubmit}
+      noValidate
+      // 自動補完抑止の保険（Chrome の住所サジェストはこれを無視するため、本対策は銘柄名・地域の属性側）。
+      autoComplete="off"
+    >
       <FieldGroup>
+        {/*
+          銘柄名・地域は Chrome に氏名・住所と誤認され、autocomplete="off" だけでは
+          住所サジェストを抑止できない（Chrome は off を無視して name/id から用途を推測する）。
+          認識されない name/id に変えるのが確実な回避策だが、register は DOM の name 属性に
+          依存するため、この 2 フィールドだけ Controller で接続して属性を自由にしている。
+        */}
         <Field data-invalid={!!errors.name}>
-          <FieldLabel htmlFor="name">銘柄名（必須）</FieldLabel>
-          <Input id="name" aria-invalid={!!errors.name} {...register("name")} />
+          <FieldLabel htmlFor="bottle-name">銘柄名（必須）</FieldLabel>
+          <Controller
+            control={control}
+            name="name"
+            render={({ field }) => (
+              <Input
+                {...field}
+                id="bottle-name"
+                name="bottle-name"
+                autoComplete="off"
+                aria-invalid={!!errors.name}
+              />
+            )}
+          />
           <FieldError errors={[errors.name]} />
         </Field>
 
@@ -98,11 +121,19 @@ export function BottleForm() {
         </Field>
 
         <Field>
-          <FieldLabel htmlFor="subRegion">地域</FieldLabel>
-          <Input
-            id="subRegion"
-            placeholder="アイラ、スペイサイド など"
-            {...register("subRegion")}
+          <FieldLabel htmlFor="bottle-subregion">地域</FieldLabel>
+          <Controller
+            control={control}
+            name="subRegion"
+            render={({ field }) => (
+              <Input
+                {...field}
+                id="bottle-subregion"
+                name="bottle-subregion"
+                autoComplete="off"
+                placeholder="アイラ、スペイサイド など"
+              />
+            )}
           />
         </Field>
 
