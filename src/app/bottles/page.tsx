@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { LogoutButton } from "./logout-button";
 
@@ -30,13 +31,38 @@ export default async function BottlesPage() {
           まだ登録がありません
         </p>
       ) : (
-        // 登録反映の確認用の最小表示（一覧の本実装は #26）。
         <ul className="flex flex-col gap-2">
-          {bottles.map((bottle) => (
-            <li key={bottle.id} className="rounded-md border px-4 py-3">
-              {bottle.name}
-            </li>
-          ))}
+          {bottles.map((bottle) => {
+            // 題名は業界の呼称に合わせて「名称 年数」（NAS は名称のみ）。
+            const title = bottle.age
+              ? `${bottle.name} ${bottle.age}年`
+              : bottle.name;
+            // 国・地域は中黒でつなぐテキスト（未入力は filter で落とす）。
+            const meta = [bottle.region, bottle.subRegion].filter(Boolean);
+            return (
+              <li
+                key={bottle.id}
+                className="flex flex-col gap-1 rounded-md border px-4 py-3"
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <span className="min-w-0 font-medium break-words">
+                    {title}
+                  </span>
+                  <span className="shrink-0 text-sm text-muted-foreground">
+                    {bottle.quantity}本
+                  </span>
+                </div>
+                {(meta.length > 0 || bottle.isLimited) && (
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    {meta.length > 0 && <span>{meta.join("・")}</span>}
+                    {bottle.isLimited && (
+                      <Badge variant="secondary">限定版</Badge>
+                    )}
+                  </div>
+                )}
+              </li>
+            );
+          })}
         </ul>
       )}
     </main>
