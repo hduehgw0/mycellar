@@ -45,7 +45,9 @@ export default async function BottlesPage() {
                 className="flex flex-col gap-1 rounded-md border px-4 py-3"
               >
                 <div className="flex items-center justify-between gap-2">
-                  <span className="font-medium">{title}</span>
+                  <span className="min-w-0 font-medium break-words">
+                    {title}
+                  </span>
                   <span className="shrink-0 text-sm text-muted-foreground">
                     {bottle.quantity}本
                   </span>
