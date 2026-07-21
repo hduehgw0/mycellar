@@ -40,26 +40,28 @@ export default async function BottlesPage() {
             // 国・地域は中黒でつなぐテキスト（未入力は filter で落とす）。
             const meta = [bottle.region, bottle.subRegion].filter(Boolean);
             return (
-              <li
-                key={bottle.id}
-                className="flex flex-col gap-1 rounded-md border px-4 py-3"
-              >
-                <div className="flex items-center justify-between gap-2">
-                  <span className="min-w-0 font-medium break-words">
-                    {title}
-                  </span>
-                  <span className="shrink-0 text-sm text-muted-foreground">
-                    {bottle.quantity}本
-                  </span>
-                </div>
-                {(meta.length > 0 || bottle.isLimited) && (
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    {meta.length > 0 && <span>{meta.join("・")}</span>}
-                    {bottle.isLimited && (
-                      <Badge variant="secondary">限定版</Badge>
-                    )}
+              <li key={bottle.id}>
+                <Link
+                  href={`/bottles/${bottle.id}`}
+                  className="flex flex-col gap-1 rounded-md border px-4 py-3 hover:bg-muted"
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="min-w-0 font-medium break-words">
+                      {title}
+                    </span>
+                    <span className="shrink-0 text-sm text-muted-foreground">
+                      {bottle.quantity}本
+                    </span>
                   </div>
-                )}
+                  {(meta.length > 0 || bottle.isLimited) && (
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      {meta.length > 0 && <span>{meta.join("・")}</span>}
+                      {bottle.isLimited && (
+                        <Badge variant="secondary">限定版</Badge>
+                      )}
+                    </div>
+                  )}
+                </Link>
               </li>
             );
           })}
