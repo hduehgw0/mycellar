@@ -1,14 +1,12 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
-import { getSession } from "@/lib/session";
+import { requireSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { LogoutButton } from "./logout-button";
 
 export default async function BottlesPage() {
-  const session = await getSession();
-  if (!session) redirect("/login");
+  const session = await requireSession();
 
   const bottles = await prisma.bottle.findMany({
     where: { userId: session.user.id },

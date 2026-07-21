@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { notFound, redirect } from "next/navigation";
-import { getSession } from "@/lib/session";
+import { notFound } from "next/navigation";
+import { requireSession } from "@/lib/session";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { getOwnedBottle } from "./get-owned-bottle";
@@ -10,8 +10,7 @@ export default async function BottleDetailPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const session = await getSession();
-  if (!session) redirect("/login");
+  const session = await requireSession();
 
   const { id } = await params;
   const bottle = await getOwnedBottle(id, session.user.id);
