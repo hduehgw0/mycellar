@@ -51,6 +51,10 @@ export default async function BottleDetailPage({
           </div>
         ))}
       </dl>
+
+      <Button asChild className="w-fit">
+        <Link href={`/bottles/${bottle.id}/edit`}>編集する</Link>
+      </Button>
     </main>
   );
 }
