@@ -128,6 +128,7 @@ export function BottleForm() {
             render={({ field }) => (
               <Input
                 {...field}
+                value={field.value ?? ""}
                 id="bottle-subregion"
                 name="bottle-subregion"
                 autoComplete="off"

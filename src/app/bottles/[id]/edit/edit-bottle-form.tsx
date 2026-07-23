@@ -28,6 +28,10 @@ import { Textarea } from "@/components/ui/textarea";
 const asOptionalNumber = (value: unknown) =>
   value === "" || value == null ? undefined : Number(value);
 
+// 国の「未選択」用センチネル。Radix の SelectItem は空文字値を禁止するため、
+// 空でないダミー値を持たせ、選択時に null（＝クリア）へ正規化する（送信データには出さない）。
+const NONE = "__none__";
+
 export function EditBottleForm({ bottle }: { bottle: Bottle }) {
   const router = useRouter();
   const [serverError, setServerError] = useState<string | null>(null);
@@ -54,11 +58,20 @@ export function EditBottleForm({ bottle }: { bottle: Bottle }) {
 
   const onSubmit = handleSubmit(async (data) => {
     setServerError(null);
+    // 空欄の任意項目は明示 null で送る（undefined だと JSON から落ち、PATCH で「変更なし」＝消せないため）。
+    const payload = {
+      ...data,
+      region: data.region ?? null,
+      subRegion: data.subRegion ?? null,
+      age: data.age ?? null,
+      caskType: data.caskType ?? null,
+      note: data.note ?? null,
+    };
     try {
       const response = await fetch(`/api/bottles/${bottle.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: JSON.stringify(payload),
       });
       if (!response.ok) {
         setServerError("更新に失敗しました。もう一度お試しください。");
@@ -109,11 +122,19 @@ export function EditBottleForm({ bottle }: { bottle: Bottle }) {
             control={control}
             name="region"
             render={({ field }) => (
-              <Select value={field.value ?? ""} onValueChange={field.onChange}>
+              <Select
+                // null のときは「未選択」項目（NONE）を選択状態にする（プレースホルダではなくチェックを付ける）。
+                value={field.value ?? NONE}
+                onValueChange={(value) =>
+                  field.onChange(value === NONE ? null : value)
+                }
+              >
                 <SelectTrigger id="region">
                   <SelectValue placeholder="未選択" />
                 </SelectTrigger>
                 <SelectContent>
+                  {/* 「未選択」で既存の国を消せる（センチネル→null に正規化）。 */}
+                  <SelectItem value={NONE}>未選択</SelectItem>
                   {REGIONS.map((region) => (
                     <SelectItem key={region} value={region}>
                       {region}
@@ -133,6 +154,7 @@ export function EditBottleForm({ bottle }: { bottle: Bottle }) {
             render={({ field }) => (
               <Input
                 {...field}
+                value={field.value ?? ""}
                 id="bottle-subregion"
                 name="bottle-subregion"
                 autoComplete="off"
