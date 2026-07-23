@@ -65,4 +65,29 @@ describe("PATCH /api/bottles/[id]", () => {
       data: { name: "山崎", quantity: 2, isLimited: false },
     });
   });
+
+  it("任意項目を null で送ると、その値を消す（null が更新データに渡る）", async () => {
+    const response = await patch("bottle_1", {
+      name: "山崎",
+      quantity: 1,
+      isLimited: false,
+      age: null,
+      region: null,
+      subRegion: null,
+      caskType: null,
+      note: null,
+    });
+
+    expect(response.status).toBe(200);
+    expect(prisma.bottle.updateMany).toHaveBeenCalledWith({
+      where: { id: "bottle_1", userId: "user_me" },
+      data: expect.objectContaining({
+        age: null,
+        region: null,
+        subRegion: null,
+        caskType: null,
+        note: null,
+      }),
+    });
+  });
 });
