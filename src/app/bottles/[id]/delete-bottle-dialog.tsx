@@ -72,7 +72,13 @@ export function DeleteBottleDialog({
           削除する
         </Button>
       </AlertDialogTrigger>
-      <AlertDialogContent>
+      <AlertDialogContent
+        // 削除中は Escape での閉じも抑止（Cancel の disabled と揃える。
+        // fetch は中断されないため、閉じられると「キャンセルした錯覚」になる）。
+        onEscapeKeyDown={(e) => {
+          if (isDeleting) e.preventDefault();
+        }}
+      >
         <AlertDialogHeader>
           <AlertDialogMedia>
             <Trash2Icon className="text-destructive" />
