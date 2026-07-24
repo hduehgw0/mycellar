@@ -32,7 +32,7 @@ export default async function BottleDetailPage({
   ].filter((d): d is { label: string; value: string } => Boolean(d.value));
 
   return (
-    <main className="mx-auto flex min-h-dvh max-w-md flex-col gap-6 px-6 py-10">
+    <>
       <Button asChild variant="ghost" size="sm" className="w-fit">
         <Link href="/bottles">← 一覧へ</Link>
       </Button>
@@ -59,6 +59,6 @@ export default async function BottleDetailPage({
         </Button>
         <DeleteBottleDialog bottleId={bottle.id} displayName={title} />
       </div>
-    </main>
+    </>
   );
 }
