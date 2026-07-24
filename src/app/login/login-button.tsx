@@ -2,6 +2,9 @@
 
 import { useState } from "react";
 import { authClient } from "@/lib/auth-client";
+import { Button } from "@/components/ui/button";
+
+const LOGIN_ERROR = "ログインを開始できませんでした。もう一度お試しください。";
 
 export function LoginButton() {
   const [pending, setPending] = useState(false);
@@ -9,8 +12,10 @@ export function LoginButton() {
 
   return (
     <div className="w-full">
-      <button
+      <Button
         type="button"
+        variant="outline"
+        className="w-full"
         disabled={pending}
         onClick={async () => {
           setPending(true);
@@ -23,24 +28,19 @@ export function LoginButton() {
             // 成功時は Google へ遷移するため以降は実行されない。
             // 失敗時のみここに到達するので、理由を伝えて再操作可能に戻す。
             if (error) {
-              setError(
-                "ログインを開始できませんでした。もう一度お試しください。",
-              );
+              setError(LOGIN_ERROR);
               setPending(false);
             }
           } catch {
-            setError(
-              "ログインを開始できませんでした。もう一度お試しください。",
-            );
+            setError(LOGIN_ERROR);
             setPending(false);
           }
         }}
-        className="w-full rounded-md border border-gray-300 px-4 py-3 font-medium disabled:opacity-60"
       >
         {pending ? "リダイレクト中…" : "Google でログイン"}
-      </button>
+      </Button>
       {error && (
-        <p role="alert" className="mt-2 text-sm text-red-600">
+        <p role="alert" className="mt-2 text-sm text-destructive">
           {error}
         </p>
       )}

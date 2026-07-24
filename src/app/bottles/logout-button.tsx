@@ -3,6 +3,9 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
+import { Button } from "@/components/ui/button";
+
+const LOGOUT_ERROR = "ログアウトに失敗しました。もう一度お試しください。";
 
 export function LogoutButton() {
   const router = useRouter();
@@ -11,8 +14,10 @@ export function LogoutButton() {
 
   return (
     <div className="flex flex-col items-end gap-1">
-      <button
+      <Button
         type="button"
+        variant="outline"
+        size="sm"
         disabled={pending}
         onClick={async () => {
           setPending(true);
@@ -21,23 +26,22 @@ export function LogoutButton() {
             const { error } = await authClient.signOut();
             // 失敗時は遷移せず、理由を伝えて再操作可能に戻す。
             if (error) {
-              setError("ログアウトに失敗しました。もう一度お試しください。");
+              setError(LOGOUT_ERROR);
               setPending(false);
               return;
             }
             router.push("/login");
             router.refresh();
           } catch {
-            setError("ログアウトに失敗しました。もう一度お試しください。");
+            setError(LOGOUT_ERROR);
             setPending(false);
           }
         }}
-        className="rounded-md border border-gray-300 px-3 py-1.5 text-sm disabled:opacity-60"
       >
         ログアウト
-      </button>
+      </Button>
       {error && (
-        <p role="alert" className="text-sm text-red-600">
+        <p role="alert" className="text-sm text-destructive">
           {error}
         </p>
       )}
