@@ -16,9 +16,12 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
-// 削除ボタン＋確認ダイアログ（クライアント）。詳細ページ（Server Component）から分離。
+// 失敗時の共通文言（想定内失敗・想定外例外のどちらでも同じ）。
+const DELETE_ERROR = "削除に失敗しました。もう一度お試しください。";
+
+// 削除の確認ダイアログ（クライアント）。詳細ページ（Server Component）から分離。
 // 認可・実削除はサーバ（DELETE /api/bottles/[id] の where:{id,userId}）が担い、ここは UI と送信のみ。
-export function DeleteBottleButton({
+export function DeleteBottleDialog({
   bottleId,
   displayName,
 }: {
@@ -38,17 +41,20 @@ export function DeleteBottleButton({
         method: "DELETE",
       });
       if (!response.ok) {
-        // 想定内の失敗（401/404 等）はダイアログを開いたまま文言のみ表示。
-        setError("削除に失敗しました。もう一度お試しください。");
+        // 想定内の失敗（401/404 等）はダイアログを開いたまま文言表示し、再操作を許す。
+        setError(DELETE_ERROR);
+        setIsDeleting(false);
         return;
       }
+      // 成功：この後の遷移でアンマウントされるため isDeleting は戻さない
+      // （戻すと遷移前の一瞬ボタンが再有効化され、二重 DELETE→404 になる）。
       // 一覧は Server Component キャッシュのため、遷移＋refresh で削除を反映する。
       router.push("/bottles");
       router.refresh();
     } catch (e) {
+      // 想定外の例外（ネットワーク断など）だけログして再操作を許す。
       console.error(e);
-      setError("削除に失敗しました。もう一度お試しください。");
-    } finally {
+      setError(DELETE_ERROR);
       setIsDeleting(false);
     }
   }
