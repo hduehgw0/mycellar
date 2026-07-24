@@ -95,7 +95,9 @@ export function DeleteBottleDialog({
           通常の Button で制御し、失敗時はダイアログを保持する。
         */}
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isDeleting}>キャンセル</AlertDialogCancel>
+          <AlertDialogCancel disabled={isDeleting}>
+            キャンセル
+          </AlertDialogCancel>
           <Button
             variant="destructive"
             onClick={handleDelete}
