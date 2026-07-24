@@ -25,7 +25,7 @@ export default async function BottlesPage() {
       </Button>
 
       {bottles.length === 0 ? (
-        <p className="rounded-md border border-dashed border-gray-300 px-4 py-10 text-center text-gray-500">
+        <p className="rounded-md border border-dashed px-4 py-10 text-center text-muted-foreground">
           まだ登録がありません
         </p>
       ) : (
