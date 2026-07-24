@@ -13,6 +13,7 @@ export function LoginButton() {
   return (
     <div className="w-full">
       <Button
+        type="button"
         variant="outline"
         className="w-full"
         disabled={pending}
