@@ -39,3 +39,29 @@ export async function PATCH(
 
   return NextResponse.json({ ok: true });
 }
+
+export async function DELETE(
+  _request: Request,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  const session = await getSession();
+  if (!session) {
+    return NextResponse.json({ error: "ログインが必要です" }, { status: 401 });
+  }
+
+  const { id } = await params;
+  // 認可：where に userId を含めることで他人のボトルは削除できない。
+  // deleteMany は非一意フィルタで userId を AND でき、件数を返すため 404 判定に使える
+  // （所有権チェックと削除を 1 クエリでアトミックに。id が一意なので一致は最大 1 件）。
+  const { count } = await prisma.bottle.deleteMany({
+    where: { id, userId: session.user.id },
+  });
+  if (count === 0) {
+    return NextResponse.json(
+      { error: "ボトルが見つかりません" },
+      { status: 404 },
+    );
+  }
+
+  return NextResponse.json({ ok: true });
+}

@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { requireSession } from "@/lib/session";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { DeleteBottleButton } from "./delete-bottle-button";
 import { getOwnedBottle } from "./get-owned-bottle";
 
 export default async function BottleDetailPage({
@@ -52,9 +53,17 @@ export default async function BottleDetailPage({
         ))}
       </dl>
 
-      <Button asChild className="w-fit">
-        <Link href={`/bottles/${bottle.id}/edit`}>編集する</Link>
-      </Button>
+      <div className="flex gap-2">
+        <Button asChild className="w-fit">
+          <Link href={`/bottles/${bottle.id}/edit`}>編集する</Link>
+        </Button>
+        <DeleteBottleButton
+          bottleId={bottle.id}
+          displayName={
+            bottle.age ? `${bottle.name} ${bottle.age}年` : bottle.name
+          }
+        />
+      </div>
     </main>
   );
 }
