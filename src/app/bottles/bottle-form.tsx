@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, type DefaultValues } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import type { z } from "zod";
 import { bottleSchema, REGIONS } from "@/lib/schemas/bottle";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -23,52 +23,59 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 
+// フォームの入力／出力型（登録・編集で共有）。onSubmit は zod 変換後の値を受け取る。
+export type BottleFormInput = z.input<typeof bottleSchema>;
+export type BottleFormValues = z.output<typeof bottleSchema>;
+
 // 数値入力：空欄は「未入力」として undefined を渡す（zod 側で NAS／既定値の扱いを決める）。
 const asOptionalNumber = (value: unknown) =>
   value === "" || value == null ? undefined : Number(value);
 
-export function BottleForm() {
-  const router = useRouter();
+// 国の「未選択」用センチネル。Radix の SelectItem は空文字値を禁止するため、
+// 空でないダミー値を持たせ、選択時に null（＝クリア）へ正規化する（送信データには出さない）。
+const NONE = "__none__";
+
+// 登録・編集で共有するボトルフォーム（純粋な UI＋検証）。
+// 送信先・初期値・文言・遷移などの差分は、各ページのラッパーが props で渡す。
+export function BottleForm({
+  defaultValues,
+  submitLabel,
+  submittingLabel,
+  errorLabel,
+  onSubmit,
+}: {
+  defaultValues: DefaultValues<BottleFormInput>;
+  submitLabel: string;
+  submittingLabel: string;
+  errorLabel: string;
+  onSubmit: (data: BottleFormValues) => Promise<boolean>;
+}) {
   const [serverError, setServerError] = useState<string | null>(null);
   const {
     register,
     control,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm({
+  } = useForm<BottleFormInput, unknown, BottleFormValues>({
     resolver: zodResolver(bottleSchema),
-    defaultValues: {
-      name: "",
-      subRegion: "",
-      caskType: "",
-      isLimited: false,
-      quantity: 1,
-      note: "",
-    },
+    defaultValues,
   });
 
-  const onSubmit = handleSubmit(async (data) => {
+  const submit = handleSubmit(async (data) => {
     setServerError(null);
     try {
-      const response = await fetch("/api/bottles", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-      if (!response.ok) {
-        setServerError("登録に失敗しました。もう一度お試しください。");
-        return;
-      }
-      router.push("/bottles");
-      router.refresh();
-    } catch {
-      setServerError("登録に失敗しました。もう一度お試しください。");
+      // 想定内の失敗（サーバが !ok）は false が返る＝文言のみ。想定外の例外だけ catch でログする。
+      const ok = await onSubmit(data);
+      if (!ok) setServerError(errorLabel);
+    } catch (error) {
+      console.error(error);
+      setServerError(errorLabel);
     }
   });
 
   return (
     <form
-      onSubmit={onSubmit}
+      onSubmit={submit}
       noValidate
       // 自動補完抑止の保険（Chrome の住所サジェストはこれを無視するため、本対策は銘柄名・地域の属性側）。
       autoComplete="off"
@@ -104,11 +111,19 @@ export function BottleForm() {
             control={control}
             name="region"
             render={({ field }) => (
-              <Select value={field.value ?? ""} onValueChange={field.onChange}>
+              <Select
+                // null のときは「未選択」項目（NONE）を選択状態にする（プレースホルダではなくチェックを付ける）。
+                value={field.value ?? NONE}
+                onValueChange={(value) =>
+                  field.onChange(value === NONE ? null : value)
+                }
+              >
                 <SelectTrigger id="region">
                   <SelectValue placeholder="未選択" />
                 </SelectTrigger>
                 <SelectContent>
+                  {/* 「未選択」で国をクリアできる（センチネル→null に正規化）。 */}
+                  <SelectItem value={NONE}>未選択</SelectItem>
                   {REGIONS.map((region) => (
                     <SelectItem key={region} value={region}>
                       {region}
@@ -199,7 +214,7 @@ export function BottleForm() {
         )}
 
         <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "登録中…" : "登録する"}
+          {isSubmitting ? submittingLabel : submitLabel}
         </Button>
       </FieldGroup>
     </form>
