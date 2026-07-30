@@ -45,9 +45,9 @@
 | 静的           | ESLint / Prettier / TS strict（上記「コードスタイル」） | —          | 常時       |
 | 単体           | zod スキーマ、集計・判定などの純ロジック                | Vitest     | 実装と併走 |
 | 結合（最重要） | Route Handler：検証 → 認可（自分の `userId` のみ）→ DB  | Vitest     | 実装と併走 |
-| E2E            | ログイン→登録→一覧→編集→削除→グラフ の主要導線 1 本     | Playwright | 第 4 週    |
+| E2E            | ログイン→登録→一覧→編集→削除→グラフ の主要導線 1 本     | Playwright | フェーズ 4 |
 
-> E2E ランナー（Playwright）の導入は別 Issue（第 4 週）。
+> E2E ランナー（Playwright）の導入は別 Issue（フェーズ 4）。
 
 ## Issue 起票
 
@@ -83,7 +83,8 @@ pnpm install
 pnpm dlx vercel link            # 初回のみ：Vercel プロジェクトに紐付け
 pnpm dlx vercel env pull .env   # DATABASE_URL などを .env に書き出す
 
-# 3. 環境変数（認証）：AUTH_ 系を .env に手動で追記（項目は .env.example 参照）
+# 3. 環境変数（認証）：Better Auth 系を .env に手動で追記（項目は .env.example 参照）
+#    GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET / BETTER_AUTH_SECRET / BETTER_AUTH_URL
 
 # 4. DB マイグレーション
 pnpm prisma migrate dev
@@ -94,12 +95,15 @@ pnpm dev
 
 ## プルリクエスト
 
-- PR 前に必ず通す：
+- PR 前に必ず通す（**CI が実行するものと同じ 4 つ**）：
 
 ```bash
-pnpm lint    # ESLint
-pnpm test    # Vitest（単体・結合）
-pnpm build   # 型エラー含めビルドが通るか
+pnpm lint          # ESLint
+pnpm format:check  # Prettier の差分（落ちたら pnpm format で直す）
+pnpm typecheck     # tsc --noEmit
+pnpm test          # Vitest（単体・結合）
 ```
+
+> `pnpm build` は CI では実行しない（ビルドは Vercel 側で走る）。
 
 - PR は `gh pr create` で作成する。本文テンプレート（`.github/pull_request_template.md`）が自動適用されるので、Issue の受け入れ条件をコピーしてセルフチェックする。
