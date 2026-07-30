@@ -29,7 +29,6 @@
 
 - **シンプルで意味論的な HTML**：過剰な `div` ラッパーのネストを避け、可能な限りシンプルで無駄のない構造にする。
 - **最低限のスタイリング**：shadcn/ui と HTML 要素のデフォルトスタイルを最大限に活かす。マジックナンバーを避け、手動の独自 Tailwind クラスは必要最低限に抑え、保守性を優先する。
-- **モバイルファースト**で組む。
 
 ## テスト方針
 
@@ -40,14 +39,12 @@
 - **Testing Trophy** を採用（静的 → 単体 → 結合 → E2E）。各層の比重はコスト対効果とプロジェクトの状況で調整する（本プロジェクトは結合を厚く、E2E は主要導線のみ）。
 - カバレッジの数値目標は追わない（数合わせのテストは書かない）。
 
-| レベル         | 対象                                                    | ツール     | 時期       |
-| -------------- | ------------------------------------------------------- | ---------- | ---------- |
-| 静的           | ESLint / Prettier / TS strict（上記「コードスタイル」） | —          | 常時       |
-| 単体           | zod スキーマ、集計・判定などの純ロジック                | Vitest     | 実装と併走 |
-| 結合（最重要） | Route Handler：検証 → 認可（自分の `userId` のみ）→ DB  | Vitest     | 実装と併走 |
-| E2E            | ログイン→登録→一覧→編集→削除→グラフ の主要導線 1 本     | Playwright | 第 4 週    |
-
-> E2E ランナー（Playwright）の導入は別 Issue（第 4 週）。
+| レベル         | 対象                                                                                               | ツール     | 時期       |
+| -------------- | -------------------------------------------------------------------------------------------------- | ---------- | ---------- |
+| 静的           | ESLint / Prettier / TS strict（上記「コードスタイル」）                                            | —          | 常時       |
+| 単体           | zod スキーマ、集計・判定などの純ロジック                                                           | Vitest     | 実装と併走 |
+| 結合（最重要） | Route Handler：検証 → 認可（自分の `userId` のみ）→ DB（これは一例であり要するに最重要箇所が対象） | Vitest     | 実装と併走 |
+| E2E            | ログインから主要な操作を通す導線 1 本                                                              | Playwright | フェーズ 4 |
 
 ## Issue 起票
 
@@ -73,33 +70,17 @@
   - 例：`feat: ボトル登録フォームを追加`
 - 関連 Issue は本文か末尾で参照する（例：`Closes #12`）。
 
-## セットアップ
-
-```bash
-# 1. 依存をインストール
-pnpm install
-
-# 2. 環境変数（DB）：Vercel の Neon 統合から取得
-pnpm dlx vercel link            # 初回のみ：Vercel プロジェクトに紐付け
-pnpm dlx vercel env pull .env   # DATABASE_URL などを .env に書き出す
-
-# 3. 環境変数（認証）：AUTH_ 系を .env に手動で追記（項目は .env.example 参照）
-
-# 4. DB マイグレーション
-pnpm prisma migrate dev
-
-# 5. 開発サーバ起動
-pnpm dev
-```
-
 ## プルリクエスト
 
-- PR 前に必ず通す：
+- PR 前に必ず通す（**CI が実行するものと同じ 4 つ**）：
 
 ```bash
-pnpm lint    # ESLint
-pnpm test    # Vitest（単体・結合）
-pnpm build   # 型エラー含めビルドが通るか
+pnpm lint          # ESLint
+pnpm format:check  # Prettier の差分（落ちたら pnpm format で直す）
+pnpm typecheck     # tsc --noEmit
+pnpm test          # Vitest（単体・結合）
 ```
+
+> `pnpm build` は CI では実行しない（ビルドは Vercel 側で走る）。
 
 - PR は `gh pr create` で作成する。本文テンプレート（`.github/pull_request_template.md`）が自動適用されるので、Issue の受け入れ条件をコピーしてセルフチェックする。

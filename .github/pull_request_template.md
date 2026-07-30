@@ -22,8 +22,9 @@
 ## 動作確認
 
 - [ ] `pnpm lint` が通る
+- [ ] `pnpm format:check` が通る
+- [ ] `pnpm typecheck` が通る
 - [ ] `pnpm test` が通る
-- [ ] `pnpm build` が通る
 - [ ] モバイル幅で表示が崩れない
 
 <!-- 必要ならスクリーンショット / GIF を貼る。

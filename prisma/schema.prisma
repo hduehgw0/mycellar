@@ -12,33 +12,48 @@ datasource db {
   provider = "postgresql"
 }
 
+/// アプリの利用者。Better Auth の要求スキーマに従う（better-auth CLI 生成・手設計しない → ADR-0010）。
 model User {
   id            String    @id @default(cuid())
+  /// Google から取得。
   name          String?
+  /// Google から取得。
   email         String?   @unique
+  /// Better Auth が要求。Google OAuth では実質未使用だが削らない。
   emailVerified Boolean   @default(false)
+  /// Google のプロフィール画像 URL。
   image         String?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   bottles       Bottle[]
   sessions      Session[]
   accounts      Account[]
-  // Better Auth の要求スキーマに従う（better-auth CLI 生成・手設計しない → ADR-0010）。
 
   @@map("user")
 }
 
+/// 所有しているウイスキー 1 種類。行の粒度の定義は docs/data-model.md を参照。
 model Bottle {
   id        String   @id @default(cuid())
+  /// 所有者。書き込み時はセッションから設定し、リクエストボディの値は使わない。
   userId    String
+  /// User を削除すると、そのユーザーのボトルも削除される。
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  name      String // 銘柄名（必須）
-  region    String? // 国（固定リスト選択式。選択肢は zod 側で管理）
-  subRegion String? // 地域（アイラ等・任意）
-  age       Int? // 年数（null = NAS または未入力）
-  caskType  String? // 樽
+  /// 銘柄名。唯一の必須項目。
+  name      String
+  /// 産地。固定リスト選択式（表記ゆれ防止）。選択肢は zod の REGIONS で管理し、追加にマイグレーションは不要。
+  region    String?
+  /// 地域（アイラ／スペイサイド等）。region が選ばれている前提の任意項目で、地域だけの入力はしない。
+  subRegion String?
+  /// 年数。空欄は NAS（年数表記なし）として扱う。未入力と NAS は区別しない。
+  age       Int?
+  /// 樽（シェリー、バーボン樽 等）。
+  caskType  String?
+  /// 限定版フラグ。
   isLimited Boolean  @default(false)
+  /// 同一物の所持本数（1 以上）。同じ物が増えたら行は増やさず、ここを足す。
   quantity  Int      @default(1)
+  /// メモ。この種類についての記録であって、1 本ごとの記録ではない。同一性の判定には含めない。
   note      String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -47,6 +62,7 @@ model Bottle {
   @@map("bottle")
 }
 
+/// Better Auth が要求する認証モデル（手設計しない → ADR-0010）。
 model Session {
   id        String   @id
   expiresAt DateTime
@@ -63,6 +79,7 @@ model Session {
   @@map("session")
 }
 
+/// Better Auth が要求する認証モデル（手設計しない → ADR-0010）。
 model Account {
   id                    String    @id
   accountId             String
@@ -83,6 +100,7 @@ model Account {
   @@map("account")
 }
 
+/// Better Auth が要求する認証モデル（手設計しない → ADR-0010）。
 model Verification {
   id         String   @id
   identifier String
