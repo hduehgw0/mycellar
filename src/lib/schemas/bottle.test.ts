@@ -27,7 +27,7 @@ describe("bottleSchema", () => {
     expect(result.success).toBe(false);
   });
 
-  it("固定リストにない国は通らない", () => {
+  it("固定リストにない産地は通らない", () => {
     const result = bottleSchema.safeParse({ name: "山崎", region: "月" });
     expect(result.success).toBe(false);
   });
