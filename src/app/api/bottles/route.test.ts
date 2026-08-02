@@ -1,16 +1,25 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { POST } from "./route";
+import { Prisma, type Bottle } from "@/generated/prisma/client";
 import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 
 vi.mock("@/lib/session", () => ({ getSession: vi.fn() }));
-vi.mock("@/lib/prisma", () => ({ prisma: { bottle: { create: vi.fn() } } }));
+vi.mock("@/lib/prisma", () => ({
+  prisma: { bottle: { create: vi.fn(), findUnique: vi.fn() } },
+}));
 
 type Session = NonNullable<Awaited<ReturnType<typeof getSession>>>;
-type Bottle = Awaited<ReturnType<typeof prisma.bottle.create>>;
 
 const session = { user: { id: "user_me" } } as unknown as Session;
+
+const existing = { id: "bottle_existing", name: "山崎" } as Bottle;
+
+const duplicateError = new Prisma.PrismaClientKnownRequestError("duplicate", {
+  code: "P2002",
+  clientVersion: "test",
+});
 
 function post(body: unknown) {
   return POST(
@@ -26,7 +35,8 @@ beforeEach(() => {
   vi.mocked(getSession).mockResolvedValue(session);
   vi.mocked(prisma.bottle.create)
     .mockReset()
-    .mockResolvedValue({ id: "bottle_1" } as unknown as Bottle);
+    .mockResolvedValue({ id: "bottle_1" } as Bottle);
+  vi.mocked(prisma.bottle.findUnique).mockReset().mockResolvedValue(existing);
 });
 
 describe("POST /api/bottles", () => {
@@ -63,7 +73,20 @@ describe("POST /api/bottles", () => {
         quantity: 2,
         isLimited: false,
         userId: "user_me",
+        identityKey: expect.any(String),
       },
+    });
+  });
+
+  it("同じ物を登録しようとすると 409 で、既存のボトルを返す", async () => {
+    vi.mocked(prisma.bottle.create).mockRejectedValue(duplicateError);
+
+    const response = await post({ name: "山崎", age: 12 });
+
+    expect(response.status).toBe(409);
+    // クライアントはこの id で詳細へ辿る。
+    expect(await response.json()).toMatchObject({
+      bottle: { id: "bottle_existing" },
     });
   });
 

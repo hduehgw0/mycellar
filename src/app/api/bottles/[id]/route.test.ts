@@ -1,17 +1,27 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { DELETE, PATCH } from "./route";
+import { Prisma, type Bottle } from "@/generated/prisma/client";
 import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 
 vi.mock("@/lib/session", () => ({ getSession: vi.fn() }));
 vi.mock("@/lib/prisma", () => ({
-  prisma: { bottle: { updateMany: vi.fn(), deleteMany: vi.fn() } },
+  prisma: {
+    bottle: { updateMany: vi.fn(), deleteMany: vi.fn(), findUnique: vi.fn() },
+  },
 }));
 
 type Session = NonNullable<Awaited<ReturnType<typeof getSession>>>;
 
 const session = { user: { id: "user_me" } } as unknown as Session;
+
+const existing = { id: "bottle_existing", name: "山崎" } as Bottle;
+
+const duplicateError = new Prisma.PrismaClientKnownRequestError("duplicate", {
+  code: "P2002",
+  clientVersion: "test",
+});
 
 function patch(id: string, body: unknown) {
   return PATCH(
@@ -39,6 +49,7 @@ beforeEach(() => {
   vi.mocked(prisma.bottle.deleteMany)
     .mockReset()
     .mockResolvedValue({ count: 1 });
+  vi.mocked(prisma.bottle.findUnique).mockReset().mockResolvedValue(existing);
 });
 
 describe("PATCH /api/bottles/[id]", () => {
@@ -72,7 +83,24 @@ describe("PATCH /api/bottles/[id]", () => {
     expect(response.status).toBe(200);
     expect(prisma.bottle.updateMany).toHaveBeenCalledWith({
       where: { id: "bottle_1", userId: "user_me" },
-      data: { name: "山崎", quantity: 2, isLimited: false },
+      data: {
+        name: "山崎",
+        quantity: 2,
+        isLimited: false,
+        identityKey: expect.any(String),
+      },
+    });
+  });
+
+  it("編集で別のボトルと同じ物になると 409 で、既存のボトルを返す", async () => {
+    vi.mocked(prisma.bottle.updateMany).mockRejectedValue(duplicateError);
+
+    const response = await patch("bottle_1", { name: "山崎", age: 12 });
+
+    expect(response.status).toBe(409);
+    // クライアントはこの id で詳細へ辿る。
+    expect(await response.json()).toMatchObject({
+      bottle: { id: "bottle_existing" },
     });
   });
 

@@ -58,3 +58,5 @@ export const bottleSchema = z.object({
     .default(1),
   note: optionalText,
 });
+
+export type BottleInput = z.output<typeof bottleSchema>;
