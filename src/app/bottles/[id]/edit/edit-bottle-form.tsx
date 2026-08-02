@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import type { Bottle } from "@/generated/prisma/client";
 import { REGIONS } from "@/lib/schemas/bottle";
 import { BottleForm } from "../../bottle-form";
+import { showDuplicateBottleToast } from "../../duplicate-bottle-toast";
 
 // 編集用ラッパー：共有フォームに既存値・文言・送信処理（PATCH）を渡す。
 export function EditBottleForm({ bottle }: { bottle: Bottle }) {
@@ -40,10 +41,16 @@ export function EditBottleForm({ bottle }: { bottle: Bottle }) {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
         });
-        if (!response.ok) return false;
+        // 重複は詳細へ戻さず、衝突した既存のボトルを示して入力内容を残す。
+        if (response.status === 409) {
+          const { bottle: existing } = await response.json();
+          showDuplicateBottleToast(existing);
+          return "duplicate";
+        }
+        if (!response.ok) return "failed";
         router.push(`/bottles/${bottle.id}`);
         router.refresh();
-        return true;
+        return "ok";
       }}
     />
   );

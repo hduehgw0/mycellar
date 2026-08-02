@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { BottleForm } from "../bottle-form";
+import { showDuplicateBottleToast } from "../duplicate-bottle-toast";
 
 // 登録用ラッパー：共有フォームに初期値・文言・送信処理（POST）を渡す。
 export function CreateBottleForm() {
@@ -26,10 +27,16 @@ export function CreateBottleForm() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(data),
         });
-        if (!response.ok) return false;
+        // 重複は一覧へ飛ばさず、既存のボトルを示して入力内容を残す。
+        if (response.status === 409) {
+          const { bottle } = await response.json();
+          showDuplicateBottleToast(bottle);
+          return "duplicate";
+        }
+        if (!response.ok) return "failed";
         router.push("/bottles");
         router.refresh();
-        return true;
+        return "ok";
       }}
     />
   );

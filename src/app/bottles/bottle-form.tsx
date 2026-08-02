@@ -27,6 +27,10 @@ import { Textarea } from "@/components/ui/textarea";
 export type BottleFormInput = z.input<typeof bottleSchema>;
 export type BottleFormValues = z.output<typeof bottleSchema>;
 
+// 送信結果。重複（409）は入力の誤りではなくトーストで既存ボトルを示すため、
+// フォーム内の文言を出す "failed" とは分ける。
+export type SubmitOutcome = "ok" | "duplicate" | "failed";
+
 // 数値入力：空欄は「未入力」として undefined を渡す（zod 側で NAS／既定値の扱いを決める）。
 const asOptionalNumber = (value: unknown) =>
   value === "" || value == null ? undefined : Number(value);
@@ -48,7 +52,7 @@ export function BottleForm({
   submitLabel: string;
   submittingLabel: string;
   errorLabel: string;
-  onSubmit: (data: BottleFormValues) => Promise<boolean>;
+  onSubmit: (data: BottleFormValues) => Promise<SubmitOutcome>;
 }) {
   const [serverError, setServerError] = useState<string | null>(null);
   const {
@@ -64,9 +68,9 @@ export function BottleForm({
   const submit = handleSubmit(async (data) => {
     setServerError(null);
     try {
-      // 想定内の失敗（サーバが !ok）は false が返る＝文言のみ。想定外の例外だけ catch でログする。
-      const ok = await onSubmit(data);
-      if (!ok) setServerError(errorLabel);
+      // 想定内の失敗は "failed" が返る＝文言のみ。想定外の例外だけ catch でログする。
+      // "duplicate" は呼び出し側がトーストで知らせるので、ここでは何も出さない。
+      if ((await onSubmit(data)) === "failed") setServerError(errorLabel);
     } catch (error) {
       console.error(error);
       setServerError(errorLabel);
