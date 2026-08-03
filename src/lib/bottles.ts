@@ -1,7 +1,7 @@
 import { Prisma, type Bottle } from "@/generated/prisma/client";
 import { buildIdentityKey } from "@/lib/bottle-identity";
 import { prisma } from "@/lib/prisma";
-import type { BottleInput } from "@/lib/schemas/bottle";
+import type { BottleValues } from "@/lib/schemas/bottle";
 
 // ボトルの書き込みはここだけを通す。Route Handler から Prisma を直接呼ぶと
 // 判定キーの設定漏れが起きるため（登録と編集で同じキーになることを 1 か所で保証する）。
@@ -29,7 +29,7 @@ async function findByIdentityKey(userId: string, identityKey: string) {
 
 export async function createBottle(
   userId: string,
-  input: BottleInput,
+  input: BottleValues,
 ): Promise<CreateResult> {
   const identityKey = buildIdentityKey(input);
 
@@ -51,7 +51,7 @@ export async function createBottle(
 export async function updateBottle(
   userId: string,
   id: string,
-  input: BottleInput,
+  input: BottleValues,
 ): Promise<UpdateResult> {
   const identityKey = buildIdentityKey(input);
 

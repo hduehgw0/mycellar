@@ -59,4 +59,7 @@ export const bottleSchema = z.object({
   note: optionalText,
 });
 
-export type BottleInput = z.output<typeof bottleSchema>;
+// bottleSchema の 2 つの顔。zod は検証時に値を変換するので、入れる前と出た後で型が違う。
+// 差が出るのは .default() を持つ 2 つだけ（quantity・isLimited が必須になる）。
+export type BottleInput = z.input<typeof bottleSchema>; // 変換前：フォームが持つ値
+export type BottleValues = z.output<typeof bottleSchema>; // 変換後：検証を通った値
