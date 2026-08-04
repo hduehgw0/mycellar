@@ -22,8 +22,10 @@ export default function RootLayout({
       <body>
         {children}
         {/* トーストの表示先。ここに無いと toast() が無反応になるが型も lint も通るため、
-            レイアウトを組み替えるときも下げない（→ #59）。 */}
-        <Toaster />
+            レイアウトを組み替えるときも下げない（→ #59）。
+            位置はモックに合わせて上部（sonner の既定は bottom-right）。下部は送信ボタンと
+            タブバー（#59）の定位置で、重ねると操作を塞ぐ。 */}
+        <Toaster position="top-center" />
       </body>
     </html>
   );
