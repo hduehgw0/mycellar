@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { Prisma, type Bottle } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import { createBottle, updateBottle } from "@/lib/bottles";
-import { bottleSchema } from "@/lib/schemas/bottle";
+import { bottleSchema, bottleUpdateSchema } from "@/lib/schemas/bottle";
 
 vi.mock("@/lib/prisma", () => ({
   prisma: {
@@ -20,6 +20,20 @@ const duplicateError = new Prisma.PrismaClientKnownRequestError("duplicate", {
 
 const input = (over: Record<string, unknown> = {}) =>
   bottleSchema.parse({ name: "山崎", age: 12, ...over });
+
+// 更新は全項目そろっていることが前提（空欄は null）。
+const updateInput = (over: Record<string, unknown> = {}) =>
+  bottleUpdateSchema.parse({
+    name: "山崎",
+    region: null,
+    subRegion: null,
+    age: 12,
+    caskType: null,
+    isLimited: false,
+    quantity: 1,
+    note: null,
+    ...over,
+  });
 
 // data に渡された identityKey を取り出す。
 const keyPassedTo = (fn: { mock: { calls: unknown[][] } }) =>
@@ -75,7 +89,7 @@ describe("createBottle", () => {
 
 describe("updateBottle", () => {
   it("判定キーを付け直して更新する", async () => {
-    const result = await updateBottle("user_me", "bottle_1", input());
+    const result = await updateBottle("user_me", "bottle_1", updateInput());
 
     expect(result).toEqual({ status: "updated" });
     expect(prisma.bottle.updateMany).toHaveBeenCalledWith({
@@ -88,7 +102,7 @@ describe("updateBottle", () => {
   it("自分のボトルが無ければ notFound", async () => {
     vi.mocked(prisma.bottle.updateMany).mockResolvedValue({ count: 0 });
 
-    const result = await updateBottle("user_me", "bottle_1", input());
+    const result = await updateBottle("user_me", "bottle_1", updateInput());
 
     expect(result).toEqual({ status: "notFound" });
   });
@@ -96,7 +110,7 @@ describe("updateBottle", () => {
   it("編集で別のボトルと同じ物になったら衝突相手を返す", async () => {
     vi.mocked(prisma.bottle.updateMany).mockRejectedValue(duplicateError);
 
-    const result = await updateBottle("user_me", "bottle_1", input());
+    const result = await updateBottle("user_me", "bottle_1", updateInput());
 
     expect(result).toEqual({ status: "duplicate", bottle: existing });
   });
@@ -105,7 +119,7 @@ describe("updateBottle", () => {
 // 登録と編集でキーの作り方がずれると、編集した瞬間に重複が素通りする。
 it("同じ入力なら登録と編集で同じ判定キーになる", async () => {
   await createBottle("user_me", input());
-  await updateBottle("user_me", "bottle_1", input());
+  await updateBottle("user_me", "bottle_1", updateInput());
 
   expect(keyPassedTo(vi.mocked(prisma.bottle.create))).toBe(
     keyPassedTo(vi.mocked(prisma.bottle.updateMany)),

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { updateBottle } from "@/lib/bottles";
-import { bottleSchema } from "@/lib/schemas/bottle";
+import { bottleUpdateSchema } from "@/lib/schemas/bottle";
 
 export async function PATCH(
   request: Request,
@@ -15,7 +15,8 @@ export async function PATCH(
 
   const body = await request.json().catch(() => null);
   // クライアント側バリデーションは信用せず、共有スキーマでサーバでも再検証する。
-  const parsed = bottleSchema.safeParse(body);
+  // 更新は全項目そろっていることも要求する（空欄は null。→ ADR-0011）。
+  const parsed = bottleUpdateSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json(
       { error: "入力内容に誤りがあります" },

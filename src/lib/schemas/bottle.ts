@@ -63,3 +63,7 @@ export const bottleSchema = z.object({
 // 差が出るのは .default() を持つ 2 つだけ（quantity・isLimited が必須になる）。
 export type BottleInput = z.input<typeof bottleSchema>; // 変換前：フォームが持つ値
 export type BottleValues = z.output<typeof bottleSchema>; // 変換後：検証を通った値
+
+
+export const bottleUpdateSchema = bottleSchema.required();
+export type BottleUpdateValues = z.output<typeof bottleUpdateSchema>;
