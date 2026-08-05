@@ -64,6 +64,5 @@ export const bottleSchema = z.object({
 export type BottleInput = z.input<typeof bottleSchema>; // 変換前：フォームが持つ値
 export type BottleValues = z.output<typeof bottleSchema>; // 変換後：検証を通った値
 
-
 export const bottleUpdateSchema = bottleSchema.required();
 export type BottleUpdateValues = z.output<typeof bottleUpdateSchema>;
