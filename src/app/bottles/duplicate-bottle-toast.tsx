@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { ChevronRightIcon } from "lucide-react";
 import { toast } from "sonner";
@@ -6,21 +8,31 @@ import { BottlePlaceholder } from "@/components/illustrations/bottle-placeholder
 import { Badge } from "@/components/ui/badge";
 import type { Bottle } from "@/generated/prisma/client";
 
-// 重複時に返る既存ボトル（409 のレスポンスに入る分だけ）。
+// 409 のレスポンスはボトル行をそのまま返す。ここで使う分だけを取る。
 type ExistingBottle = Pick<
   Bottle,
   "id" | "name" | "age" | "caskType" | "isLimited"
 >;
 
+const TOAST_ID = "duplicate-bottle";
+
+const TOAST_DURATION_MS = 6_000;
+
+export function dismissDuplicateBottleToast() {
+  toast.dismiss(TOAST_ID);
+}
+
 // 登録・編集のどちらで重複しても、既存のボトルを示して詳細へ辿れるようにする
 // （その場で本数は加算しない → docs/requirements.md「5. スコープ」保留）。
 export function showDuplicateBottleToast(bottle: ExistingBottle) {
   toast.info("このボトルは既に登録されています", {
+    id: TOAST_ID,
     closeButton: true,
+    duration: TOAST_DURATION_MS,
     description: (
       <Link
         href={`/bottles/${bottle.id}`}
-        onClick={() => toast.dismiss()}
+        onClick={dismissDuplicateBottleToast}
         className="flex items-center gap-3 rounded-lg bg-muted p-3 text-foreground"
       >
         <BottlePlaceholder className="h-10 w-auto shrink-0" />
