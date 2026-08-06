@@ -25,6 +25,21 @@ describe("normalizeText", () => {
     expect(normalizeText("")).toBe("");
   });
 
+  // Web や PDF からのコピペで混入する。残すと見た目が同じ 2 行を別物として登録できる。
+  it.each([
+    ["ZWSP", "​"],
+    ["ソフトハイフン", "­"],
+    ["ZWNJ", "‌"],
+    ["BOM", "﻿"],
+    ["異体字セレクタ", "︀"],
+  ])("幅を持たない %s を取り除く", (_name, invisible) => {
+    expect(normalizeText(`山崎${invisible}`)).toBe("山崎");
+  });
+
+  it("区切り文字は取り除かない（Cc なので不可視文字の対象外）", () => {
+    expect(normalizeText(SEP)).toBe(SEP);
+  });
+
   // 小文字化を先にすると NFKC が後から大文字を作って残る。
   it("NFKC を小文字化より先に掛ける", () => {
     expect(normalizeText("ᴬ")).toBe("a");
@@ -41,6 +56,16 @@ describe("buildIdentityKey", () => {
         isLimited: true,
       }),
     ).toBe(["山崎", "12", "シェリー", "1"].join(SEP));
+  });
+
+  // 見た目が同じなら同じキーになる、が正規化の目的。
+  it("不可視文字が混ざっても同じキーになる", () => {
+    expect(buildIdentityKey({ name: "山崎​", age: 12 })).toBe(
+      buildIdentityKey({ name: "山崎", age: 12 }),
+    );
+    expect(buildIdentityKey({ name: "山崎", caskType: "シェリー­" })).toBe(
+      buildIdentityKey({ name: "山崎", caskType: "シェリー" }),
+    );
   });
 
   it("表記ゆれが違っても同じキーになる", () => {

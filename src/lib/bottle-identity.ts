@@ -4,13 +4,11 @@
 // 混入は共有スキーマ（src/lib/schemas/bottle.ts）で弾く。
 export const IDENTITY_KEY_SEPARATOR = "\u001F";
 
-// 表記ゆれを吸収する。#61（傾向ページの銘柄数）は判定キーではなくこの関数だけを使う。
-//
-// 順序は NFKC → 小文字化 → 空白除去 で固定する。小文字化を先にすると NFKC が
-// 後から大文字を作って残る（例：「ᴬ」は NFKC 先で "a"、小文字先で "A"）。
-// toLocaleLowerCase は使わない（トルコ語ロケールで I → ı となり環境ごとに結果が変わる）。
 export function normalizeText(value: string): string {
-  return value.normalize("NFKC").toLowerCase().replace(/\s/gu, "");
+  return value
+    .normalize("NFKC")
+    .toLowerCase()
+    .replace(/[\s\p{Cf}\p{Default_Ignorable_Code_Point}]/gu, "");
 }
 
 type IdentityFields = {

@@ -24,10 +24,14 @@ describe("bottleSchema", () => {
     expect(bottleSchema.parse(input)).toEqual(input);
   });
 
-  it.each(["", "   "])("銘柄名が空（%j）なら通らない", (name) => {
-    const result = bottleSchema.safeParse({ name });
-    expect(result.success).toBe(false);
-  });
+  // 不可視文字だけの銘柄名は trim も min(1) も通り抜けるが、正規化すると空になる。
+  it.each(["", "   ", "　", "​", "­"])(
+    "銘柄名が実質空（%j）なら通らない",
+    (name) => {
+      const result = bottleSchema.safeParse({ name });
+      expect(result.success).toBe(false);
+    },
+  );
 
   it("固定リストにない産地は通らない", () => {
     const result = bottleSchema.safeParse({ name: "山崎", region: "月" });

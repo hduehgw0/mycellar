@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { IDENTITY_KEY_SEPARATOR } from "@/lib/bottle-identity";
+import { IDENTITY_KEY_SEPARATOR, normalizeText } from "@/lib/bottle-identity";
 
 // 産地の固定リスト（表記ゆれ防止・選択肢はここで一元管理 → docs/adr.md の ADR-0009）。
 // 5 大ウイスキーの産地。
@@ -41,6 +41,12 @@ export const bottleSchema = z.object({
     .string()
     .trim()
     .min(1, "銘柄名を入力してください")
+    // 不可視文字だけの銘柄名は trim も min(1) も通り抜けるが、正規化すると空になる。
+    // 判定キーの銘柄名が空の行を作らせない（一覧にも名前の無いカードが並ぶ）。
+    .refine(
+      (value) => normalizeText(value).length > 0,
+      "銘柄名を入力してください",
+    )
     .refine(hasNoSeparator, SEPARATOR_MESSAGE),
   region: z.enum(REGIONS).nullish(),
   subRegion: optionalText,
