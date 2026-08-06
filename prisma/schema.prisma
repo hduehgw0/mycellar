@@ -34,30 +34,35 @@ model User {
 
 /// 所有しているウイスキー 1 種類。行の粒度の定義は docs/data-model.md を参照。
 model Bottle {
-  id        String   @id @default(cuid())
+  id          String   @id @default(cuid())
   /// 所有者。書き込み時はセッションから設定し、リクエストボディの値は使わない。
-  userId    String
+  userId      String
   /// User を削除すると、そのユーザーのボトルも削除される。
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   /// 銘柄名。唯一の必須項目。
-  name      String
+  name        String
   /// 産地。固定リスト選択式（表記ゆれ防止）。選択肢は zod の REGIONS で管理し、追加にマイグレーションは不要。
-  region    String?
+  region      String?
   /// 地域（アイラ／スペイサイド等）。region が選ばれている前提の任意項目で、地域だけの入力はしない。
-  subRegion String?
+  subRegion   String?
   /// 年数。空欄は NAS（年数表記なし）として扱う。未入力と NAS は区別しない。
-  age       Int?
+  age         Int?
   /// 樽（シェリー、バーボン樽 等）。
-  caskType  String?
+  caskType    String?
   /// 限定版フラグ。
-  isLimited Boolean  @default(false)
+  isLimited   Boolean  @default(false)
   /// 同一物の所持本数（1 以上）。同じ物が増えたら行は増やさず、ここを足す。
-  quantity  Int      @default(1)
+  quantity    Int      @default(1)
   /// メモ。この種類についての記録であって、1 本ごとの記録ではない。同一性の判定には含めない。
-  note      String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  note        String?
+  /// 「同じ物」の判定キー。銘柄名・年数・樽・限定版を正規化して区切り文字でつないだ値
+  /// （組み立ては src/lib/bottle-identity.ts）。4 列に一意制約を張ると Postgres が NULL 同士を
+  /// 別の値として扱い効かないため、空欄を空文字にしたこの列で代用する。表現は変更不可。
+  identityKey String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
+  @@unique([userId, identityKey])
   @@index([userId])
   @@map("bottle")
 }

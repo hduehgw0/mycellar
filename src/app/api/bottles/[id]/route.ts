@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
-import { bottleSchema } from "@/lib/schemas/bottle";
+import { updateBottle } from "@/lib/bottles";
+import { bottleUpdateSchema } from "@/lib/schemas/bottle";
 
 export async function PATCH(
   request: Request,
@@ -14,7 +15,8 @@ export async function PATCH(
 
   const body = await request.json().catch(() => null);
   // クライアント側バリデーションは信用せず、共有スキーマでサーバでも再検証する。
-  const parsed = bottleSchema.safeParse(body);
+  // 更新は全項目そろっていることも要求する（空欄は null。→ ADR-0011）。
+  const parsed = bottleUpdateSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json(
       { error: "入力内容に誤りがあります" },
@@ -23,17 +25,20 @@ export async function PATCH(
   }
 
   const { id } = await params;
-  // 認可：where に userId を含めることで他人のボトルは更新できない。
-  // updateMany は非一意フィルタで userId を AND でき、件数を返すため 404 判定に使える
-  // （所有権チェックと更新を 1 クエリでアトミックに。id が一意なので一致は最大 1 件）。
-  const { count } = await prisma.bottle.updateMany({
-    where: { id, userId: session.user.id },
-    data: parsed.data,
-  });
-  if (count === 0) {
+  const result = await updateBottle(session.user.id, id, parsed.data);
+
+  if (result.status === "notFound") {
     return NextResponse.json(
       { error: "ボトルが見つかりません" },
       { status: 404 },
+    );
+  }
+
+  // 409：編集で別のボトルと同じ物になる場合。登録と同じ形で既存ボトルを返す。
+  if (result.status === "duplicate") {
+    return NextResponse.json(
+      { error: "同じボトルが既にあります", bottle: result.bottle },
+      { status: 409 },
     );
   }
 

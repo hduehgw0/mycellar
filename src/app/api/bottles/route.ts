@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/session";
-import { prisma } from "@/lib/prisma";
+import { createBottle } from "@/lib/bottles";
 import { bottleSchema } from "@/lib/schemas/bottle";
 
 export async function POST(request: Request) {
@@ -19,10 +19,16 @@ export async function POST(request: Request) {
     );
   }
 
-  // 認可：所有者はボディではなくセッションから決める（他人の userId を指定しても無視される）。
-  const bottle = await prisma.bottle.create({
-    data: { ...parsed.data, userId: session.user.id },
-  });
+  const result = await createBottle(session.user.id, parsed.data);
 
-  return NextResponse.json(bottle, { status: 201 });
+  // 409：入力の誤りではなく既存の状態との衝突なので 400 と分ける。
+  // 既存ボトルを返し、クライアントは詳細へ辿れるようにする。
+  if (result.status === "duplicate") {
+    return NextResponse.json(
+      { error: "同じボトルが既にあります", bottle: result.bottle },
+      { status: 409 },
+    );
+  }
+
+  return NextResponse.json(result.bottle, { status: 201 });
 }

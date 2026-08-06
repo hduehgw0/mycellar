@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Geist } from "next/font/google";
+import { Toaster } from "@/components/ui/sonner";
 import { cn } from "@/lib/utils";
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
@@ -18,7 +19,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ja" className={cn("font-sans", geist.variable)}>
-      <body>{children}</body>
+      <body>
+        {children}
+        {/* トーストの表示先。ここに無いと toast() が無反応になるが型も lint も通るため、
+            レイアウトを組み替えるときも下げない（→ #59）。
+            位置はモックに合わせて上部（sonner の既定は bottom-right）。下部は送信ボタンと
+            タブバー（#59）の定位置で、重ねると操作を塞ぐ。 */}
+        <Toaster position="top-center" />
+      </body>
     </html>
   );
 }
