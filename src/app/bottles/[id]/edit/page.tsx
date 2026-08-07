@@ -17,7 +17,7 @@ export default async function EditBottlePage({
 
   return (
     <>
-      <h1 className="text-xl font-bold">ボトルを編集</h1>
+      <h1 className="font-heading text-xl font-bold">ボトルを編集</h1>
       <EditBottleForm bottle={bottle} />
     </>
   );

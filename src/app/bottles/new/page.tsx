@@ -6,7 +6,7 @@ export default async function NewBottlePage() {
 
   return (
     <>
-      <h1 className="text-xl font-bold">ボトルを登録</h1>
+      <h1 className="font-heading text-xl font-bold">ボトルを登録</h1>
       <CreateBottleForm />
     </>
   );

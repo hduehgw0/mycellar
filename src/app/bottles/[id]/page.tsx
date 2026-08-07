@@ -38,7 +38,7 @@ export default async function BottleDetailPage({
       </Button>
 
       <header className="flex items-center gap-2">
-        <h1 className="text-xl font-bold">{title}</h1>
+        <h1 className="font-heading text-xl font-bold">{title}</h1>
         {bottle.isLimited && <Badge variant="secondary">限定版</Badge>}
       </header>
 
