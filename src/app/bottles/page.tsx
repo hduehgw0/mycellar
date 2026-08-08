@@ -16,7 +16,7 @@ export default async function BottlesPage() {
   return (
     <>
       <header className="flex items-center justify-between gap-4">
-        <h1 className="text-xl font-bold">ボトル一覧</h1>
+        <h1 className="font-heading text-xl font-bold">ボトル一覧</h1>
         <LogoutButton />
       </header>
 
