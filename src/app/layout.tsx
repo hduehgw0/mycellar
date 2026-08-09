@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { Shippori_Mincho, Zen_Kaku_Gothic_New } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
@@ -18,6 +18,11 @@ const heading = Shippori_Mincho({
   weight: ["600", "700"],
   variable: "--font-heading",
 });
+
+// タブバーがホームインジケータに重ならないよう env(safe-area-inset-bottom) を使うが、
+// Next.js の既定 viewport は width と initial-scale だけで viewport-fit を含まない。
+// これが無いと env() が 0 のままになり、対策したつもりで静かに効かなくなる（→ #59）。
+export const viewport: Viewport = { viewportFit: "cover" };
 
 export const metadata: Metadata = {
   title: "MyCellar",
