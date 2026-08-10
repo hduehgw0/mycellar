@@ -3,7 +3,6 @@ import { requireSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { LogoutButton } from "./logout-button";
 
 export default async function BottlesPage() {
   const session = await requireSession();
@@ -15,10 +14,7 @@ export default async function BottlesPage() {
 
   return (
     <>
-      <header className="flex items-center justify-between gap-4">
-        <h1 className="font-heading text-xl font-bold">ボトル一覧</h1>
-        <LogoutButton />
-      </header>
+      <h1 className="font-heading text-xl font-bold">ボトル一覧</h1>
 
       <Button asChild>
         <Link href="/bottles/new">ボトルを登録</Link>
