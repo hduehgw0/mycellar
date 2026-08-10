@@ -27,7 +27,7 @@ export function TabBar() {
       {/* バーの上で内容を背景に溶かすスクリム。バーより下に敷く。 */}
       <div
         aria-hidden
-        className="pointer-events-none fixed inset-x-0 bottom-0 z-10 h-36 bg-gradient-to-t from-background from-40% to-transparent"
+        className="pointer-events-none fixed inset-x-0 bottom-0 z-10 h-36 bg-linear-to-t from-background from-40% to-transparent"
       />
       <nav
         aria-label="メインナビゲーション"
