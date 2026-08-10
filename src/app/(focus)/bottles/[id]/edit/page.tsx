@@ -19,8 +19,6 @@ export default async function EditBottlePage({
 
   return (
     <>
-      {/* タブバーが出ない画面なので戻る導線を置く。直接開かれても効くよう Link にする
-          （history.back() だと履歴の無い人が詰む → #59）。 */}
       <Button asChild variant="ghost" size="sm" className="w-fit">
         <Link href={`/bottles/${bottle.id}`}>← 詳細へ</Link>
       </Button>
