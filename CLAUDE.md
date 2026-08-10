@@ -46,6 +46,6 @@
 | `docs/data-model.md`                                                             | データモデルに関するコンテクスト(メタデータ)                                                                                                                   |
 | `docs/adr.md`                                                                    | 意思決定記録（なぜその選択か）                                                                                                                                 |
 | `docs/roadmap.md`                                                                | ロードマップ＋マイルストーン                                                                                                                                   |
-| `docs/ui-mockups/`                                                               | MVP の UI モック 10 枚（＝「UI をモックに合わせる」の完了条件）。`assets/` はモックが使う SVG で**設計資料**（ここから import しない。実装時に `src/` へ移す） |
-| [Claude Design](https://claude.ai/design/p/e08aa5bb-5c5d-41ae-b16f-1455754fbe9f) | モックの**正本**。実値（配色・寸法・書体）は PNG から拾わずここから採る                                                                                        |
+| `docs/ui-mockups/`                                                               | MVP の UI モック。画面の完成形を確認するための設計資料 |
+| [Claude Design](https://claude.ai/design/p/e08aa5bb-5c5d-41ae-b16f-1455754fbe9f) | UIを詳細に確認するための資料。必要に応じて実際の値や表現を参照する                                                                                        |
 | `CONTRIBUTING.md`                                                                | 開発フロー・コードスタイル・PR                                                                                                                                 |
