@@ -9,11 +9,10 @@ export default function SectionsLayout({
   children: React.ReactNode;
 }) {
   return (
-    // <nav> は <main> の兄弟にする。グローバルなナビゲーションを <main> に入れると
-    // ランドマークとして誤りになる。
     <>
-      {/* 下余白 96px は正本の値（バー 82px ＋ 14px）。実機ではこれに安全領域を足す。 */}
-      <main className="mx-auto flex min-h-dvh max-w-md flex-col gap-6 px-6 pt-10 pb-[calc(6rem+env(safe-area-inset-bottom))]">
+      {/* 下余白はバーの高さ（globals.css の --spacing-tab-bar）＋ 実機の安全領域
+          ＋ 呼吸分。バーの高さを直に書くと、バー側を変えたとき静かにズレる。 */}
+      <main className="mx-auto flex min-h-dvh max-w-md flex-col gap-6 px-6 pt-10 pb-[calc(var(--spacing-tab-bar)+env(safe-area-inset-bottom)+--spacing(4))]">
         {children}
       </main>
       <TabBar />
