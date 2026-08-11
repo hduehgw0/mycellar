@@ -1,0 +1,2 @@
+<!-- 設計資料 docs/ui-mockups/assets/ からのコピー。線はテーマの primary の値を焼き込んである。 -->
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512"><g fill="none" stroke="#d59a55" stroke-width="30" stroke-linejoin="round" stroke-linecap="round"><path d="M224 146 V168 L186 246 V372 A34 34 0 0 0 220 406 H292 A34 34 0 0 0 326 372 V246 L288 168 V146 Z"></path><path d="M243 108 h26 a19 19 0 0 1 19 19 a19 19 0 0 1 -19 19 h-26 a19 19 0 0 1 -19 -19 a19 19 0 0 1 19 -19 Z"></path><path d="M186 284 c28 -20 52 12 74 17 c26 5 40 0 66 8"></path></g></svg>
