@@ -1,9 +1,0 @@
-<!--
-  プロダクトのシンボル（ウイスキーボトル）。512x512・角丸の正方形アイコン。
-  モック : 01-ログイン.png のロゴ
-  実装先 : ログイン画面のロゴ → フェーズ 3「UI をモックに合わせる」
-           ファビコン → 既存の src/app/favicon.ico を削除し src/app/icon.svg に置き換える（フェーズ 4「PWA化」）
-           PWA アイコン → public/icon-*.png（フェーズ 4「PWA化」）
-  注意   : これは設計資料。ここから import せず、実装時に src/ 側へ移す。
--->
-<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512"><rect width="512" height="512" rx="112" fill="#100d0b"></rect><g fill="none" stroke="#d59a55" stroke-width="30" stroke-linejoin="round" stroke-linecap="round"><path d="M224 146 V168 L186 246 V372 A34 34 0 0 0 220 406 H292 A34 34 0 0 0 326 372 V246 L288 168 V146 Z"></path><path d="M243 108 h26 a19 19 0 0 1 19 19 a19 19 0 0 1 -19 19 h-26 a19 19 0 0 1 -19 -19 a19 19 0 0 1 19 -19 Z"></path><path d="M186 284 c28 -20 52 12 74 17 c26 5 40 0 66 8"></path></g></svg>
