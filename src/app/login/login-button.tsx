@@ -1,18 +1,17 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { Google_Sans } from "next/font/google";
 import { authClient } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
+import googleG from "./google-g.svg";
 
 const LOGIN_ERROR = "ログインを開始できませんでした。もう一度お試しください。";
 
 // Google のブランドガイドラインが指定する書体（Google Sans Medium）。ラテン文字しか
 // 持たないので「Google」だけに当て、日本語はアプリの書体のままにする。
 const googleSans = Google_Sans({ subsets: ["latin"], weight: "500" });
-
-// モックのマーク。Google のブランド 4 色を 90 度ずつ配した輪で、公式の G ロゴではない。
-const GOOGLE_COLORS = ["#fbbc05", "#34a853", "#4285f4", "#ea4335"];
 
 export function LoginButton() {
   const [pending, setPending] = useState(false);
@@ -22,7 +21,8 @@ export function LoginButton() {
     <div>
       <Button
         type="button"
-        className="h-14 w-full gap-3 bg-foreground text-base text-background hover:bg-foreground/90"
+        // 白地はブランドガイドラインの指定（G ロゴは白の上に置く）。テーマの色ではない。
+        className="h-14 w-full gap-3 bg-white text-base text-background hover:bg-white/90"
         disabled={pending}
         onClick={async () => {
           setPending(true);
@@ -44,18 +44,7 @@ export function LoginButton() {
           }
         }}
       >
-        <svg viewBox="-10 -10 20 20" aria-hidden className="size-5">
-          {GOOGLE_COLORS.map((color, i) => (
-            <path
-              key={color}
-              d="M5.3 -5.3A7.5 7.5 0 0 1 5.3 5.3"
-              fill="none"
-              stroke={color}
-              strokeWidth="5"
-              transform={`rotate(${i * 90})`}
-            />
-          ))}
-        </svg>
+        <Image src={googleG} alt="" className="h-5 w-auto" />
         {pending ? (
           "リダイレクト中…"
         ) : (
