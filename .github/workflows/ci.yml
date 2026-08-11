@@ -39,8 +39,5 @@ jobs:
 
       - run: pnpm lint
       - run: pnpm format:check
-      # next-env.d.ts は生成物で追跡していない。手元では dev / build が作るが CI では
-      # どちらも走らないため、これが無いと画像 import などの型が解決できない。
-      - run: pnpm exec next typegen
       - run: pnpm typecheck
       - run: pnpm test
