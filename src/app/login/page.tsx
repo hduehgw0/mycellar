@@ -2,7 +2,7 @@ import Image from "next/image";
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/session";
 import { LoginButton } from "./login-button";
-import bottleAmber from "./bottle-amber.svg";
+import bottleAmber from "./bottle-amber-bare.svg";
 
 export default async function LoginPage() {
   const session = await getSession();
