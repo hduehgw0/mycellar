@@ -21,10 +21,9 @@ export default async function BottleDetailPage({
   // 自分のボトルでない（他人の id・存在しない id）なら 404。
   if (!bottle) notFound();
 
-  // 題名は一覧と同じく「名称 年数」（NAS は名称のみ）。h1 と削除ダイアログで共用する。
   const title = bottle.age ? `${bottle.name} ${bottle.age}年` : bottle.name;
 
-  // 未入力の任意項目も行だけは出す（→ #66）。値が空でも「何を登録できるか」が分かる。
+  // 未入力の任意項目も行だけは出す。
   const details = [
     { label: "産地", value: bottle.region },
     { label: "地域", value: bottle.subRegion },
@@ -34,8 +33,6 @@ export default async function BottleDetailPage({
   ];
 
   return (
-    // 余白はレイアウト（gap-6）ではなくこの画面で決める。写真から削除までを 1 つの流れとして
-    // 詰めたいので、1 枚にまとめて自前の間隔を張る。
     <div className="flex flex-col gap-5">
       {/* 写真の場所。アップロードはフェーズ 4 なので、今は全ボトルがこの絵になる。
           負の余白は (focus)/layout.tsx の px-6 py-10 の打ち消し。端まで見せるため。 */}
