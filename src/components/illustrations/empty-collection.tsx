@@ -2,12 +2,7 @@
 // 破線のラベル面は「まだ何も入っていない」を表す。中身のあるボトルは bottle-placeholder.tsx。
 export function EmptyCollection({ className }: { className?: string }) {
   return (
-    <svg
-      viewBox="0 0 240 612"
-      className={className}
-      role="presentation"
-      aria-hidden
-    >
+    <svg viewBox="0 0 240 612" className={className} aria-hidden>
       <defs>
         <linearGradient id="empty-collection" x1="0" y1="0" x2="0.35" y2="1">
           <stop offset="0" stopColor="#4a3b28" />

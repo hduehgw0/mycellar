@@ -3,12 +3,7 @@
 // グラデーションの id は 1 ページに複数出ても定義が同一なので実害はない。
 export function BottlePlaceholder({ className }: { className?: string }) {
   return (
-    <svg
-      viewBox="0 0 240 612"
-      className={className}
-      role="presentation"
-      aria-hidden
-    >
+    <svg viewBox="0 0 240 612" className={className} aria-hidden>
       <defs>
         <linearGradient id="bottle-placeholder" x1="0" y1="0" x2="0.35" y2="1">
           <stop offset="0" stopColor="#4a3b28" />
