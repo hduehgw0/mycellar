@@ -69,9 +69,11 @@ export default async function BottlesPage() {
                     <span className="text-sm font-medium break-words">
                       {title}
                     </span>
-                    <span className="text-xs text-muted-foreground">
-                      {bottle.region}
-                    </span>
+                    {bottle.region && (
+                      <span className="text-xs text-muted-foreground">
+                        {bottle.region}
+                      </span>
+                    )}
                   </div>
                   {bottle.isLimited && (
                     <Badge className="absolute top-2 left-2">限定版</Badge>
