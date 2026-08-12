@@ -55,8 +55,8 @@ export default async function BottleDetailPage({
 
       <h1 className="font-heading text-3xl font-bold">{title}</h1>
 
-      <dl className="flex flex-col gap-3.5">
-        <div className="divide-y rounded-lg border bg-card px-4">
+      <div className="flex flex-col gap-3.5">
+        <dl className="divide-y rounded-lg border bg-card px-4">
           {details.map(({ label, value }) => (
             <div
               key={label}
@@ -70,16 +70,16 @@ export default async function BottleDetailPage({
               </dd>
             </div>
           ))}
-        </div>
+        </dl>
 
         {/* メモだけ複数行になるので、上の表には入れず自分の枠を持つ。 */}
-        <div className="flex flex-col gap-2 rounded-lg border bg-card p-4">
+        <dl className="flex flex-col gap-2 rounded-lg border bg-card p-4">
           <dt className="text-xs text-muted-foreground">メモ</dt>
           <dd className="text-sm leading-6 break-words whitespace-pre-wrap">
             {bottle.note}
           </dd>
-        </div>
-      </dl>
+        </dl>
+      </div>
 
       {/* 枠だけのボタン。outline は枠が薄く塗りも付くので ghost に枠を足す。 */}
       <Button asChild variant="ghost" className="h-12 border-foreground/30">
