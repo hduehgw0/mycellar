@@ -68,8 +68,11 @@ export function DeleteBottleDialog({
       }}
     >
       <AlertDialogTrigger asChild>
-        <Button variant="destructive" className="w-fit">
-          削除する
+        <Button
+          variant="ghost"
+          className="h-12 text-destructive hover:bg-destructive/10 hover:text-destructive"
+        >
+          このボトルを削除
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent
@@ -79,11 +82,14 @@ export function DeleteBottleDialog({
           if (isDeleting) e.preventDefault();
         }}
       >
-        <AlertDialogHeader>
-          <AlertDialogMedia>
-            <Trash2Icon className="text-destructive" />
+        <AlertDialogHeader className="gap-4">
+          {/* 既定の bg-muted は popover とほぼ同色で枠が見えない。赤みを敷いて分ける。 */}
+          <AlertDialogMedia className="size-14 rounded-lg bg-destructive/15">
+            <Trash2Icon className="size-8 text-destructive" />
           </AlertDialogMedia>
-          <AlertDialogTitle>このボトルを削除しますか？</AlertDialogTitle>
+          <AlertDialogTitle className="text-xl">
+            このボトルを削除しますか？
+          </AlertDialogTitle>
           <AlertDialogDescription>
             「{displayName}」を一覧から削除します。この操作は取り消せません。
           </AlertDialogDescription>
@@ -101,11 +107,12 @@ export function DeleteBottleDialog({
           通常の Button で制御し、失敗時はダイアログを保持する。
         */}
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isDeleting}>
+          <AlertDialogCancel className="h-12" disabled={isDeleting}>
             キャンセル
           </AlertDialogCancel>
           <Button
             variant="destructive"
+            className="h-12"
             onClick={handleDelete}
             disabled={isDeleting}
           >
