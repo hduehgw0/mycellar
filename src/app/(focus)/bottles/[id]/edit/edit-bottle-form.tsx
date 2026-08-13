@@ -26,9 +26,9 @@ export function EditBottleForm({ bottle }: { bottle: Bottle }) {
         quantity: bottle.quantity,
         note: bottle.note ?? "",
       }}
-      submitLabel="更新する"
-      submittingLabel="更新中…"
-      errorLabel="更新に失敗しました。もう一度お試しください。"
+      submitLabel="変更を保存"
+      submittingLabel="保存中…"
+      errorLabel="保存に失敗しました。もう一度お試しください。"
       onSubmit={async (data) => {
         dismissDuplicateBottleToast();
         // 空欄の任意項目は明示 null で送る（undefined だと JSON から落ち、PATCH で「変更なし」＝消せないため）。

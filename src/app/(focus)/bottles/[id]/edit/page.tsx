@@ -19,11 +19,19 @@ export default async function EditBottlePage({
 
   return (
     <>
-      <Button asChild variant="ghost" size="sm" className="w-fit">
-        <Link href={`/bottles/${bottle.id}`}>← 詳細へ</Link>
-      </Button>
+      {/* 見出しは中央、離脱は左上（→ docs/ui-mockups/06-ボトル編集.png）。 */}
+      <header className="relative flex items-center justify-center">
+        <Button
+          asChild
+          variant="ghost"
+          size="sm"
+          className="absolute -left-2.5 text-muted-foreground"
+        >
+          <Link href={`/bottles/${bottle.id}`}>キャンセル</Link>
+        </Button>
+        <h1 className="font-heading text-lg font-bold">ボトル編集</h1>
+      </header>
 
-      <h1 className="font-heading text-xl font-bold">ボトルを編集</h1>
       <EditBottleForm bottle={bottle} />
     </>
   );

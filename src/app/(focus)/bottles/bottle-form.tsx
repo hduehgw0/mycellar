@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Controller, useForm, type DefaultValues } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { MinusIcon, PlusIcon } from "lucide-react";
 import {
   bottleSchema,
   REGIONS,
@@ -10,12 +11,12 @@ import {
   type BottleValues,
 } from "@/lib/schemas/bottle";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   Field,
   FieldError,
   FieldGroup,
   FieldLabel,
+  FieldTitle,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import {
@@ -25,6 +26,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 
 // 送信結果。重複（409）は入力の誤りではなくトーストで既存ボトルを示すため、
@@ -35,9 +37,13 @@ type SubmitOutcome = "ok" | "duplicate" | "failed";
 const asOptionalNumber = (value: unknown) =>
   value === "" || value == null ? undefined : Number(value);
 
-// 国の「未選択」用センチネル。Radix の SelectItem は空文字値を禁止するため、
+// 産地の「未選択」用センチネル。Radix の SelectItem は空文字値を禁止するため、
 // 空でないダミー値を持たせ、選択時に null（＝クリア）へ正規化する（送信データには出さない）。
 const NONE = "__none__";
+
+const LABEL = "text-xs text-muted-foreground";
+
+const CARD = "rounded-lg border border-input bg-input/30 p-2.5";
 
 // 登録・編集で共有するボトルフォーム（純粋な UI＋検証）。
 // 送信先・初期値・文言・遷移などの差分は、各ページのラッパーが props で渡す。
@@ -84,7 +90,7 @@ export function BottleForm({
       // 自動補完抑止の保険（Chrome の住所サジェストはこれを無視するため、本対策は銘柄名・地域の属性側）。
       autoComplete="off"
     >
-      <FieldGroup>
+      <FieldGroup className="gap-4">
         {/*
           銘柄名・地域は Chrome に氏名・住所と誤認され、autocomplete="off" だけでは
           住所サジェストを抑止できない（Chrome は off を無視して name/id から用途を推測する）。
@@ -92,7 +98,9 @@ export function BottleForm({
           依存するため、この 2 フィールドだけ Controller で接続して属性を自由にしている。
         */}
         <Field data-invalid={!!errors.name}>
-          <FieldLabel htmlFor="bottle-name">銘柄名（必須）</FieldLabel>
+          <FieldLabel htmlFor="bottle-name" className={`gap-1.5 ${LABEL}`}>
+            銘柄名<span className="text-destructive">*必須</span>
+          </FieldLabel>
           <Controller
             control={control}
             name="name"
@@ -109,106 +117,156 @@ export function BottleForm({
           <FieldError errors={[errors.name]} />
         </Field>
 
-        <Field>
-          <FieldLabel htmlFor="region">国</FieldLabel>
-          <Controller
-            control={control}
-            name="region"
-            render={({ field }) => (
-              <Select
-                // null のときは「未選択」項目（NONE）を選択状態にする（プレースホルダではなくチェックを付ける）。
-                value={field.value ?? NONE}
-                onValueChange={(value) =>
-                  field.onChange(value === NONE ? null : value)
-                }
-              >
-                <SelectTrigger id="region">
-                  <SelectValue placeholder="未選択" />
-                </SelectTrigger>
-                <SelectContent>
-                  {/* 「未選択」で国をクリアできる（センチネル→null に正規化）。 */}
-                  <SelectItem value={NONE}>未選択</SelectItem>
-                  {REGIONS.map((region) => (
-                    <SelectItem key={region} value={region}>
-                      {region}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
-          />
-        </Field>
+        <div className="grid grid-cols-2 gap-3">
+          <Field>
+            <FieldLabel htmlFor="region" className={LABEL}>
+              産地
+            </FieldLabel>
+            <Controller
+              control={control}
+              name="region"
+              render={({ field }) => (
+                <Select
+                  // null のときは「未選択」項目（NONE）を選択状態にする（プレースホルダではなくチェックを付ける）。
+                  value={field.value ?? NONE}
+                  onValueChange={(value) =>
+                    field.onChange(value === NONE ? null : value)
+                  }
+                >
+                  <SelectTrigger id="region">
+                    <SelectValue placeholder="未選択" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {/* 「未選択」で産地をクリアできる（センチネル→null に正規化）。 */}
+                    <SelectItem value={NONE}>未選択</SelectItem>
+                    {REGIONS.map((region) => (
+                      <SelectItem key={region} value={region}>
+                        {region}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            />
+          </Field>
 
-        <Field>
-          <FieldLabel htmlFor="bottle-subregion">地域</FieldLabel>
-          <Controller
-            control={control}
-            name="subRegion"
-            render={({ field }) => (
-              <Input
-                {...field}
-                value={field.value ?? ""}
-                id="bottle-subregion"
-                name="bottle-subregion"
-                autoComplete="off"
-                placeholder="アイラ、スペイサイド など"
-              />
-            )}
-          />
-        </Field>
+          <Field>
+            <FieldLabel htmlFor="bottle-subregion" className={LABEL}>
+              地域
+            </FieldLabel>
+            <Controller
+              control={control}
+              name="subRegion"
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  value={field.value ?? ""}
+                  id="bottle-subregion"
+                  name="bottle-subregion"
+                  autoComplete="off"
+                  placeholder="任意"
+                />
+              )}
+            />
+          </Field>
+        </div>
 
-        <Field data-invalid={!!errors.age}>
-          <FieldLabel htmlFor="age">年数</FieldLabel>
-          <Input
-            id="age"
-            type="number"
-            min={1}
-            placeholder="空欄 = NAS"
-            aria-invalid={!!errors.age}
-            {...register("age", { setValueAs: asOptionalNumber })}
-          />
-          <FieldError errors={[errors.age]} />
-        </Field>
+        <div className="grid grid-cols-2 gap-3">
+          <Field data-invalid={!!errors.age}>
+            <FieldLabel htmlFor="age" className={`gap-1.5 ${LABEL}`}>
+              年数
+              <span className="font-normal text-muted-foreground/70">
+                空欄＝NAS
+              </span>
+            </FieldLabel>
+            <Input
+              id="age"
+              type="number"
+              min={1}
+              aria-invalid={!!errors.age}
+              {...register("age", { setValueAs: asOptionalNumber })}
+            />
+            <FieldError errors={[errors.age]} />
+          </Field>
 
-        <Field>
-          <FieldLabel htmlFor="caskType">樽</FieldLabel>
-          <Input
-            id="caskType"
-            placeholder="シェリー樽、バーボン樽 など"
-            {...register("caskType")}
-          />
-        </Field>
+          <Field>
+            <FieldLabel htmlFor="caskType" className={LABEL}>
+              樽
+            </FieldLabel>
+            <Input id="caskType" placeholder="任意" {...register("caskType")} />
+          </Field>
+        </div>
 
-        <Field orientation="horizontal">
+        <Field orientation="horizontal" className={CARD}>
+          <FieldLabel htmlFor="isLimited">限定版</FieldLabel>
           <Controller
             control={control}
             name="isLimited"
             render={({ field }) => (
-              <Checkbox
+              <Switch
                 id="isLimited"
-                checked={field.value}
+                checked={field.value ?? false}
                 onCheckedChange={field.onChange}
               />
             )}
           />
-          <FieldLabel htmlFor="isLimited">限定版</FieldLabel>
         </Field>
 
-        <Field data-invalid={!!errors.quantity}>
-          <FieldLabel htmlFor="quantity">本数</FieldLabel>
-          <Input
-            id="quantity"
-            type="number"
-            min={1}
-            aria-invalid={!!errors.quantity}
-            {...register("quantity", { setValueAs: asOptionalNumber })}
-          />
-          <FieldError errors={[errors.quantity]} />
-        </Field>
+        <Controller
+          control={control}
+          name="quantity"
+          render={({ field }) => {
+            // 1 未満・小数にはできないため、本数に検証エラーの表示は要らない。
+            const quantity = field.value ?? 1;
+            return (
+              <Field orientation="horizontal" className={CARD}>
+                <FieldTitle id="quantity-label">本数</FieldTitle>
+                <div
+                  role="group"
+                  aria-labelledby="quantity-label"
+                  className="flex items-center gap-3"
+                >
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="icon"
+                    aria-label="1 本減らす"
+                    disabled={quantity <= 1}
+                    onClick={() => field.onChange(quantity - 1)}
+                  >
+                    <MinusIcon />
+                  </Button>
+                  {/* ボタン名は増減しか伝えない。output は増減後の本数を読み上げる。 */}
+                  <output className="w-6 text-center text-sm">
+                    {quantity}
+                  </output>
+                  <Button
+                    type="button"
+                    size="icon"
+                    // 増やす側だけ目立たせる（+ は primary の薄塗り＝accent、− は無彩色）。
+                    className="bg-accent text-accent-foreground hover:bg-accent/70"
+                    aria-label="1 本増やす"
+                    onClick={() => field.onChange(quantity + 1)}
+                  >
+                    <PlusIcon />
+                  </Button>
+                </div>
+              </Field>
+            );
+          }}
+        />
 
         <Field>
-          <FieldLabel htmlFor="note">メモ</FieldLabel>
-          <Textarea id="note" {...register("note")} />
+          <FieldLabel htmlFor="note" className={LABEL}>
+            メモ
+          </FieldLabel>
+          {/* 入力に合わせて伸びる（field-sizing-content）ので、手で掴む余地は残さない。 */}
+          <Textarea
+            id="note"
+            placeholder="味わいや感想など（任意）"
+            className="resize-none"
+            {...register("note")}
+          />
         </Field>
 
         {serverError && (
@@ -217,7 +275,7 @@ export function BottleForm({
           </p>
         )}
 
-        <Button type="submit" disabled={isSubmitting}>
+        <Button type="submit" size="lg" disabled={isSubmitting}>
           {isSubmitting ? submittingLabel : submitLabel}
         </Button>
       </FieldGroup>
