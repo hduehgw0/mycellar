@@ -82,7 +82,12 @@ export default async function BottleDetailPage({
       </div>
 
       {/* 枠だけのボタン。outline は枠が薄く塗りも付くので ghost に枠を足す。 */}
-      <Button asChild variant="ghost" className="h-12 border-foreground/30">
+      <Button
+        asChild
+        variant="ghost"
+        size="lg"
+        className="border-foreground/30"
+      >
         <Link href={`/bottles/${bottle.id}/edit`}>編集する</Link>
       </Button>
 

@@ -70,7 +70,10 @@ export function DeleteBottleDialog({
       <AlertDialogTrigger asChild>
         <Button
           variant="ghost"
-          className="h-12 text-destructive hover:bg-destructive/10 hover:text-destructive"
+          size="lg"
+          // dark: 付きの方が詳細度が高く、ghost の dark:hover:bg-muted/50 に負ける。
+          // dark 固定（layout.tsx）なので dark: 側も上書きしないとホバーが灰色のままになる。
+          className="text-destructive hover:bg-destructive/10 hover:text-destructive dark:hover:bg-destructive/10"
         >
           このボトルを削除
         </Button>
@@ -107,12 +110,12 @@ export function DeleteBottleDialog({
           通常の Button で制御し、失敗時はダイアログを保持する。
         */}
         <AlertDialogFooter>
-          <AlertDialogCancel className="h-12" disabled={isDeleting}>
+          <AlertDialogCancel size="lg" disabled={isDeleting}>
             キャンセル
           </AlertDialogCancel>
           <Button
             variant="destructive"
-            className="h-12"
+            size="lg"
             onClick={handleDelete}
             disabled={isDeleting}
           >
