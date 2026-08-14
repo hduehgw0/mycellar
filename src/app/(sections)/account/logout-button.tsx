@@ -13,11 +13,12 @@ export function LogoutButton() {
   const [error, setError] = useState<string | null>(null);
 
   return (
-    <div className="flex flex-col items-start gap-1">
+    <div className="flex flex-col gap-1">
       <Button
         type="button"
         variant="outline"
-        size="sm"
+        // hover: も指定しないと outline の hover:text-foreground に負けて赤が消える。
+        className="h-14 w-full text-destructive hover:text-destructive"
         disabled={pending}
         onClick={async () => {
           setPending(true);
