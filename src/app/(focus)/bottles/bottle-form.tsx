@@ -41,9 +41,9 @@ const asOptionalNumber = (value: unknown) =>
 // 空でないダミー値を持たせ、選択時に null（＝クリア）へ正規化する（送信データには出さない）。
 const NONE = "__none__";
 
-const LABEL = "text-xs text-muted-foreground";
+const LABEL_CLASS = "gap-1.5 text-xs text-muted-foreground";
 
-const CARD = "rounded-lg border border-input bg-input/30 p-2.5";
+const CARD_CLASS = "rounded-lg border border-input bg-input/30 p-2.5";
 
 // 登録・編集で共有するボトルフォーム（純粋な UI＋検証）。
 // 送信先・初期値・文言・遷移などの差分は、各ページのラッパーが props で渡す。
@@ -98,7 +98,7 @@ export function BottleForm({
           依存するため、この 2 フィールドだけ Controller で接続して属性を自由にしている。
         */}
         <Field data-invalid={!!errors.name}>
-          <FieldLabel htmlFor="bottle-name" className={`gap-1.5 ${LABEL}`}>
+          <FieldLabel htmlFor="bottle-name" className={LABEL_CLASS}>
             銘柄名<span className="text-destructive">*必須</span>
           </FieldLabel>
           <Controller
@@ -119,7 +119,7 @@ export function BottleForm({
 
         <div className="grid grid-cols-2 gap-3">
           <Field>
-            <FieldLabel htmlFor="region" className={LABEL}>
+            <FieldLabel htmlFor="region" className={LABEL_CLASS}>
               産地
             </FieldLabel>
             <Controller
@@ -151,7 +151,7 @@ export function BottleForm({
           </Field>
 
           <Field>
-            <FieldLabel htmlFor="bottle-subregion" className={LABEL}>
+            <FieldLabel htmlFor="bottle-subregion" className={LABEL_CLASS}>
               地域
             </FieldLabel>
             <Controller
@@ -173,7 +173,7 @@ export function BottleForm({
 
         <div className="grid grid-cols-2 gap-3">
           <Field data-invalid={!!errors.age}>
-            <FieldLabel htmlFor="age" className={`gap-1.5 ${LABEL}`}>
+            <FieldLabel htmlFor="age" className={LABEL_CLASS}>
               年数
               <span className="font-normal text-muted-foreground/70">
                 空欄＝NAS
@@ -190,14 +190,14 @@ export function BottleForm({
           </Field>
 
           <Field>
-            <FieldLabel htmlFor="caskType" className={LABEL}>
+            <FieldLabel htmlFor="caskType" className={LABEL_CLASS}>
               樽
             </FieldLabel>
             <Input id="caskType" placeholder="任意" {...register("caskType")} />
           </Field>
         </div>
 
-        <Field orientation="horizontal" className={CARD}>
+        <Field orientation="horizontal" className={CARD_CLASS}>
           <FieldLabel htmlFor="isLimited">限定版</FieldLabel>
           <Controller
             control={control}
@@ -219,7 +219,7 @@ export function BottleForm({
             // 1 未満・小数にはできないため、本数に検証エラーの表示は要らない。
             const quantity = field.value ?? 1;
             return (
-              <Field orientation="horizontal" className={CARD}>
+              <Field orientation="horizontal" className={CARD_CLASS}>
                 <FieldTitle id="quantity-label">本数</FieldTitle>
                 <div
                   role="group"
@@ -257,7 +257,7 @@ export function BottleForm({
         />
 
         <Field>
-          <FieldLabel htmlFor="note" className={LABEL}>
+          <FieldLabel htmlFor="note" className={LABEL_CLASS}>
             メモ
           </FieldLabel>
           {/* 入力に合わせて伸びる（field-sizing-content）ので、手で掴む余地は残さない。 */}
