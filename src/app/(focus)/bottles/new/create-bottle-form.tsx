@@ -20,7 +20,7 @@ export function CreateBottleForm() {
         quantity: 1,
         note: "",
       }}
-      submitLabel="登録する"
+      submitLabel="この内容で登録"
       submittingLabel="登録中…"
       errorLabel="登録に失敗しました。もう一度お試しください。"
       onSubmit={async (data) => {
