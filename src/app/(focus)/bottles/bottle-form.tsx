@@ -216,16 +216,18 @@ export function BottleForm({
           control={control}
           name="quantity"
           render={({ field }) => {
-            // 1 未満・小数にはできないため、本数に検証エラーの表示は要らない。
+            // UI からは 1 未満・小数を作れないので検証エラーの表示は置かない。
+            // 代わりに、DB 由来の初期値が不正だと送信が無言で止まる（文言が出ない）。
             const quantity = field.value ?? 1;
             return (
-              <Field orientation="horizontal" className={CARD_CLASS}>
+              // Field が role="group" を持つので、名前だけ渡して内側は素の div。
+              <Field
+                orientation="horizontal"
+                className={CARD_CLASS}
+                aria-labelledby="quantity-label"
+              >
                 <FieldTitle id="quantity-label">本数</FieldTitle>
-                <div
-                  role="group"
-                  aria-labelledby="quantity-label"
-                  className="flex items-center gap-3"
-                >
+                <div className="flex items-center gap-3">
                   <Button
                     type="button"
                     variant="secondary"
