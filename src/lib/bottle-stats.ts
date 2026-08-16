@@ -1,26 +1,24 @@
+import type { Bottle } from "@/generated/prisma/client";
 import { normalizeText } from "@/lib/bottle-identity";
 import { REGIONS } from "@/lib/schemas/bottle";
 
-// 産地が未設定のボトルもグラフに出す（→ docs/requirements.md「5. スコープ」）。
-export const UNSET_REGION = "未設定";
+// 数えるのに要る列だけ。列名や型が変わったらここで型エラーになる。
+export type BottleForStats = Pick<
+  Bottle,
+  "name" | "region" | "isLimited" | "quantity"
+>;
 
-// 集計に要る列だけを受ける。Prisma の Bottle をそのまま渡しても通る。
-export type CountableBottle = {
-  name: string;
-  region: string | null;
-  isLimited: boolean;
-  quantity: number;
-};
+// 産地は null のまま返し、「未設定」という表示は画面に任せる（→ docs/requirements.md「5. スコープ」）。
+// Quantity は本数（quantity の合計）、Count は異なり数（銘柄・産地の種類）を数えたもの。
+export type RegionQuantity = { region: string | null; quantity: number };
 
-export type RegionTotal = { region: string; quantity: number };
-
-export type CollectionStats = {
-  total: number;
-  brands: number;
-  regions: number;
-  regionTotals: RegionTotal[];
-  limited: number;
-  regular: number;
+export type BottleStats = {
+  totalQuantity: number;
+  brandCount: number; // brand は銘柄名（Bottle.name）。単体で意味が要るので name と呼ばない
+  regionCount: number;
+  regionQuantities: RegionQuantity[];
+  limitedQuantity: number;
+  regularQuantity: number;
   limitedPercent: number;
 };
 
@@ -30,51 +28,48 @@ function regionOrder(region: string): number {
   return index < 0 ? REGIONS.length : index;
 }
 
-export function summarizeCollection(
-  bottles: CountableBottle[],
-): CollectionStats {
+export function summarizeBottles(bottles: BottleForStats[]): BottleStats {
   const brandNames = new Set<string>();
-  const quantityByRegion = new Map<string, number>();
-  let total = 0;
-  let limited = 0;
+  const quantityByRegion = new Map<string | null, number>();
+  let totalQuantity = 0;
+  let limitedQuantity = 0;
 
   for (const bottle of bottles) {
     // 「〜本」は持っている本数なので、件数ではなく quantity の合計で数える。
-    total += bottle.quantity;
-    if (bottle.isLimited) limited += bottle.quantity;
+    totalQuantity += bottle.quantity;
+    if (bottle.isLimited) limitedQuantity += bottle.quantity;
 
-    // 銘柄数は「山崎 12年」と「山崎 18年」で 1。重複検知の判定キー（4 項目の連結）で数えると
-    // 「同じ物」の種類数になってしまうので、銘柄名だけを正規化して異なり数を数える
-    // （→ docs/requirements.md「3. 用語定義」・ADR-0013）。
+    // brandNamesは最終的に銘柄数(brandCount)として返すため、normalizeTextで正規化して重複を除く。
     brandNames.add(normalizeText(bottle.name));
 
-    const region = bottle.region ?? UNSET_REGION;
     quantityByRegion.set(
-      region,
-      (quantityByRegion.get(region) ?? 0) + bottle.quantity,
+      bottle.region,
+      (quantityByRegion.get(bottle.region) ?? 0) + bottle.quantity,
     );
   }
 
-  const regionTotals = [...quantityByRegion]
+  const regionQuantities = [...quantityByRegion]
     .map(([region, quantity]) => ({ region, quantity }))
-    // 「未設定」は産地ではないので、本数によらず末尾に置く。
     .sort((a, b) => {
-      if ((a.region === UNSET_REGION) !== (b.region === UNSET_REGION)) {
-        return a.region === UNSET_REGION ? 1 : -1;
-      }
+      // 未設定は産地ではないので、本数によらず末尾に置く。
+      if (a.region === null) return b.region === null ? 0 : 1;
+      if (b.region === null) return -1;
       return (
         b.quantity - a.quantity || regionOrder(a.region) - regionOrder(b.region)
       );
     });
 
   return {
-    total,
-    brands: brandNames.size,
-    regions: regionTotals.filter(({ region }) => region !== UNSET_REGION)
+    totalQuantity,
+    brandCount: brandNames.size,
+    regionCount: regionQuantities.filter(({ region }) => region !== null)
       .length,
-    regionTotals,
-    limited,
-    regular: total - limited,
-    limitedPercent: total === 0 ? 0 : Math.round((limited / total) * 100),
+    regionQuantities,
+    limitedQuantity,
+    regularQuantity: totalQuantity - limitedQuantity,
+    limitedPercent:
+      totalQuantity === 0
+        ? 0
+        : Math.round((limitedQuantity / totalQuantity) * 100),
   };
 }

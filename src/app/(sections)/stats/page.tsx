@@ -1,6 +1,6 @@
 import { requireSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
-import { UNSET_REGION, summarizeCollection } from "@/lib/bottle-stats";
+import { summarizeBottles } from "@/lib/bottle-stats";
 import { cn } from "@/lib/utils";
 
 export default async function StatsPage() {
@@ -11,9 +11,9 @@ export default async function StatsPage() {
     select: { name: true, region: true, isLimited: true, quantity: true },
   });
 
-  const stats = summarizeCollection(bottles);
+  const stats = summarizeBottles(bottles);
   // バーの長さは最も多い産地を満たす比率。全体に対する比率だと差が潰れて偏りが見えない。
-  const longest = stats.regionTotals[0]?.quantity ?? 0;
+  const largestQuantity = stats.regionQuantities[0]?.quantity ?? 0;
 
   return (
     <>
@@ -28,15 +28,15 @@ export default async function StatsPage() {
         <div className="flex flex-col gap-1">
           <dt className="text-sm text-muted-foreground">総本数</dt>
           <dd className="font-heading text-5xl font-bold">
-            {stats.total}
+            {stats.totalQuantity}
             <span className="text-base font-normal text-muted-foreground">
               本
             </span>
           </dd>
         </div>
         {[
-          { label: "銘柄数", value: stats.brands },
-          { label: "産地数", value: stats.regions },
+          { label: "銘柄数", value: stats.brandCount },
+          { label: "産地数", value: stats.regionCount },
         ].map(({ label, value }) => (
           <div key={label} className="flex flex-col items-center gap-1">
             <dt className="text-sm text-muted-foreground">{label}</dt>
@@ -47,7 +47,7 @@ export default async function StatsPage() {
         ))}
       </dl>
 
-      {stats.total === 0 ? (
+      {stats.totalQuantity === 0 ? (
         <p className="text-sm leading-6 text-muted-foreground">
           ボトルを登録すると、ここに傾向が出ます。
         </p>
@@ -57,22 +57,25 @@ export default async function StatsPage() {
             <div className="flex flex-col gap-1">
               <h2 className="font-heading text-lg font-bold">産地別の本数</h2>
               <p className="text-xs text-muted-foreground">
-                本数の多い順・全{stats.total}本
+                本数の多い順・全{stats.totalQuantity}本
               </p>
             </div>
             <dl className="flex flex-col gap-3.5">
-              {stats.regionTotals.map(({ region, quantity }) => {
-                const unset = region === UNSET_REGION;
+              {stats.regionQuantities.map(({ region, quantity }) => {
+                const isUnset = region === null;
                 return (
-                  <div key={region} className="flex flex-col gap-1.5">
+                  <div
+                    key={region ?? "unset"}
+                    className="flex flex-col gap-1.5"
+                  >
                     <div className="flex items-baseline justify-between gap-4">
                       <dt
                         className={cn(
                           "text-sm",
-                          unset && "text-muted-foreground",
+                          isUnset && "text-muted-foreground",
                         )}
                       >
-                        {region}
+                        {region ?? "未設定"}
                       </dt>
                       <dd className="text-sm font-bold">{quantity}本</dd>
                     </div>
@@ -81,9 +84,11 @@ export default async function StatsPage() {
                       <div
                         className={cn(
                           "h-full rounded-full",
-                          unset ? "bg-chart-2" : "bg-chart-1",
+                          isUnset ? "bg-chart-2" : "bg-chart-1",
                         )}
-                        style={{ width: `${(quantity / longest) * 100}%` }}
+                        style={{
+                          width: `${(quantity / largestQuantity) * 100}%`,
+                        }}
                       />
                     </div>
                   </div>
@@ -108,8 +113,16 @@ export default async function StatsPage() {
             </div>
             <dl className="flex items-center justify-between gap-4 text-sm">
               {[
-                { label: "限定版", value: stats.limited, color: "bg-chart-1" },
-                { label: "通常", value: stats.regular, color: "bg-chart-2" },
+                {
+                  label: "限定版",
+                  value: stats.limitedQuantity,
+                  color: "bg-chart-1",
+                },
+                {
+                  label: "通常",
+                  value: stats.regularQuantity,
+                  color: "bg-chart-2",
+                },
               ].map(({ label, value, color }) => (
                 <div key={label} className="flex items-center gap-2">
                   <span
