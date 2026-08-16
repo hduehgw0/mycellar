@@ -56,9 +56,7 @@ export default async function StatsPage() {
           <section className="flex flex-col gap-4 rounded-lg border bg-card p-5">
             <div className="flex flex-col gap-1">
               <h2 className="font-heading text-lg font-bold">産地別の本数</h2>
-              <p className="text-xs text-muted-foreground">
-                本数の多い順・全{stats.totalQuantity}本
-              </p>
+              <p className="text-xs text-muted-foreground">本数の多い順</p>
             </div>
             <dl className="flex flex-col gap-3.5">
               {stats.regionQuantities.map(({ region, quantity }) => {
