@@ -1,6 +1,6 @@
 import { requireSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
-import { UNSET_REGION, summarizeCollection } from "@/lib/stats";
+import { UNSET_REGION, summarizeCollection } from "@/lib/bottle-stats";
 import { cn } from "@/lib/utils";
 
 export default async function StatsPage() {

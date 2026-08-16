@@ -4,7 +4,7 @@ import {
   UNSET_REGION,
   summarizeCollection,
   type CountableBottle,
-} from "./stats";
+} from "./bottle-stats";
 
 const bottle = (over: Partial<CountableBottle> = {}): CountableBottle => ({
   name: "山崎",
