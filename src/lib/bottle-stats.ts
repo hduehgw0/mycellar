@@ -17,6 +17,7 @@ export type BottleStats = {
   brandCount: number; // brand は銘柄名（Bottle.name）。単体で意味が要るので name と呼ばない
   regionCount: number;
   regionQuantities: RegionQuantity[];
+  maxRegionQuantity: number;
   limitedQuantity: number;
   regularQuantity: number;
   limitedPercent: number;
@@ -65,6 +66,10 @@ export function summarizeBottles(bottles: BottleForStats[]): BottleStats {
     regionCount: regionQuantities.filter(({ region }) => region !== null)
       .length,
     regionQuantities,
+    maxRegionQuantity: Math.max(
+      0,
+      ...regionQuantities.map(({ quantity }) => quantity),
+    ),
     limitedQuantity,
     regularQuantity: totalQuantity - limitedQuantity,
     limitedPercent:

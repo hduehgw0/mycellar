@@ -64,6 +64,16 @@ describe("summarizeBottles", () => {
     ]);
   });
 
+  // 末尾に固定した未設定が最多のとき、先頭は最大ではない。
+  it("最も多い産地の本数を返す（未設定が最多でも取りこぼさない）", () => {
+    const stats = summarizeBottles([
+      bottle({ region: null, quantity: 5 }),
+      bottle({ region: "日本", quantity: 1 }),
+    ]);
+
+    expect(stats.maxRegionQuantity).toBe(5);
+  });
+
   it("産地数に未設定は数えない", () => {
     const stats = summarizeBottles([
       bottle({ region: "日本" }),
@@ -93,6 +103,7 @@ describe("summarizeBottles", () => {
       brandCount: 0,
       regionCount: 0,
       regionQuantities: [],
+      maxRegionQuantity: 0,
       limitedQuantity: 0,
       regularQuantity: 0,
       limitedPercent: 0,

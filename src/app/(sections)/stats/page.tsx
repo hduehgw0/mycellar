@@ -12,8 +12,6 @@ export default async function StatsPage() {
   });
 
   const stats = summarizeBottles(bottles);
-  // バーの長さは最も多い産地を満たす比率。全体に対する比率だと差が潰れて偏りが見えない。
-  const largestQuantity = stats.regionQuantities[0]?.quantity ?? 0;
 
   return (
     <>
@@ -77,15 +75,19 @@ export default async function StatsPage() {
                       </dt>
                       <dd className="text-sm font-bold">{quantity}本</dd>
                     </div>
-                    {/* 本数は上に文字で出ているので、バーは絵として読み上げから外す。 */}
-                    <div aria-hidden className="h-2 rounded-full bg-muted">
+                    {/* 長さは最も多い産地を 100% とする比率。全体に対する比率だと
+                        差が潰れて偏りが見えない。 */}
+                    <div
+                      aria-hidden
+                      className="h-2 overflow-hidden rounded-full bg-muted"
+                    >
                       <div
                         className={cn(
                           "h-full rounded-full",
                           isUnset ? "bg-chart-2" : "bg-chart-1",
                         )}
                         style={{
-                          width: `${(quantity / largestQuantity) * 100}%`,
+                          width: `${(quantity / stats.maxRegionQuantity) * 100}%`,
                         }}
                       />
                     </div>
