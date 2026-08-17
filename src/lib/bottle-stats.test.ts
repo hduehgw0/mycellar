@@ -64,6 +64,18 @@ describe("summarizeBottles", () => {
     ]);
   });
 
+  it("同数のときは産地リストの並び順で決める", () => {
+    const stats = summarizeBottles([
+      bottle({ region: "日本", quantity: 2 }),
+      bottle({ region: "スコットランド", quantity: 2 }),
+    ]);
+
+    expect(stats.regionQuantities.map(({ region }) => region)).toEqual([
+      "スコットランド",
+      "日本",
+    ]);
+  });
+
   // 末尾に固定した未設定が最多のとき、先頭は最大ではない。
   it("最も多い産地の本数を返す（未設定が最多でも取りこぼさない）", () => {
     const stats = summarizeBottles([
