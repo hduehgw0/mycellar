@@ -77,8 +77,8 @@ flowchart LR
 # 1. 依存をインストール
 pnpm install
 
-# 2. 環境変数（DB）：Vercel の Neon 統合から取得
-#    DATABASE_URL（pooled）・DATABASE_URL_UNPOOLED（direct）などが .env に入る
+# 2. 環境変数：Vercel から取得（開発用の dev ブランチを指す値が入る）
+#    書き出し先の .env は必ず指定する（省くと .env.local になり、Prisma CLI が読まない）
 pnpm dlx vercel link
 pnpm dlx vercel env pull .env
 
@@ -96,5 +96,19 @@ pnpm dev
 >
 > - ローカル：`http://localhost:3000/api/auth/callback/google`
 > - 本番：`{BETTER_AUTH_URL}/api/auth/callback/google`（例：`https://<本番ドメイン>/api/auth/callback/google`）
+
+## DB とマイグレーション
+
+環境ごとに別の DB を見る（→ `docs/adr.md` ADR-0014）。
+
+| 環境              | DB                                                   |
+| ----------------- | ---------------------------------------------------- |
+| ローカル・Preview | dev ブランチ                                         |
+| 本番              | 本番ブランチ                                         |
+| CI                | 持たない（`prisma generate` を通すためのダミーだけ） |
+
+**開発**：`pnpm prisma migrate dev`。`.env` の値が dev ブランチを指すので、本番には届かない。
+
+**本番**：適用手順は #98 で決める。それまで本番へのマイグレーションは行わない。
 
 <!-- TODO（実装後）: ライセンス / 作者リンク など -->
