@@ -54,3 +54,19 @@
 | アプリ実行時        | クライアント初期化コード | pooled（`DATABASE_URL`）          |
 
 **クライアントの生成先が変わった。** generator は `prisma-client`（旧 `prisma-client-js`）になり、出力先は `node_modules` ではなく `src/generated/prisma`。git 管理外なので **clone 直後は `pnpm prisma generate` が要る**。
+
+### 環境ごとの DB とマイグレーション
+
+環境ごとに別の DB を見る（→ `docs/adr.md` ADR-0014）。
+
+| 環境              | DB                                                   |
+| ----------------- | ---------------------------------------------------- |
+| ローカル・Preview | dev ブランチ                                         |
+| 本番              | 本番ブランチ                                         |
+| CI                | 持たない（`prisma generate` を通すためのダミーだけ） |
+
+**開発**：`pnpm prisma migrate dev`。`.env` の値が dev ブランチを指すので、本番には届かない。
+
+**Preview**：ビルドのたびに dev ブランチへ適用される。マージせず閉じた PR の分が残ったら `neon branches reset dev --parent` で本番ブランチの状態に戻す（dev の開発用データも消える）。
+
+**本番**：`main` にマージすると、本番ビルドの先頭で `prisma migrate deploy` が走る（`package.json` の `vercel-build`）。失敗するとビルドごと落ちるので、スキーマが古いまま新しいコードが公開されることはない。
