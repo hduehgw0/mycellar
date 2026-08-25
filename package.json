@@ -8,6 +8,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "prisma generate && next build",
+    "vercel-build": "prisma migrate deploy && pnpm run build",
     "postinstall": "prisma generate",
     "start": "next start",
     "lint": "eslint",
