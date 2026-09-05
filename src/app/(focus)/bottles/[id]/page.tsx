@@ -93,7 +93,7 @@ export default async function BottleDetailPage({
 
       <Separator />
 
-      <DeleteBottleDialog bottleId={bottle.id} displayName={title} />
+      <DeleteBottleDialog bottleId={bottle.id} bottleTitle={title} />
     </div>
   );
 }
