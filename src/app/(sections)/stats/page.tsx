@@ -1,14 +1,22 @@
 import { requireSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
-import { summarizeBottles } from "@/lib/bottle-stats";
+import { summarizeBottles, type BottleForStats } from "@/lib/bottle-stats";
 import { cn } from "@/lib/utils";
+
+// `bottle-stats.ts`で必要な列だけを取る。BottleForStats と過不足があれば型エラーになる。
+const BOTTLE_STATS_SELECT = {
+  name: true,
+  region: true,
+  isLimited: true,
+  quantity: true,
+} satisfies Record<keyof BottleForStats, true>;
 
 export default async function StatsPage() {
   const session = await requireSession();
 
   const bottles = await prisma.bottle.findMany({
     where: { userId: session.user.id },
-    select: { name: true, region: true, isLimited: true, quantity: true },
+    select: BOTTLE_STATS_SELECT,
   });
 
   const stats = summarizeBottles(bottles);
