@@ -17,6 +17,28 @@ export function LoginButton() {
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const handleLogin = async () => {
+    setError(null);
+    setPending(true);
+    try {
+      const { error } = await authClient.signIn.social({
+        provider: "google",
+        callbackURL: "/bottles",
+      });
+      // 成功時は Google へ遷移するため以降は実行されない。
+      // 失敗時のみここに到達するので、理由を伝えて再操作可能に戻す。
+      if (error) {
+        setError(LOGIN_ERROR);
+        setPending(false);
+      }
+    } catch (e) {
+      // 想定外の例外（ネットワーク断など）だけログして再操作を許す。
+      console.error(e);
+      setError(LOGIN_ERROR);
+      setPending(false);
+    }
+  };
+
   return (
     <div>
       <Button
@@ -24,25 +46,7 @@ export function LoginButton() {
         // 白地はブランドガイドラインの指定（G ロゴは白の上に置く）。テーマの色ではない。
         className="h-14 w-full gap-3 bg-white text-base text-background hover:bg-white/90"
         disabled={pending}
-        onClick={async () => {
-          setPending(true);
-          setError(null);
-          try {
-            const { error } = await authClient.signIn.social({
-              provider: "google",
-              callbackURL: "/bottles",
-            });
-            // 成功時は Google へ遷移するため以降は実行されない。
-            // 失敗時のみここに到達するので、理由を伝えて再操作可能に戻す。
-            if (error) {
-              setError(LOGIN_ERROR);
-              setPending(false);
-            }
-          } catch {
-            setError(LOGIN_ERROR);
-            setPending(false);
-          }
-        }}
+        onClick={handleLogin}
       >
         <Image src={googleG} alt="" className="h-5 w-auto" />
         {pending ? (
