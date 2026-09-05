@@ -12,6 +12,8 @@ export function CreateBottleForm() {
   const router = useRouter();
   return (
     <BottleForm
+      // 産地・年数は未入力を表す値が undefined しかないためキーごと省く
+      // defaultValues の型ではキーを書かないこと ＝ undefined。
       defaultValues={{
         name: "",
         subRegion: "",
