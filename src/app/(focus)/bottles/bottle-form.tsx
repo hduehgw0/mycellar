@@ -134,7 +134,7 @@ export function BottleForm({
                   }
                 >
                   <SelectTrigger id="region">
-                    <SelectValue placeholder="未選択" />
+                    <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     {/* 「未選択」で産地をクリアできる（センチネル→null に正規化）。 */}
