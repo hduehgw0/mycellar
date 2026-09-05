@@ -25,6 +25,7 @@ const optionalText = z
 // 同じキーになりうる。API には UI を通さず送れるので、キーに入る自由入力
 // （銘柄名・樽）はここで弾く（→ docs/data-model.md「重複をどう防ぐか」）。
 const SEPARATOR_MESSAGE = "使用できない文字が含まれています";
+
 const hasNoSeparator = (value: string) =>
   !value.includes(IDENTITY_KEY_SEPARATOR);
 

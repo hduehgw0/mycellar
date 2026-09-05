@@ -35,7 +35,6 @@ model User {
 /// 所有しているウイスキー 1 種類。行の粒度の定義は docs/data-model.md を参照。
 model Bottle {
   id          String   @id @default(cuid())
-  /// 所有者。書き込み時はセッションから設定し、リクエストボディの値は使わない。
   userId      String
   /// User を削除すると、そのユーザーのボトルも削除される。
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -47,13 +46,9 @@ model Bottle {
   subRegion   String?
   /// 年数。空欄は NAS（年数表記なし）として扱う。未入力と NAS は区別しない。
   age         Int?
-  /// 樽（シェリー、バーボン樽 等）。
   caskType    String?
-  /// 限定版フラグ。
   isLimited   Boolean  @default(false)
-  /// 同一物の所持本数（1 以上）。同じ物が増えたら行は増やさず、ここを足す。
   quantity    Int      @default(1)
-  /// メモ。この種類についての記録であって、1 本ごとの記録ではない。同一性の判定には含めない。
   note        String?
   /// 「同じ物」の判定キー。銘柄名・年数・樽・限定版を正規化して区切り文字でつないだ値
   /// （組み立ては src/lib/bottle-identity.ts）。4 列に一意制約を張ると Postgres が NULL 同士を

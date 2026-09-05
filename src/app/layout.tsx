@@ -27,7 +27,7 @@ export const viewport: Viewport = { viewportFit: "cover" };
 export const metadata: Metadata = {
   title: "MyCellar",
   description:
-    "父のウイスキーコレクションを管理する、自分専用の在庫・カタログアプリ。",
+    "所有するウイスキーを記録して、コレクションの全体像を把握できる、自分専用のアプリ。",
 };
 
 export default function RootLayout({

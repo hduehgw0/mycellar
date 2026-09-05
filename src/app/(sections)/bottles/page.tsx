@@ -15,7 +15,7 @@ export default async function BottlesPage() {
     orderBy: { createdAt: "desc" },
   });
 
-  // 「〜本」は持っている本数。同じ銘柄を複数持てるので、件数ではなく quantity の合計。
+  // 銘柄の数ではなく、純粋なるボトルの総本数(quantityの合計)。
   const total = bottles.reduce((sum, bottle) => sum + bottle.quantity, 0);
 
   return (

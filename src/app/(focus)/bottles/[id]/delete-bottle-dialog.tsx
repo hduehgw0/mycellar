@@ -23,10 +23,10 @@ const DELETE_ERROR = "削除に失敗しました。もう一度お試しくだ�
 // 認可・実削除はサーバ（DELETE /api/bottles/[id] の where:{id,userId}）が担い、ここは UI と送信のみ。
 export function DeleteBottleDialog({
   bottleId,
-  displayName,
+  bottleTitle,
 }: {
   bottleId: string;
-  displayName: string;
+  bottleTitle: string;
 }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -94,7 +94,7 @@ export function DeleteBottleDialog({
             このボトルを削除しますか？
           </AlertDialogTitle>
           <AlertDialogDescription>
-            「{displayName}」を一覧から削除します。この操作は取り消せません。
+            「{bottleTitle}」を一覧から削除します。この操作は取り消せません。
           </AlertDialogDescription>
         </AlertDialogHeader>
         {error && (

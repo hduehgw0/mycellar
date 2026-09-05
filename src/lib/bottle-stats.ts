@@ -9,7 +9,7 @@ export type BottleForStats = Pick<
 >;
 
 // 産地は null のまま返し、「未設定」という表示は画面に任せる（→ docs/requirements.md「5. スコープ」）。
-// Quantity は本数（quantity の合計）、Count は異なり数（銘柄・産地の種類）を数えたもの。
+// Quantity系 は本数（quantity の合計）、Count系 は異なり数（銘柄・産地の種類）を数えたもの。
 export type RegionQuantity = { region: string | null; quantity: number };
 
 export type BottleStats = {
@@ -36,7 +36,6 @@ export function summarizeBottles(bottles: BottleForStats[]): BottleStats {
   let limitedQuantity = 0;
 
   for (const bottle of bottles) {
-    // 「〜本」は持っている本数なので、件数ではなく quantity の合計で数える。
     totalQuantity += bottle.quantity;
     if (bottle.isLimited) limitedQuantity += bottle.quantity;
 
