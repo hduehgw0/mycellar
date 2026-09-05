@@ -239,7 +239,7 @@ export function BottleForm({
                     <MinusIcon />
                   </Button>
                   {/* ボタン名は増減しか伝えない。output は増減後の本数を読み上げる。 */}
-                  <output className="w-6 text-center text-sm">
+                  <output className="w-6 text-center text-base">
                     {quantity}
                   </output>
                   <Button
