@@ -1,7 +1,10 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { requireSession } from "@/lib/session";
 import { Button } from "@/components/ui/button";
 import { CreateBottleForm } from "./create-bottle-form";
+
+export const metadata: Metadata = { title: "ボトル登録" };
 
 export default async function NewBottlePage() {
   await requireSession();

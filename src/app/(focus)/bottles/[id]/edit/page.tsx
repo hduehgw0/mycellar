@@ -1,9 +1,12 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireSession } from "@/lib/session";
 import { Button } from "@/components/ui/button";
 import { getOwnedBottle } from "../get-owned-bottle";
 import { EditBottleForm } from "./edit-bottle-form";
+
+export const metadata: Metadata = { title: "ボトル編集" };
 
 export default async function EditBottlePage({
   params,

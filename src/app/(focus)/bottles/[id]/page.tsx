@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ChevronLeftIcon } from "lucide-react";
@@ -8,6 +9,8 @@ import { Separator } from "@/components/ui/separator";
 import { BottlePlaceholder } from "@/components/illustrations/bottle-placeholder";
 import { DeleteBottleDialog } from "./delete-bottle-dialog";
 import { getOwnedBottle } from "./get-owned-bottle";
+
+export const metadata: Metadata = { title: "ボトル詳細" };
 
 export default async function BottleDetailPage({
   params,

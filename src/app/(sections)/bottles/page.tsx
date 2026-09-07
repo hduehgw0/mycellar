@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Plus } from "lucide-react";
 import { requireSession } from "@/lib/session";
@@ -6,6 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { BottlePlaceholder } from "@/components/illustrations/bottle-placeholder";
 import { EmptyCollection } from "@/components/illustrations/empty-collection";
+
+export const metadata: Metadata = { title: "コレクション" };
 
 export default async function BottlesPage() {
   const session = await requireSession();

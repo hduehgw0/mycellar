@@ -1,7 +1,10 @@
+import type { Metadata } from "next";
 import { UserRound } from "lucide-react";
 import { requireSession } from "@/lib/session";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { LogoutButton } from "./logout-button";
+
+export const metadata: Metadata = { title: "アカウント" };
 
 export default async function AccountPage() {
   const { user } = await requireSession();

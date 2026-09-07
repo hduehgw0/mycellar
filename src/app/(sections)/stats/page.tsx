@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { requireSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { summarizeBottles, type BottleForStats } from "@/lib/bottle-stats";
@@ -10,6 +11,8 @@ const BOTTLE_STATS_SELECT = {
   isLimited: true,
   quantity: true,
 } satisfies Record<keyof BottleForStats, true>;
+
+export const metadata: Metadata = { title: "傾向" };
 
 export default async function StatsPage() {
   const session = await requireSession();

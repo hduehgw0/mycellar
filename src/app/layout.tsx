@@ -25,7 +25,10 @@ const heading = Shippori_Mincho({
 export const viewport: Viewport = { viewportFit: "cover" };
 
 export const metadata: Metadata = {
-  title: "MyCellar",
+  title: {
+    template: "%s | MyCellar",
+    default: "MyCellar",
+  },
   description:
     "所有するウイスキーを記録して、コレクションの全体像を把握できる、自分専用のアプリ。",
 };
