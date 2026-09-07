@@ -111,10 +111,18 @@ export function BottleForm({
                 name="bottle-name"
                 autoComplete="off"
                 aria-invalid={!!errors.name}
+                aria-describedby={errors.name ? "bottle-name-error" : undefined}
               />
             )}
           />
-          <FieldError errors={[errors.name]} />
+          {/* FieldError 既定の role="alert" を打ち消す。aria-describedby と
+              併用すると支援技術が二重に読み上げるため（describedby だけでも
+              出現時に読まれる）。 */}
+          <FieldError
+            id="bottle-name-error"
+            role={undefined}
+            errors={[errors.name]}
+          />
         </Field>
 
         <div className="grid grid-cols-2 gap-3">
@@ -184,9 +192,10 @@ export function BottleForm({
               type="number"
               min={1}
               aria-invalid={!!errors.age}
+              aria-describedby={errors.age ? "age-error" : undefined}
               {...register("age", { setValueAs: asOptionalNumber })}
             />
-            <FieldError errors={[errors.age]} />
+            <FieldError id="age-error" role={undefined} errors={[errors.age]} />
           </Field>
 
           <Field>
