@@ -198,11 +198,22 @@ export function BottleForm({
             <FieldError id="age-error" role={undefined} errors={[errors.age]} />
           </Field>
 
-          <Field>
+          <Field data-invalid={!!errors.caskType}>
             <FieldLabel htmlFor="caskType" className={LABEL_CLASS}>
               樽
             </FieldLabel>
-            <Input id="caskType" placeholder="任意" {...register("caskType")} />
+            <Input
+              id="caskType"
+              placeholder="任意"
+              aria-invalid={!!errors.caskType}
+              aria-describedby={errors.caskType ? "caskType-error" : undefined}
+              {...register("caskType")}
+            />
+            <FieldError
+              id="caskType-error"
+              role={undefined}
+              errors={[errors.caskType]}
+            />
           </Field>
         </div>
 
