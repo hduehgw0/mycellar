@@ -133,11 +133,14 @@ export default async function StatsPage() {
                 },
               ].map(({ label, value, color }) => (
                 <div key={label} className="flex items-center gap-2">
-                  <span
-                    aria-hidden
-                    className={cn("size-3 rounded-xs", color)}
-                  />
-                  <dt className="text-muted-foreground">{label}</dt>
+                  {/* 色見本は dt の中に置く。dl 直下の div には dt と dd しか置けない。 */}
+                  <dt className="flex items-center gap-2 text-muted-foreground">
+                    <span
+                      aria-hidden
+                      className={cn("size-3 rounded-xs", color)}
+                    />
+                    {label}
+                  </dt>
                   <dd className="font-bold">{value}本</dd>
                 </div>
               ))}
