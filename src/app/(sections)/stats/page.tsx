@@ -70,24 +70,24 @@ export default async function StatsPage() {
                 return (
                   <div
                     key={region ?? "unset"}
-                    className="flex flex-col gap-1.5"
+                    className="grid grid-cols-[1fr_auto] items-baseline gap-x-4 gap-y-1.5"
                   >
-                    <div className="flex items-baseline justify-between gap-4">
-                      <dt
-                        className={cn(
-                          "text-sm",
-                          isUnset && "text-muted-foreground",
-                        )}
-                      >
-                        {region ?? "未設定"}
-                      </dt>
-                      <dd className="text-sm font-bold">{quantity}本</dd>
-                    </div>
+                    <dt
+                      className={cn(
+                        "text-sm",
+                        isUnset && "text-muted-foreground",
+                      )}
+                    >
+                      {region ?? "未設定"}
+                    </dt>
+                    <dd className="text-sm font-bold">{quantity}本</dd>
                     {/* 長さは最も多い産地を 100% とする比率。全体に対する比率だと
-                        差が潰れて偏りが見えない。 */}
-                    <div
+                        差が潰れて偏りが見えない。
+                        バーを 2 つ目の dd にするのは、dl 直下の div に置けるのが
+                        dt と dd だけのため（col-span-2 で 2 行目の全幅になる）。 */}
+                    <dd
                       aria-hidden
-                      className="h-2 overflow-hidden rounded-full bg-muted"
+                      className="col-span-2 h-2 overflow-hidden rounded-full bg-muted"
                     >
                       <div
                         className={cn(
@@ -98,7 +98,7 @@ export default async function StatsPage() {
                           width: `${(quantity / stats.maxRegionQuantity) * 100}%`,
                         }}
                       />
-                    </div>
+                    </dd>
                   </div>
                 );
               })}
