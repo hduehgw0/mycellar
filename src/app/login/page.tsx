@@ -1,8 +1,11 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/session";
 import { LoginButton } from "./login-button";
 import bottleAmber from "./bottle-amber-bare.svg";
+
+export const metadata: Metadata = { title: "ログイン" };
 
 export default async function LoginPage() {
   const session = await getSession();

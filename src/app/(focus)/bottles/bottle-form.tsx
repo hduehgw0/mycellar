@@ -111,10 +111,13 @@ export function BottleForm({
                 name="bottle-name"
                 autoComplete="off"
                 aria-invalid={!!errors.name}
+                aria-describedby={errors.name ? "bottle-name-error" : undefined}
               />
             )}
           />
-          <FieldError errors={[errors.name]} />
+          {/* role="alert"（FieldError 既定）は出現時、aria-describedby はフォーカス時に
+              読まれる。先頭のエラーは二重に読まれるが、role を外すと 2 件目以降が無音になる。 */}
+          <FieldError id="bottle-name-error" errors={[errors.name]} />
         </Field>
 
         <div className="grid grid-cols-2 gap-3">
@@ -184,16 +187,24 @@ export function BottleForm({
               type="number"
               min={1}
               aria-invalid={!!errors.age}
+              aria-describedby={errors.age ? "age-error" : undefined}
               {...register("age", { setValueAs: asOptionalNumber })}
             />
-            <FieldError errors={[errors.age]} />
+            <FieldError id="age-error" errors={[errors.age]} />
           </Field>
 
-          <Field>
+          <Field data-invalid={!!errors.caskType}>
             <FieldLabel htmlFor="caskType" className={LABEL_CLASS}>
               樽
             </FieldLabel>
-            <Input id="caskType" placeholder="任意" {...register("caskType")} />
+            <Input
+              id="caskType"
+              placeholder="任意"
+              aria-invalid={!!errors.caskType}
+              aria-describedby={errors.caskType ? "caskType-error" : undefined}
+              {...register("caskType")}
+            />
+            <FieldError id="caskType-error" errors={[errors.caskType]} />
           </Field>
         </div>
 

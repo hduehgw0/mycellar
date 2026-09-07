@@ -114,6 +114,7 @@ export function DeleteBottleDialog({
             キャンセル
           </AlertDialogCancel>
           <Button
+            type="button"
             variant="destructive"
             size="lg"
             onClick={handleDelete}

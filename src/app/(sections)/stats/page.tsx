@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { requireSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { summarizeBottles, type BottleForStats } from "@/lib/bottle-stats";
@@ -10,6 +11,8 @@ const BOTTLE_STATS_SELECT = {
   isLimited: true,
   quantity: true,
 } satisfies Record<keyof BottleForStats, true>;
+
+export const metadata: Metadata = { title: "傾向" };
 
 export default async function StatsPage() {
   const session = await requireSession();
@@ -70,24 +73,24 @@ export default async function StatsPage() {
                 return (
                   <div
                     key={region ?? "unset"}
-                    className="flex flex-col gap-1.5"
+                    className="grid grid-cols-[1fr_auto] items-baseline gap-x-4 gap-y-1.5"
                   >
-                    <div className="flex items-baseline justify-between gap-4">
-                      <dt
-                        className={cn(
-                          "text-sm",
-                          isUnset && "text-muted-foreground",
-                        )}
-                      >
-                        {region ?? "未設定"}
-                      </dt>
-                      <dd className="text-sm font-bold">{quantity}本</dd>
-                    </div>
+                    <dt
+                      className={cn(
+                        "text-sm",
+                        isUnset && "text-muted-foreground",
+                      )}
+                    >
+                      {region ?? "未設定"}
+                    </dt>
+                    <dd className="text-sm font-bold">{quantity}本</dd>
                     {/* 長さは最も多い産地を 100% とする比率。全体に対する比率だと
-                        差が潰れて偏りが見えない。 */}
-                    <div
+                        差が潰れて偏りが見えない。
+                        バーを 2 つ目の dd にするのは、dl 直下の div に置けるのが
+                        dt と dd だけのため（col-span-2 で 2 行目の全幅になる）。 */}
+                    <dd
                       aria-hidden
-                      className="h-2 overflow-hidden rounded-full bg-muted"
+                      className="col-span-2 h-2 overflow-hidden rounded-full bg-muted"
                     >
                       <div
                         className={cn(
@@ -98,7 +101,7 @@ export default async function StatsPage() {
                           width: `${(quantity / stats.maxRegionQuantity) * 100}%`,
                         }}
                       />
-                    </div>
+                    </dd>
                   </div>
                 );
               })}
@@ -133,11 +136,14 @@ export default async function StatsPage() {
                 },
               ].map(({ label, value, color }) => (
                 <div key={label} className="flex items-center gap-2">
-                  <span
-                    aria-hidden
-                    className={cn("size-3 rounded-xs", color)}
-                  />
-                  <dt className="text-muted-foreground">{label}</dt>
+                  {/* 色見本は dt の中に置く。dl 直下の div には dt と dd しか置けない。 */}
+                  <dt className="flex items-center gap-2 text-muted-foreground">
+                    <span
+                      aria-hidden
+                      className={cn("size-3 rounded-xs", color)}
+                    />
+                    {label}
+                  </dt>
                   <dd className="font-bold">{value}本</dd>
                 </div>
               ))}
