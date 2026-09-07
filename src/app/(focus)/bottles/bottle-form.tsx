@@ -115,14 +115,9 @@ export function BottleForm({
               />
             )}
           />
-          {/* FieldError 既定の role="alert" を打ち消す。aria-describedby と
-              併用すると支援技術が二重に読み上げるため（describedby だけでも
-              出現時に読まれる）。 */}
-          <FieldError
-            id="bottle-name-error"
-            role={undefined}
-            errors={[errors.name]}
-          />
+          {/* role="alert"（FieldError 既定）は出現時、aria-describedby はフォーカス時に
+              読まれる。先頭のエラーは二重に読まれるが、role を外すと 2 件目以降が無音になる。 */}
+          <FieldError id="bottle-name-error" errors={[errors.name]} />
         </Field>
 
         <div className="grid grid-cols-2 gap-3">
@@ -195,7 +190,7 @@ export function BottleForm({
               aria-describedby={errors.age ? "age-error" : undefined}
               {...register("age", { setValueAs: asOptionalNumber })}
             />
-            <FieldError id="age-error" role={undefined} errors={[errors.age]} />
+            <FieldError id="age-error" errors={[errors.age]} />
           </Field>
 
           <Field data-invalid={!!errors.caskType}>
@@ -209,11 +204,7 @@ export function BottleForm({
               aria-describedby={errors.caskType ? "caskType-error" : undefined}
               {...register("caskType")}
             />
-            <FieldError
-              id="caskType-error"
-              role={undefined}
-              errors={[errors.caskType]}
-            />
+            <FieldError id="caskType-error" errors={[errors.caskType]} />
           </Field>
         </div>
 
