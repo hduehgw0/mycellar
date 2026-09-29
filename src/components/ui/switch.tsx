@@ -24,8 +24,8 @@ function Switch({
     >
       <SwitchPrimitive.Thumb
         data-slot="switch-thumb"
-        // オンのつまみはモックでは明るいまま（shadcn 既定の primary-foreground は
-        // 琥珀の上に黒い穴が空いて見える）→ docs/ui-mockups/05-ボトル登録.png
+        // オンのつまみは明るいまま（shadcn 既定の primary-foreground は
+        // 琥珀の上に黒い穴が空いて見える）
         className="pointer-events-none block rounded-full bg-background ring-0 transition-transform group-data-[size=default]/switch:size-6 group-data-[size=sm]/switch:size-5 group-data-[size=default]/switch:data-checked:translate-x-[calc(100%-2px)] group-data-[size=sm]/switch:data-checked:translate-x-[calc(100%-2px)] dark:data-checked:bg-foreground group-data-[size=default]/switch:data-unchecked:translate-x-0 group-data-[size=sm]/switch:data-unchecked:translate-x-0 dark:data-unchecked:bg-foreground"
       />
     </SwitchPrimitive.Root>

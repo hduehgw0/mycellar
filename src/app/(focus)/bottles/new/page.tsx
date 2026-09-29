@@ -11,7 +11,7 @@ export default async function NewBottlePage() {
 
   return (
     <>
-      {/* 見出しは中央、離脱は左上（→ docs/ui-mockups/05-ボトル登録.png）。 */}
+      {/* 見出しは中央、離脱は左上。 */}
       <header className="relative flex items-center justify-center">
         <Button
           asChild
