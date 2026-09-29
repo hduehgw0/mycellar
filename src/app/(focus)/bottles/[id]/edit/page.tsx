@@ -22,7 +22,7 @@ export default async function EditBottlePage({
 
   return (
     <>
-      {/* 見出しは中央、離脱は左上（→ docs/ui-mockups/06-ボトル編集.png）。 */}
+      {/* 見出しは中央、離脱は左上。 */}
       <header className="relative flex items-center justify-center">
         <Button
           asChild
