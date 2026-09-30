@@ -14,52 +14,74 @@ datasource db {
 
 /// アプリの利用者。Better Auth の要求スキーマに従う（better-auth CLI 生成・手設計しない → ADR-0010）。
 model User {
-  id            String    @id @default(cuid())
+  id            String       @id @default(cuid())
   /// Google から取得。
   name          String?
   /// Google から取得。
-  email         String?   @unique
+  email         String?      @unique
   /// Better Auth が要求。Google OAuth では実質未使用だが削らない。
-  emailVerified Boolean   @default(false)
+  emailVerified Boolean      @default(false)
   /// Google のプロフィール画像 URL。
   image         String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  bottles       Bottle[]
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  whiskies      Whisky[]
+  bottles       UserBottle[]
   sessions      Session[]
   accounts      Account[]
 
   @@map("user")
 }
 
-/// 所有しているウイスキー 1 種類。行の粒度の定義は docs/data-model.md を参照。
-model Bottle {
-  id          String   @id @default(cuid())
-  userId      String
-  /// User を削除すると、そのユーザーのボトルも削除される。
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  /// 銘柄名。唯一の必須項目。
-  name        String
-  /// 産地。固定リスト選択式（表記ゆれ防止）。選択肢は zod の REGIONS で管理し、追加にマイグレーションは不要。
-  region      String?
-  /// 地域（アイラ／スペイサイド等）。region が選ばれている前提の任意項目で、地域だけの入力はしない。
-  subRegion   String?
-  /// 年数。空欄は NAS（年数表記なし）として扱う。未入力と NAS は区別しない。
-  age         Int?
-  caskType    String?
-  isLimited   Boolean  @default(false)
-  quantity    Int      @default(1)
-  note        String?
-  /// 「同じ物」の判定キー。銘柄名・年数・樽・限定版を正規化して区切り文字でつないだ値
-  /// （組み立ては src/lib/bottle-identity.ts）。4 列に一意制約を張ると Postgres が NULL 同士を
-  /// 別の値として扱い効かないため、空欄を空文字にしたこの列で代用する。表現は変更不可。
-  identityKey String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+/// あるユーザーにとっての製品（ウイスキーの種類）1 つ。何本持っているかは持たない。
+/// 共有マスタにはしない（ユーザーごとに独立）。
+model Whisky {
+  id        String       @id @default(cuid())
+  userId    String
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /// 製品名。ラベルどおりのフル製品名（例「ザ・マッカラン 12年 シェリーオークカスク」）。
+  /// 唯一の必須項目。保存は入力どおりで、正規化しない。
+  name      String
+  /// 重複判定用に name を正規化した値（NFKC → 小文字化 → 空白・不可視文字の除去）。
+  /// サーバで name から作る。表示には使わない。
+  nameKey   String
+  /// 国。固定リスト（zod の COUNTRIES）。
+  country   String?
+  /// 地域。固定リスト（zod の REGIONS）。country がスコットランドのときだけ入力できる。
+  region    String?
+  /// ラベルに書かれた年数。並べ替え・フィルタ用。name にも年数が含まれうるが、
+  /// 機械で扱える値として別に持つ。空欄は NAS と未確認を区別しない（→ #121）。
+  age       Int?
+  /// 樽の種類。固定リスト（zod の CASK_TYPES）。多重熟成は「その他」。
+  caskType  String?
+  isLimited Boolean      @default(false)
+  /// 製品についてのメモ。1 本ごとのメモではない。
+  memo      String?
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+  bottles   UserBottle[]
 
-  @@unique([userId, identityKey])
-  @@index([userId])
-  @@map("bottle")
+  // userId で始まるので、外部キー userId の索引も兼ねる（別の @@index は置かない）。
+  @@unique([userId, nameKey])
+  // UserBottle からの複合外部キーの参照先。id が主キーなので値としては常に一意。
+  @@unique([id, userId])
+  @@map("whisky")
+}
+
+/// ユーザーが持っている現物 1 本。同じ製品を 3 本持っていれば 3 行。
+model UserBottle {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  whiskyId  String
+  /// (whiskyId, userId) の組で参照する。他人の製品を指す行は DB が拒否する。
+  whisky    Whisky   @relation(fields: [whiskyId, userId], references: [id, userId], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // 先頭を userId にして、userId だけの検索と複合外部キーの検索を 1 本で賄う。
+  @@index([userId, whiskyId])
+  @@map("user_bottle")
 }
 
 /// Better Auth が要求する認証モデル（手設計しない → ADR-0010）。
