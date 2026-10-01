@@ -45,6 +45,17 @@ export const CASK_TYPES = [
 
 const AGE_MESSAGE = "年数は0〜100の整数で入力してください";
 const QUANTITY_MESSAGE = "本数は1以上の整数で入力してください";
+const REGION_MESSAGE = "地域は国がスコットランドのときだけ選べます";
+
+const quantitySchema = z.int(QUANTITY_MESSAGE).min(1, QUANTITY_MESSAGE);
+
+const regionNeedsScotland = ({
+  country,
+  region,
+}: {
+  country?: string | null;
+  region?: string | null;
+}) => region == null || country === "スコットランド";
 
 // 既定値と項目間のルールを持たない土台。zod は refine 済みのスキーマを .partial() できない。
 const whiskyBaseSchema = z.object({
@@ -71,13 +82,26 @@ export const whiskyCreateSchema = whiskyBaseSchema
   .extend({
     isLimited: z.boolean().default(false),
     // 登録時にまとめて作るボトルの数。
-    quantity: z.int(QUANTITY_MESSAGE).min(1, QUANTITY_MESSAGE).default(1),
+    quantity: quantitySchema.default(1),
   })
-  .refine(
-    ({ country, region }) => region == null || country === "スコットランド",
-    { error: "地域は国がスコットランドのときだけ選べます", path: ["region"] },
-  );
+  .refine(regionNeedsScotland, { error: REGION_MESSAGE, path: ["region"] });
 
 // zod は検証時に値を変換するので、入れる前（フォームが持つ値）と出た後（検証を通った値）で型が違う。
 export type WhiskyCreateInput = z.input<typeof whiskyCreateSchema>;
 export type WhiskyCreateOutput = z.output<typeof whiskyCreateSchema>;
+
+// 部分更新。送られてきた項目だけを変えるため、既定値を持たせない（既定値が送っていない項目を上書きする）。
+export const whiskyUpdateSchema = whiskyBaseSchema
+  .partial()
+  .extend({
+    // 編集後に持っている本数。
+    quantity: quantitySchema.optional(),
+  })
+  // 片方だけでは、もう片方の今の値（DB にある）と組み合わせた検査ができない。
+  .refine(
+    ({ country, region }) => (country === undefined) === (region === undefined),
+    { error: "国と地域は組で送ってください" },
+  )
+  .refine(regionNeedsScotland, { error: REGION_MESSAGE, path: ["region"] });
+
+export type WhiskyUpdateOutput = z.output<typeof whiskyUpdateSchema>;
