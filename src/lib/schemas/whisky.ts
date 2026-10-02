@@ -44,10 +44,14 @@ export const CASK_TYPES = [
 ] as const;
 
 const AGE_MESSAGE = "年数は0〜100の整数で入力してください";
-const QUANTITY_MESSAGE = "本数は1以上の整数で入力してください";
+const QUANTITY_MESSAGE = "本数は1〜99の整数で入力してください";
 const REGION_MESSAGE = "地域は国がスコットランドのときだけ選べます";
 
-const quantitySchema = z.int(QUANTITY_MESSAGE).min(1, QUANTITY_MESSAGE);
+// 1 本 = 1 行なので、上限が無いと 1 回の要求で行を際限なく作れる。
+const quantitySchema = z
+  .int(QUANTITY_MESSAGE)
+  .min(1, QUANTITY_MESSAGE)
+  .max(99, QUANTITY_MESSAGE);
 
 const regionNeedsScotland = ({
   country,
@@ -62,6 +66,8 @@ const whiskyBaseSchema = z.object({
   name: z
     .string()
     .trim()
+    // nameKey の一意索引は約 2700 バイトを超える値を拒否する。実在の製品名は長くても 50 字前後。
+    .max(100, "製品名は100文字以内で入力してください")
     // 空文字・空白だけ・不可視文字だけを 1 つで弾く（どれも nameKey が空になる）。
     .refine((value) => toNameKey(value).length > 0, "製品名を入力してください"),
   country: z.enum(COUNTRIES).nullish(),
@@ -72,6 +78,7 @@ const whiskyBaseSchema = z.object({
   memo: z
     .string()
     .trim()
+    .max(500, "メモは500文字以内で入力してください")
     // 空欄は値なし（null）に揃える。DB に空文字を残さず、更新では「消す」の意味になる。
     .transform((value) => (value === "" ? null : value))
     .nullish(),

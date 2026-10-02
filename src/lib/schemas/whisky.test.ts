@@ -31,6 +31,12 @@ describe("whiskyCreateSchema", () => {
     },
   );
 
+  it("製品名は100文字まで", () => {
+    const parse = (name: string) => whiskyCreateSchema.safeParse({ name });
+    expect(parse("あ".repeat(100)).success).toBe(true);
+    expect(parse("あ".repeat(101)).success).toBe(false);
+  });
+
   it("固定リストにない国は通らない", () => {
     const result = whiskyCreateSchema.safeParse({
       name: "山崎",
@@ -58,7 +64,12 @@ describe("whiskyCreateSchema", () => {
     expect(result.success).toBe(false);
   });
 
-  it.each([0, -1, 1.5])("本数 %d は通らない（1以上の整数）", (quantity) => {
+  it.each([1, 99])("本数 %d は通る（1〜99）", (quantity) => {
+    const result = whiskyCreateSchema.safeParse({ name: "山崎", quantity });
+    expect(result.success).toBe(true);
+  });
+
+  it.each([0, 100, 1.5])("本数 %d は通らない（1〜99の整数）", (quantity) => {
     const result = whiskyCreateSchema.safeParse({ name: "山崎", quantity });
     expect(result.success).toBe(false);
   });
@@ -66,6 +77,13 @@ describe("whiskyCreateSchema", () => {
   it("メモの空文字は値なし（null）になる", () => {
     const result = whiskyCreateSchema.parse({ name: "山崎", memo: "" });
     expect(result.memo).toBeNull();
+  });
+
+  it("メモは500文字まで", () => {
+    const parse = (memo: string) =>
+      whiskyCreateSchema.safeParse({ name: "山崎", memo });
+    expect(parse("あ".repeat(500)).success).toBe(true);
+    expect(parse("あ".repeat(501)).success).toBe(false);
   });
 });
 
@@ -100,7 +118,7 @@ describe("whiskyUpdateSchema", () => {
     expect(result.success).toBe(false);
   });
 
-  it("本数 0 は通らない（1以上の整数）", () => {
+  it("本数 0 は通らない（1〜99の整数）", () => {
     const result = whiskyUpdateSchema.safeParse({ quantity: 0 });
     expect(result.success).toBe(false);
   });
