@@ -32,6 +32,14 @@ describe("toNameKey", () => {
     expect(toNameKey(`山崎 12年${invisible}`)).toBe("山崎12年");
   });
 
+  // 間の不可視文字を除いた後に、分かれたまま残らないようにする。
+  it.each([
+    ["結合文字", "Cafe\u200B\u0301", "Café"],
+    ["半角カナの濁点", "ｶ\u200Bﾞ", "ガ"],
+  ])("不可視文字で分かれた%sを合成する", (_name, split, composed) => {
+    expect(toNameKey(split)).toBe(toNameKey(composed));
+  });
+
   // 小文字化を先にすると NFKC が後から大文字を作って残る。
   it("NFKC を小文字化より先に掛ける", () => {
     expect(toNameKey("ᴬ")).toBe("a");
