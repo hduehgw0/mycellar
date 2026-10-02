@@ -93,7 +93,6 @@ export const whiskyCreateSchema = whiskyBaseSchema
   })
   .refine(regionNeedsScotland, { error: REGION_MESSAGE, path: ["region"] });
 
-// zod は検証時に値を変換するので、入れる前（フォームが持つ値）と出た後（検証を通った値）で型が違う。
 export type WhiskyCreateInput = z.input<typeof whiskyCreateSchema>;
 export type WhiskyCreateOutput = z.output<typeof whiskyCreateSchema>;
 
