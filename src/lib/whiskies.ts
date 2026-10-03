@@ -1,7 +1,10 @@
 import { Prisma, type Whisky } from "@/generated/prisma/client";
 import { toNameKey } from "@/lib/name-key";
 import { prisma } from "@/lib/prisma";
-import type { WhiskyCreateOutput } from "@/lib/schemas/whisky";
+import type {
+  WhiskyCreateOutput,
+  WhiskyUpdateOutput,
+} from "@/lib/schemas/whisky";
 
 // 製品の書き込みはここだけを通す。Route Handler から Prisma を直接呼ぶと
 // nameKey の設定漏れが起きるため。
@@ -9,6 +12,11 @@ import type { WhiskyCreateOutput } from "@/lib/schemas/whisky";
 export type CreateResult =
   | { status: "created"; whisky: Whisky }
   | { status: "duplicate"; whisky: Whisky };
+
+export type UpdateResult =
+  | { status: "updated" }
+  | { status: "duplicate"; whisky: Whisky }
+  | { status: "notFound" };
 
 const isDuplicateError = (error: unknown) =>
   error instanceof Prisma.PrismaClientKnownRequestError &&
@@ -48,6 +56,33 @@ export async function createWhisky(
 
     const existing = await findByNameKey(userId, nameKey);
     if (!existing) throw error; // 衝突直後に消された場合のみ。通常は必ず見つかる。
+    return { status: "duplicate", whisky: existing };
+  }
+}
+
+export async function updateWhisky(
+  userId: string,
+  id: string,
+  fields: Omit<WhiskyUpdateOutput, "quantity">,
+): Promise<UpdateResult> {
+  // 製品名が送られたときだけ作り直す（undefined の列は Prisma が更新しない）。
+  const nameKey =
+    fields.name === undefined ? undefined : toNameKey(fields.name);
+
+  try {
+    // 認可：where に userId を含めることで他人の製品は更新できない。
+    // updateMany は非一意フィルタで userId を AND でき、件数を返すため 404 判定に使える。
+    const { count } = await prisma.whisky.updateMany({
+      where: { id, userId },
+      data: { ...fields, nameKey },
+    });
+    return count === 0 ? { status: "notFound" } : { status: "updated" };
+  } catch (error) {
+    // nameKey === undefined の判定は、下の findByNameKey に渡せるよう型を string に絞るためのもの。
+    if (!isDuplicateError(error) || nameKey === undefined) throw error;
+
+    const existing = await findByNameKey(userId, nameKey);
+    if (!existing) throw error;
     return { status: "duplicate", whisky: existing };
   }
 }

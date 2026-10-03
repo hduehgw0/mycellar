@@ -3,10 +3,12 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { Prisma, type Whisky } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import { whiskyCreateSchema } from "@/lib/schemas/whisky";
-import { createWhisky } from "@/lib/whiskies";
+import { createWhisky, updateWhisky } from "@/lib/whiskies";
 
 vi.mock("@/lib/prisma", () => ({
-  prisma: { whisky: { create: vi.fn(), findUnique: vi.fn() } },
+  prisma: {
+    whisky: { create: vi.fn(), updateMany: vi.fn(), findUnique: vi.fn() },
+  },
 }));
 
 const existing = { id: "whisky_existing", name: "山崎 12年" } as Whisky;
@@ -23,6 +25,9 @@ beforeEach(() => {
   vi.mocked(prisma.whisky.create)
     .mockReset()
     .mockResolvedValue({ id: "whisky_1" } as Whisky);
+  vi.mocked(prisma.whisky.updateMany).mockReset().mockResolvedValue({
+    count: 1,
+  });
   vi.mocked(prisma.whisky.findUnique).mockReset().mockResolvedValue(existing);
 });
 
@@ -58,5 +63,54 @@ describe("createWhisky", () => {
     vi.mocked(prisma.whisky.create).mockRejectedValue(new Error("boom"));
 
     await expect(createWhisky("user_me", input())).rejects.toThrow("boom");
+  });
+});
+
+describe("updateWhisky", () => {
+  it("送られた項目だけを、自分の製品に対して更新する", async () => {
+    const result = await updateWhisky("user_me", "whisky_1", { age: 12 });
+
+    expect(result).toEqual({ status: "updated" });
+    expect(prisma.whisky.updateMany).toHaveBeenCalledWith({
+      // 認可：他人の製品は更新できない。
+      where: { id: "whisky_1", userId: "user_me" },
+      data: { age: 12 },
+    });
+  });
+
+  it("製品名を変えたら nameKey も作り直す", async () => {
+    await updateWhisky("user_me", "whisky_1", { name: "山崎 18年" });
+
+    expect(prisma.whisky.updateMany).toHaveBeenCalledWith({
+      where: { id: "whisky_1", userId: "user_me" },
+      data: { name: "山崎 18年", nameKey: "山崎18年" },
+    });
+  });
+
+  it("空の更新でも、自分の製品なら成功にする", async () => {
+    const result = await updateWhisky("user_me", "whisky_1", {});
+
+    expect(result).toEqual({ status: "updated" });
+  });
+
+  it("自分の製品が無ければ notFound", async () => {
+    vi.mocked(prisma.whisky.updateMany).mockResolvedValue({ count: 0 });
+
+    const result = await updateWhisky("user_me", "whisky_1", { age: 12 });
+
+    expect(result).toEqual({ status: "notFound" });
+  });
+
+  it("製品名の変更で別の製品と重なったら既存の製品を返す", async () => {
+    vi.mocked(prisma.whisky.updateMany).mockRejectedValue(duplicateError);
+
+    const result = await updateWhisky("user_me", "whisky_1", {
+      name: "山崎 12年",
+    });
+
+    expect(result).toEqual({ status: "duplicate", whisky: existing });
+    expect(prisma.whisky.findUnique).toHaveBeenCalledWith({
+      where: { userId_nameKey: { userId: "user_me", nameKey: "山崎12年" } },
+    });
   });
 });
