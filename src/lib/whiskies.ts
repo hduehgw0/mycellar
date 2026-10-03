@@ -63,20 +63,30 @@ export async function createWhisky(
 export async function updateWhisky(
   userId: string,
   id: string,
-  fields: Omit<WhiskyUpdateOutput, "quantity">,
+  // 本数は Whisky の列ではないので、updateMany に渡す前に取り出す。
+  { quantity, ...fields }: WhiskyUpdateOutput,
 ): Promise<UpdateResult> {
   // 製品名が送られたときだけ作り直す（undefined の列は Prisma が更新しない）。
   const nameKey =
     fields.name === undefined ? undefined : toNameKey(fields.name);
 
   try {
-    // 認可：where に userId を含めることで他人の製品は更新できない。
-    // updateMany は非一意フィルタで userId を AND でき、件数を返すため 404 判定に使える。
-    const { count } = await prisma.whisky.updateMany({
-      where: { id, userId },
-      data: { ...fields, nameKey },
+    // 項目の更新と本数の増減をまとめ、どちらかが失敗したら両方を戻す
+    // （製品名が重複したら本数も変えない）。
+    return await prisma.$transaction(async (tx) => {
+      // 認可：where に userId を含めることで他人の製品は更新できない。
+      // updateMany は非一意フィルタで userId を AND でき、件数を返すため 404 判定に使える。
+      const { count } = await tx.whisky.updateMany({
+        where: { id, userId },
+        data: { ...fields, nameKey },
+      });
+      if (count === 0) return { status: "notFound" };
+
+      if (quantity !== undefined) {
+        await setBottleCount(tx, userId, id, quantity);
+      }
+      return { status: "updated" };
     });
-    return count === 0 ? { status: "notFound" } : { status: "updated" };
   } catch (error) {
     // nameKey === undefined の判定は、下の findByNameKey に渡せるよう型を string に絞るためのもの。
     if (!isDuplicateError(error) || nameKey === undefined) throw error;
@@ -84,5 +94,35 @@ export async function updateWhisky(
     const existing = await findByNameKey(userId, nameKey);
     if (!existing) throw error;
     return { status: "duplicate", whisky: existing };
+  }
+}
+
+// 製品のボトルを quantity 本にそろえる。
+async function setBottleCount(
+  tx: Prisma.TransactionClient,
+  userId: string,
+  whiskyId: string,
+  quantity: number,
+) {
+  // 製品の行をロックしてから数える。ロックしないと、二重送信で両方が同じ本数を数え、
+  // 足しすぎたり消しすぎたりする（空の更新では updateMany が行をロックしない）。
+  await tx.$queryRaw`SELECT id FROM whisky WHERE id = ${whiskyId} FOR UPDATE`;
+
+  const bottles = await tx.userBottle.findMany({
+    where: { whiskyId, userId },
+    select: { id: true },
+    // ボトルはまだ見分ける情報を持たないので、どれを消しても同じ。新しいものから消す。
+    orderBy: { createdAt: "desc" },
+  });
+  const diff = quantity - bottles.length;
+
+  if (diff > 0) {
+    await tx.userBottle.createMany({
+      data: Array.from({ length: diff }, () => ({ whiskyId, userId })),
+    });
+  } else if (diff < 0) {
+    await tx.userBottle.deleteMany({
+      where: { id: { in: bottles.slice(0, -diff).map(({ id }) => id) } },
+    });
   }
 }

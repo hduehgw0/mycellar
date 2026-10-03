@@ -1,15 +1,24 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { Prisma, type Whisky } from "@/generated/prisma/client";
+import {
+  Prisma,
+  type UserBottle,
+  type Whisky,
+} from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import { whiskyCreateSchema } from "@/lib/schemas/whisky";
 import { createWhisky, updateWhisky } from "@/lib/whiskies";
 
-vi.mock("@/lib/prisma", () => ({
-  prisma: {
+vi.mock("@/lib/prisma", () => {
+  const prisma = {
     whisky: { create: vi.fn(), updateMany: vi.fn(), findUnique: vi.fn() },
-  },
-}));
+    userBottle: { findMany: vi.fn(), createMany: vi.fn(), deleteMany: vi.fn() },
+    $queryRaw: vi.fn(),
+    // トランザクション内の操作も、同じモックで確かめる。
+    $transaction: vi.fn((fn: (tx: unknown) => unknown) => fn(prisma)),
+  };
+  return { prisma };
+});
 
 const existing = { id: "whisky_existing", name: "山崎 12年" } as Whisky;
 
@@ -29,7 +38,17 @@ beforeEach(() => {
     count: 1,
   });
   vi.mocked(prisma.whisky.findUnique).mockReset().mockResolvedValue(existing);
+  vi.mocked(prisma.userBottle.findMany).mockReset().mockResolvedValue([]);
+  vi.mocked(prisma.userBottle.createMany).mockReset();
+  vi.mocked(prisma.userBottle.deleteMany).mockReset();
+  vi.mocked(prisma.$queryRaw).mockReset();
 });
+
+// 新しいものから並んだ、今あるボトル。
+const bottles = (...ids: string[]) =>
+  vi
+    .mocked(prisma.userBottle.findMany)
+    .mockResolvedValue(ids.map((id) => ({ id }) as UserBottle));
 
 describe("createWhisky", () => {
   it("nameKey とログインユーザーを付け、本数分のボトルと一緒に作る", async () => {
@@ -112,5 +131,79 @@ describe("updateWhisky", () => {
     expect(prisma.whisky.findUnique).toHaveBeenCalledWith({
       where: { userId_nameKey: { userId: "user_me", nameKey: "山崎12年" } },
     });
+  });
+});
+
+describe("updateWhisky の本数", () => {
+  it("本数を増やすと、足りない分のボトルを足す", async () => {
+    bottles("b2", "b1");
+
+    await updateWhisky("user_me", "whisky_1", { quantity: 3 });
+
+    expect(prisma.userBottle.createMany).toHaveBeenCalledWith({
+      data: [{ whiskyId: "whisky_1", userId: "user_me" }],
+    });
+    expect(prisma.userBottle.deleteMany).not.toHaveBeenCalled();
+  });
+
+  it("本数を減らすと、新しいボトルから消す", async () => {
+    bottles("b3", "b2", "b1");
+
+    await updateWhisky("user_me", "whisky_1", { quantity: 1 });
+
+    expect(prisma.userBottle.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ orderBy: { createdAt: "desc" } }),
+    );
+    expect(prisma.userBottle.deleteMany).toHaveBeenCalledWith({
+      where: { id: { in: ["b3", "b2"] } },
+    });
+    expect(prisma.userBottle.createMany).not.toHaveBeenCalled();
+  });
+
+  it("本数が同じならボトルを足しも消しもしない", async () => {
+    bottles("b2", "b1");
+
+    await updateWhisky("user_me", "whisky_1", { quantity: 2 });
+
+    expect(prisma.userBottle.createMany).not.toHaveBeenCalled();
+    expect(prisma.userBottle.deleteMany).not.toHaveBeenCalled();
+  });
+
+  // ロックしないと、二重送信で両方が同じ本数を数えて足しすぎる。
+  it("ボトルを数える前に製品の行をロックする", async () => {
+    await updateWhisky("user_me", "whisky_1", { quantity: 3 });
+
+    expect(
+      vi.mocked(prisma.$queryRaw).mock.invocationCallOrder[0],
+    ).toBeLessThan(
+      vi.mocked(prisma.userBottle.findMany).mock.invocationCallOrder[0],
+    );
+  });
+
+  it("本数を送らなければボトルに触れない", async () => {
+    await updateWhisky("user_me", "whisky_1", { age: 12 });
+
+    expect(prisma.userBottle.findMany).not.toHaveBeenCalled();
+  });
+
+  it("自分の製品が無ければ本数も変えない", async () => {
+    vi.mocked(prisma.whisky.updateMany).mockResolvedValue({ count: 0 });
+
+    const result = await updateWhisky("user_me", "whisky_1", { quantity: 3 });
+
+    expect(result).toEqual({ status: "notFound" });
+    expect(prisma.userBottle.findMany).not.toHaveBeenCalled();
+  });
+
+  it("製品名が重複したら本数も変えない", async () => {
+    vi.mocked(prisma.whisky.updateMany).mockRejectedValue(duplicateError);
+
+    const result = await updateWhisky("user_me", "whisky_1", {
+      name: "山崎 12年",
+      quantity: 3,
+    });
+
+    expect(result).toEqual({ status: "duplicate", whisky: existing });
+    expect(prisma.userBottle.findMany).not.toHaveBeenCalled();
   });
 });
