@@ -63,7 +63,7 @@ export async function createWhisky(
 export async function updateWhisky(
   userId: string,
   id: string,
-  // 本数は Whisky の列ではないので、updateMany に渡す前に取り出す。
+  // 本数は Whisky の列ではないので、製品の更新に渡す前に取り出す。
   { quantity, ...fields }: WhiskyUpdateOutput,
 ): Promise<UpdateResult> {
   // 製品名が送られたときだけ作り直す（undefined の列は Prisma が更新しない）。
@@ -74,14 +74,13 @@ export async function updateWhisky(
     // 項目の更新と本数の増減をまとめ、どちらかが失敗したら両方を戻す
     // （製品名が重複したら本数も変えない）。
     return await prisma.$transaction(async (tx) => {
-      // 認可：where に userId を含めることで他人の製品は更新できない。
-      // updateMany は非一意フィルタで userId を AND でき、件数を返すため 404 判定に使える。
-      const { count } = await tx.whisky.updateMany({
-        where: { id, userId },
-        data: { ...fields, nameKey },
-      });
-      if (count === 0) return { status: "notFound" };
+      // 認可とロックを 1 回で行う。他人の製品や存在しない製品は 0 行になる。
+      // ロックは、二重送信で両方が同じ本数を数えて足しすぎるのと、途中で製品が消されるのを防ぐ。
+      const [target] = await tx.$queryRaw<[] | [{ id: string }]>`
+        SELECT id FROM whisky WHERE id = ${id} AND "userId" = ${userId} FOR UPDATE`;
+      if (!target) return { status: "notFound" };
 
+      await tx.whisky.update({ where: { id }, data: { ...fields, nameKey } });
       if (quantity !== undefined) {
         await setBottleCount(tx, userId, id, quantity);
       }
@@ -97,17 +96,13 @@ export async function updateWhisky(
   }
 }
 
-// 製品のボトルを quantity 本にそろえる。
+// 製品のボトルを quantity 本にそろえる。製品の行はロック済みであること。
 async function setBottleCount(
   tx: Prisma.TransactionClient,
   userId: string,
   whiskyId: string,
   quantity: number,
 ) {
-  // 製品の行をロックしてから数える。ロックしないと、二重送信で両方が同じ本数を数え、
-  // 足しすぎたり消しすぎたりする（空の更新では updateMany が行をロックしない）。
-  await tx.$queryRaw`SELECT id FROM whisky WHERE id = ${whiskyId} FOR UPDATE`;
-
   const bottles = await tx.userBottle.findMany({
     where: { whiskyId, userId },
     select: { id: true },

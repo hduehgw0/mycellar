@@ -11,7 +11,7 @@ import { createWhisky, updateWhisky } from "@/lib/whiskies";
 
 vi.mock("@/lib/prisma", () => {
   const prisma = {
-    whisky: { create: vi.fn(), updateMany: vi.fn(), findUnique: vi.fn() },
+    whisky: { create: vi.fn(), update: vi.fn(), findUnique: vi.fn() },
     userBottle: { findMany: vi.fn(), createMany: vi.fn(), deleteMany: vi.fn() },
     $queryRaw: vi.fn(),
     // トランザクション内の操作も、同じモックで確かめる。
@@ -34,15 +34,18 @@ beforeEach(() => {
   vi.mocked(prisma.whisky.create)
     .mockReset()
     .mockResolvedValue({ id: "whisky_1" } as Whisky);
-  vi.mocked(prisma.whisky.updateMany).mockReset().mockResolvedValue({
-    count: 1,
-  });
+  vi.mocked(prisma.whisky.update).mockReset();
   vi.mocked(prisma.whisky.findUnique).mockReset().mockResolvedValue(existing);
   vi.mocked(prisma.userBottle.findMany).mockReset().mockResolvedValue([]);
   vi.mocked(prisma.userBottle.createMany).mockReset();
   vi.mocked(prisma.userBottle.deleteMany).mockReset();
-  vi.mocked(prisma.$queryRaw).mockReset();
+  // ロックのクエリが自分の製品を 1 行返す（＝自分の製品がある）。
+  vi.mocked(prisma.$queryRaw)
+    .mockReset()
+    .mockResolvedValue([{ id: "whisky_1" }]);
 });
+
+const notOwned = () => vi.mocked(prisma.$queryRaw).mockResolvedValue([]);
 
 // 新しいものから並んだ、今あるボトル。
 const bottles = (...ids: string[]) =>
@@ -90,9 +93,13 @@ describe("updateWhisky", () => {
     const result = await updateWhisky("user_me", "whisky_1", { age: 12 });
 
     expect(result).toEqual({ status: "updated" });
-    expect(prisma.whisky.updateMany).toHaveBeenCalledWith({
-      // 認可：他人の製品は更新できない。
-      where: { id: "whisky_1", userId: "user_me" },
+    // 認可：ロックのクエリを製品の id と自分の userId で絞る（他人の製品は 0 行になる）。
+    expect(vi.mocked(prisma.$queryRaw).mock.calls[0].slice(1)).toEqual([
+      "whisky_1",
+      "user_me",
+    ]);
+    expect(prisma.whisky.update).toHaveBeenCalledWith({
+      where: { id: "whisky_1" },
       data: { age: 12 },
     });
   });
@@ -100,8 +107,8 @@ describe("updateWhisky", () => {
   it("製品名を変えたら nameKey も作り直す", async () => {
     await updateWhisky("user_me", "whisky_1", { name: "山崎 18年" });
 
-    expect(prisma.whisky.updateMany).toHaveBeenCalledWith({
-      where: { id: "whisky_1", userId: "user_me" },
+    expect(prisma.whisky.update).toHaveBeenCalledWith({
+      where: { id: "whisky_1" },
       data: { name: "山崎 18年", nameKey: "山崎18年" },
     });
   });
@@ -112,16 +119,17 @@ describe("updateWhisky", () => {
     expect(result).toEqual({ status: "updated" });
   });
 
-  it("自分の製品が無ければ notFound", async () => {
-    vi.mocked(prisma.whisky.updateMany).mockResolvedValue({ count: 0 });
+  it("自分の製品が無ければ、更新せずに notFound", async () => {
+    notOwned();
 
     const result = await updateWhisky("user_me", "whisky_1", { age: 12 });
 
     expect(result).toEqual({ status: "notFound" });
+    expect(prisma.whisky.update).not.toHaveBeenCalled();
   });
 
   it("製品名の変更で別の製品と重なったら既存の製品を返す", async () => {
-    vi.mocked(prisma.whisky.updateMany).mockRejectedValue(duplicateError);
+    vi.mocked(prisma.whisky.update).mockRejectedValue(duplicateError);
 
     const result = await updateWhisky("user_me", "whisky_1", {
       name: "山崎 12年",
@@ -187,7 +195,7 @@ describe("updateWhisky の本数", () => {
   });
 
   it("自分の製品が無ければ本数も変えない", async () => {
-    vi.mocked(prisma.whisky.updateMany).mockResolvedValue({ count: 0 });
+    notOwned();
 
     const result = await updateWhisky("user_me", "whisky_1", { quantity: 3 });
 
@@ -196,7 +204,7 @@ describe("updateWhisky の本数", () => {
   });
 
   it("製品名が重複したら本数も変えない", async () => {
-    vi.mocked(prisma.whisky.updateMany).mockRejectedValue(duplicateError);
+    vi.mocked(prisma.whisky.update).mockRejectedValue(duplicateError);
 
     const result = await updateWhisky("user_me", "whisky_1", {
       name: "山崎 12年",
