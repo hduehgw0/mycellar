@@ -148,6 +148,11 @@ describe("updateWhisky の本数", () => {
 
     await updateWhisky("user_me", "whisky_1", { quantity: 3 });
 
+    // 別の製品や他人のボトルを数えない。
+    expect(prisma.userBottle.findMany).toHaveBeenCalledWith({
+      where: { whiskyId: "whisky_1", userId: "user_me" },
+      select: { id: true },
+    });
     expect(prisma.userBottle.createMany).toHaveBeenCalledWith({
       data: [{ whiskyId: "whisky_1", userId: "user_me" }],
     });
