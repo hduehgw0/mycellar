@@ -106,8 +106,6 @@ async function setBottleCount(
   const bottles = await tx.userBottle.findMany({
     where: { whiskyId, userId },
     select: { id: true },
-    // ボトルはまだ見分ける情報を持たないので、どれを消しても同じ。新しいものから消す。
-    orderBy: { createdAt: "desc" },
   });
   const diff = quantity - bottles.length;
 
@@ -116,6 +114,7 @@ async function setBottleCount(
       data: Array.from({ length: diff }, () => ({ whiskyId, userId })),
     });
   } else if (diff < 0) {
+    // ボトルはまだ見分ける情報を持たないので、どれを消しても同じ。
     await tx.userBottle.deleteMany({
       where: { id: { in: bottles.slice(0, -diff).map(({ id }) => id) } },
     });

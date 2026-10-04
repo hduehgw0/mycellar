@@ -47,7 +47,7 @@ beforeEach(() => {
 
 const notOwned = () => vi.mocked(prisma.$queryRaw).mockResolvedValue([]);
 
-// 新しいものから並んだ、今あるボトル。
+// 今あるボトル。
 const bottles = (...ids: string[]) =>
   vi
     .mocked(prisma.userBottle.findMany)
@@ -154,14 +154,11 @@ describe("updateWhisky の本数", () => {
     expect(prisma.userBottle.deleteMany).not.toHaveBeenCalled();
   });
 
-  it("本数を減らすと、新しいボトルから消す", async () => {
+  it("本数を減らすと、余る分のボトルを消す", async () => {
     bottles("b3", "b2", "b1");
 
     await updateWhisky("user_me", "whisky_1", { quantity: 1 });
 
-    expect(prisma.userBottle.findMany).toHaveBeenCalledWith(
-      expect.objectContaining({ orderBy: { createdAt: "desc" } }),
-    );
     expect(prisma.userBottle.deleteMany).toHaveBeenCalledWith({
       where: { id: { in: ["b3", "b2"] } },
     });
