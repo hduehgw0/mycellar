@@ -36,9 +36,18 @@ export type CollectionStats = {
   limitedPercent: number;
 };
 
+// 「その他」はリストに無い国をまとめる受け皿で、1 つの国ではない。
+const OTHER_COUNTRY = "その他";
+
+// 国でない区分は、本数によらず末尾に置く（その他 → 未設定）。
+function countryGroup(country: string | null): number {
+  if (country === null) return 2;
+  return country === OTHER_COUNTRY ? 1 : 0;
+}
+
 // 同数のときの並び。国のリストの順で決め、データの取得順で表示が揺れないようにする。
-function countryOrder(country: string): number {
-  const index = (COUNTRIES as readonly string[]).indexOf(country);
+function countryOrder(country: string | null): number {
+  const index = (COUNTRIES as readonly (string | null)[]).indexOf(country);
   return index < 0 ? COUNTRIES.length : index;
 }
 
@@ -58,15 +67,12 @@ export function summarizeCollection(
 
   const bottleCountsByCountry = [...bottleCountByCountry]
     .map(([country, bottleCount]) => ({ country, bottleCount }))
-    .sort((a, b) => {
-      // 未設定は国ではないので、本数によらず末尾に置く。
-      if (a.country === null) return b.country === null ? 0 : 1;
-      if (b.country === null) return -1;
-      return (
+    .sort(
+      (a, b) =>
+        countryGroup(a.country) - countryGroup(b.country) ||
         b.bottleCount - a.bottleCount ||
-        countryOrder(a.country) - countryOrder(b.country)
-      );
-    });
+        countryOrder(a.country) - countryOrder(b.country),
+    );
 
   const totalBottleCount = countBottles(whiskies);
 
@@ -74,7 +80,7 @@ export function summarizeCollection(
     totalBottleCount,
     whiskyCount: whiskies.length,
     countryCount: bottleCountsByCountry.filter(
-      ({ country }) => country !== null,
+      ({ country }) => countryGroup(country) === 0,
     ).length,
     bottleCountsByCountry,
     maxCountryBottleCount: Math.max(

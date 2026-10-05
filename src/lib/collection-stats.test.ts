@@ -59,6 +59,20 @@ describe("summarizeCollection", () => {
     ]);
   });
 
+  it("「その他」は国ではないので、本数によらず未設定の手前に置く", () => {
+    const stats = summarizeCollection([
+      whisky({ country: null, bottles: 2 }),
+      whisky({ country: "その他", bottles: 5 }),
+      whisky({ country: "日本", bottles: 1 }),
+    ]);
+
+    expect(stats.bottleCountsByCountry.map(({ country }) => country)).toEqual([
+      "日本",
+      "その他",
+      null,
+    ]);
+  });
+
   it("同数のときは国のリストの並び順で決める", () => {
     const stats = summarizeCollection([
       whisky({ country: "日本", bottles: 2 }),
@@ -81,10 +95,12 @@ describe("summarizeCollection", () => {
     expect(stats.maxCountryBottleCount).toBe(5);
   });
 
-  it("国の数に未設定は数えない", () => {
+  // 「その他」は中に何か国あるか分からないので、1 か国とも数えない。
+  it("国の数に未設定と「その他」は数えない", () => {
     const stats = summarizeCollection([
       whisky({ country: "日本" }),
       whisky({ country: "スコットランド" }),
+      whisky({ country: "その他" }),
       whisky({ country: null }),
     ]);
 
