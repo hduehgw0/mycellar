@@ -6,8 +6,8 @@ import type {
   WhiskyUpdateOutput,
 } from "@/lib/schemas/whisky";
 
-// 製品の書き込みはここだけを通す。Route Handler から Prisma を直接呼ぶと
-// nameKey の設定漏れが起きるため。
+// 製品の書き込みと、URL の id で製品を引く読み取りはここを通す。
+// 直接 Prisma を呼ぶと、nameKey の設定や userId の条件を書き忘れるため。
 
 export type CreateResult =
   | { status: "created"; whisky: Whisky }
@@ -119,4 +119,25 @@ async function setBottleCount(
       where: { id: { in: bottles.slice(0, -diff).map(({ id }) => id) } },
     });
   }
+}
+
+// 自分の製品を id で引く。他人の id や存在しない id は null になる（画面は 404）。
+// 認可の条件を呼ぶ側ごとに書くと、userId の書き忘れで他人の製品が見えるため、ここに 1 つにする。
+export function getOwnedWhisky(userId: string, id: string) {
+  return prisma.whisky.findUnique({
+    where: { id_userId: { id, userId } },
+    // 製品ページと編集ページが出す項目だけを取る。内部の列や後から足した列を、ブラウザへ渡さないため。
+    select: {
+      id: true,
+      name: true,
+      country: true,
+      region: true,
+      age: true,
+      caskType: true,
+      isLimited: true,
+      memo: true,
+      // 本数は Whisky の列ではないので一緒に数える。
+      _count: { select: { bottles: true } },
+    },
+  });
 }

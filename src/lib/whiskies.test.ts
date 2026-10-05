@@ -7,7 +7,7 @@ import {
 } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import { whiskyCreateSchema } from "@/lib/schemas/whisky";
-import { createWhisky, updateWhisky } from "@/lib/whiskies";
+import { createWhisky, getOwnedWhisky, updateWhisky } from "@/lib/whiskies";
 
 vi.mock("@/lib/prisma", () => {
   const prisma = {
@@ -215,5 +215,27 @@ describe("updateWhisky の本数", () => {
 
     expect(result).toEqual({ status: "duplicate", whisky: existing });
     expect(prisma.userBottle.findMany).not.toHaveBeenCalled();
+  });
+});
+
+describe("getOwnedWhisky", () => {
+  it("id と自分の userId の組で引き、画面が出す項目と本数だけを取る", async () => {
+    await getOwnedWhisky("user_me", "whisky_1");
+
+    expect(prisma.whisky.findUnique).toHaveBeenCalledWith({
+      // 認可：他人の製品の id では引けない。
+      where: { id_userId: { id: "whisky_1", userId: "user_me" } },
+      select: {
+        id: true,
+        name: true,
+        country: true,
+        region: true,
+        age: true,
+        caskType: true,
+        isLimited: true,
+        memo: true,
+        _count: { select: { bottles: true } },
+      },
+    });
   });
 });
