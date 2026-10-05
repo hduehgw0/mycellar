@@ -120,6 +120,21 @@ describe("summarizeCollection", () => {
     });
   });
 
+  it.each([
+    [1, 250, 0.4],
+    [249, 250, 99.6],
+  ])(
+    "限定版の割合は丸めない（%d / %d 本は %d%）",
+    (limited, total, percent) => {
+      const stats = summarizeCollection([
+        whisky({ isLimited: true, bottles: limited }),
+        whisky({ bottles: total - limited }),
+      ]);
+
+      expect(stats.limitedPercent).toBeCloseTo(percent);
+    },
+  );
+
   it("0 件でも壊れない（割合は 0 で、0 除算にしない）", () => {
     expect(summarizeCollection([])).toEqual({
       totalBottleCount: 0,
