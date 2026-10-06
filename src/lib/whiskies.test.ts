@@ -7,11 +7,21 @@ import {
 } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import { whiskyCreateSchema } from "@/lib/schemas/whisky";
-import { createWhisky, getOwnedWhisky, updateWhisky } from "@/lib/whiskies";
+import {
+  createWhisky,
+  deleteWhisky,
+  getOwnedWhisky,
+  updateWhisky,
+} from "@/lib/whiskies";
 
 vi.mock("@/lib/prisma", () => {
   const prisma = {
-    whisky: { create: vi.fn(), update: vi.fn(), findUnique: vi.fn() },
+    whisky: {
+      create: vi.fn(),
+      update: vi.fn(),
+      deleteMany: vi.fn(),
+      findUnique: vi.fn(),
+    },
     userBottle: { findMany: vi.fn(), createMany: vi.fn(), deleteMany: vi.fn() },
     $queryRaw: vi.fn(),
     // トランザクション内の操作も、同じモックで確かめる。
@@ -35,6 +45,9 @@ beforeEach(() => {
     .mockReset()
     .mockResolvedValue({ id: "whisky_1" } as Whisky);
   vi.mocked(prisma.whisky.update).mockReset();
+  vi.mocked(prisma.whisky.deleteMany).mockReset().mockResolvedValue({
+    count: 1,
+  });
   vi.mocked(prisma.whisky.findUnique).mockReset().mockResolvedValue(existing);
   vi.mocked(prisma.userBottle.findMany).mockReset().mockResolvedValue([]);
   vi.mocked(prisma.userBottle.createMany).mockReset();
@@ -215,6 +228,26 @@ describe("updateWhisky の本数", () => {
 
     expect(result).toEqual({ status: "duplicate", whisky: existing });
     expect(prisma.userBottle.findMany).not.toHaveBeenCalled();
+  });
+});
+
+describe("deleteWhisky", () => {
+  it("自分の製品だけを消す", async () => {
+    const result = await deleteWhisky("user_me", "whisky_1");
+
+    expect(result).toEqual({ status: "deleted" });
+    expect(prisma.whisky.deleteMany).toHaveBeenCalledWith({
+      // 認可：他人の製品は消せない。
+      where: { id: "whisky_1", userId: "user_me" },
+    });
+  });
+
+  it("自分の製品が無ければ notFound", async () => {
+    vi.mocked(prisma.whisky.deleteMany).mockResolvedValue({ count: 0 });
+
+    const result = await deleteWhisky("user_me", "whisky_1");
+
+    expect(result).toEqual({ status: "notFound" });
   });
 });
 

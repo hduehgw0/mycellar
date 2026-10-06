@@ -18,6 +18,8 @@ export type UpdateResult =
   | { status: "duplicate"; whisky: Whisky }
   | { status: "notFound" };
 
+export type DeleteResult = { status: "deleted" } | { status: "notFound" };
+
 const isDuplicateError = (error: unknown) =>
   error instanceof Prisma.PrismaClientKnownRequestError &&
   error.code === "P2002";
@@ -94,6 +96,16 @@ export async function updateWhisky(
     if (!existing) throw error;
     return { status: "duplicate", whisky: existing };
   }
+}
+
+// ボトルは外部キーの onDelete: Cascade で製品と一緒に消える。
+export async function deleteWhisky(
+  userId: string,
+  id: string,
+): Promise<DeleteResult> {
+  // delete（id_userId）は対象が無いと例外になるので、件数を返す deleteMany で 404 を判定する。
+  const { count } = await prisma.whisky.deleteMany({ where: { id, userId } });
+  return count === 0 ? { status: "notFound" } : { status: "deleted" };
 }
 
 // 製品のボトルを quantity 本にそろえる。製品の行はロック済みであること。
