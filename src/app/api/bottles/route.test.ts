@@ -1,7 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { POST } from "./route";
-import type { Whisky } from "@/generated/prisma/client";
 import { getSession } from "@/lib/session";
 import { createWhisky } from "@/lib/whiskies";
 
@@ -16,13 +15,10 @@ const session = { user: { id: "user_me" } } as unknown as Session;
 
 const existing = {
   id: "whisky_existing",
-  userId: "user_me",
   name: "ラフロイグ 10年",
-  nameKey: "ラフロイグ10年",
   country: "スコットランド",
-  region: "アイラ",
   age: 10,
-} as Whisky;
+};
 
 function post(body: unknown) {
   return POST(
@@ -38,10 +34,7 @@ beforeEach(() => {
   vi.mocked(getSession).mockResolvedValue(session);
   vi.mocked(createWhisky)
     .mockReset()
-    .mockResolvedValue({
-      status: "created",
-      whisky: { id: "whisky_1" } as Whisky,
-    });
+    .mockResolvedValue({ status: "created", id: "whisky_1" });
 });
 
 describe("POST /api/bottles", () => {
@@ -80,7 +73,7 @@ describe("POST /api/bottles", () => {
     });
   });
 
-  it("同じ製品なら 409 で、重複のカードに出す項目だけを返す", async () => {
+  it("同じ製品なら 409 で、既存の製品を返す", async () => {
     vi.mocked(createWhisky).mockResolvedValue({
       status: "duplicate",
       whisky: existing,
@@ -91,12 +84,7 @@ describe("POST /api/bottles", () => {
     expect(response.status).toBe(409);
     expect(await response.json()).toEqual({
       error: "この製品は既に登録されています",
-      whisky: {
-        id: "whisky_existing",
-        name: "ラフロイグ 10年",
-        country: "スコットランド",
-        age: 10,
-      },
+      whisky: existing,
     });
   });
 

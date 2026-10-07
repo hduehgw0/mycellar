@@ -22,18 +22,13 @@ export async function POST(request: Request) {
   const result = await createWhisky(session.user.id, parsed.data);
 
   // 409：入力の誤りではなく既存の状態との衝突なので 400 と分ける。
-  // 返すのは重複のカードに出す項目だけ（nameKey・userId は外に出さない）。
+  // whisky に入るのは id・name・country・age だけ（→ whiskies.ts の DUPLICATE_SELECT）。
   if (result.status === "duplicate") {
-    const { id, name, country, age } = result.whisky;
     return NextResponse.json(
-      {
-        error: "この製品は既に登録されています",
-        whisky: { id, name, country, age },
-      },
+      { error: "この製品は既に登録されています", whisky: result.whisky },
       { status: 409 },
     );
   }
 
-  // 登録後は製品ページへ移るので、id だけを返す。
-  return NextResponse.json({ id: result.whisky.id }, { status: 201 });
+  return NextResponse.json({ id: result.id }, { status: 201 });
 }

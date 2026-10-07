@@ -1,4 +1,4 @@
-import { Prisma, type Whisky } from "@/generated/prisma/client";
+import { Prisma } from "@/generated/prisma/client";
 import { toNameKey } from "@/lib/name-key";
 import { prisma } from "@/lib/prisma";
 import type {
@@ -9,13 +9,24 @@ import type {
 // 製品の書き込みと、URL の id で製品を引く読み取りはここを通す。
 // 直接 Prisma を呼ぶと、nameKey の設定や userId の条件を書き忘れるため。
 
+const DUPLICATE_SELECT = {
+  id: true,
+  name: true,
+  country: true,
+  age: true,
+} satisfies Prisma.WhiskySelect;
+
+export type DuplicateWhisky = Prisma.WhiskyGetPayload<{
+  select: typeof DUPLICATE_SELECT;
+}>;
+
 export type CreateResult =
-  | { status: "created"; whisky: Whisky }
-  | { status: "duplicate"; whisky: Whisky };
+  | { status: "created"; id: string }
+  | { status: "duplicate"; whisky: DuplicateWhisky };
 
 export type UpdateResult =
   | { status: "updated" }
-  | { status: "duplicate"; whisky: Whisky }
+  | { status: "duplicate"; whisky: DuplicateWhisky }
   | { status: "notFound" };
 
 export type DeleteResult = { status: "deleted" } | { status: "notFound" };
@@ -29,6 +40,7 @@ const isDuplicateError = (error: unknown) =>
 function findByNameKey(userId: string, nameKey: string) {
   return prisma.whisky.findUnique({
     where: { userId_nameKey: { userId, nameKey } },
+    select: DUPLICATE_SELECT,
   });
 }
 
@@ -40,7 +52,7 @@ export async function createWhisky(
 
   try {
     // 入れ子の書き込みは 1 つのトランザクションになり、ボトルの無い製品が残らない。
-    const whisky = await prisma.whisky.create({
+    const { id } = await prisma.whisky.create({
       data: {
         ...fields,
         nameKey,
@@ -51,8 +63,9 @@ export async function createWhisky(
           createMany: { data: Array.from({ length: quantity }, () => ({})) },
         },
       },
+      select: { id: true },
     });
-    return { status: "created", whisky };
+    return { status: "created", id };
   } catch (error) {
     if (!isDuplicateError(error)) throw error;
 

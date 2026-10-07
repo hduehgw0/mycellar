@@ -70,7 +70,7 @@ describe("createWhisky", () => {
   it("nameKey とログインユーザーを付け、本数分のボトルと一緒に作る", async () => {
     const result = await createWhisky("user_me", input({ quantity: 3 }));
 
-    expect(result).toEqual({ status: "created", whisky: { id: "whisky_1" } });
+    expect(result).toEqual({ status: "created", id: "whisky_1" });
     expect(prisma.whisky.create).toHaveBeenCalledWith({
       data: {
         name: "山崎 12年",
@@ -80,6 +80,7 @@ describe("createWhisky", () => {
         // 本数は製品の列ではなく、ボトルの行数として持つ。
         bottles: { createMany: { data: [{}, {}, {}] } },
       },
+      select: { id: true },
     });
   });
 
@@ -91,6 +92,8 @@ describe("createWhisky", () => {
     expect(result).toEqual({ status: "duplicate", whisky: existing });
     expect(prisma.whisky.findUnique).toHaveBeenCalledWith({
       where: { userId_nameKey: { userId: "user_me", nameKey: "山崎12年" } },
+      // 重複のカードに出す項目だけを取る。
+      select: { id: true, name: true, country: true, age: true },
     });
   });
 
@@ -151,6 +154,8 @@ describe("updateWhisky", () => {
     expect(result).toEqual({ status: "duplicate", whisky: existing });
     expect(prisma.whisky.findUnique).toHaveBeenCalledWith({
       where: { userId_nameKey: { userId: "user_me", nameKey: "山崎12年" } },
+      // 重複のカードに出す項目だけを取る。
+      select: { id: true, name: true, country: true, age: true },
     });
   });
 });
