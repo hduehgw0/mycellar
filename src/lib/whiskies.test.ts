@@ -84,6 +84,19 @@ describe("createWhisky", () => {
     });
   });
 
+  // 所有者は入力より後ろに書いて上書きする。順番を逆にすると、送られた userId で他人の製品を作れる。
+  it("入力に userId が混ざっていても、所有者は引数の userId になる", async () => {
+    const tampered = { ...input(), userId: "user_attacker" };
+
+    await createWhisky("user_me", tampered);
+
+    expect(prisma.whisky.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ userId: "user_me" }),
+      }),
+    );
+  });
+
   it("一意制約に当たったら既存の製品を返す", async () => {
     vi.mocked(prisma.whisky.create).mockRejectedValue(duplicateError);
 
