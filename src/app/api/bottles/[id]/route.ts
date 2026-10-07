@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/session";
-import { prisma } from "@/lib/prisma";
-import { updateWhisky } from "@/lib/whiskies";
+import { deleteWhisky, updateWhisky } from "@/lib/whiskies";
 import { whiskyUpdateSchema } from "@/lib/schemas/whisky";
 
 export async function PATCH(
@@ -55,15 +54,11 @@ export async function DELETE(
   }
 
   const { id } = await params;
-  // 認可：where に userId を含めることで他人のボトルは削除できない。
-  // deleteMany は非一意フィルタで userId を AND でき、件数を返すため 404 判定に使える
-  // （所有権チェックと削除を 1 クエリでアトミックに。id が一意なので一致は最大 1 件）。
-  const { count } = await prisma.bottle.deleteMany({
-    where: { id, userId: session.user.id },
-  });
-  if (count === 0) {
+  const result = await deleteWhisky(session.user.id, id);
+
+  if (result.status === "notFound") {
     return NextResponse.json(
-      { error: "ボトルが見つかりません" },
+      { error: "製品が見つかりません" },
       { status: 404 },
     );
   }

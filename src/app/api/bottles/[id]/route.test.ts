@@ -2,16 +2,15 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { DELETE, PATCH } from "./route";
 import { getSession } from "@/lib/session";
-import { prisma } from "@/lib/prisma";
-import { updateWhisky } from "@/lib/whiskies";
+import { deleteWhisky, updateWhisky } from "@/lib/whiskies";
 
 vi.mock("@/lib/session", () => ({ getSession: vi.fn() }));
-vi.mock("@/lib/prisma", () => ({
-  prisma: { bottle: { deleteMany: vi.fn() } },
-}));
-// 保存の中身（部分更新・本数の増減・ロック・重複の判定）は whiskies.test.ts で確かめる。
+// 保存の中身（部分更新・本数の増減・ロック・重複の判定・削除）は whiskies.test.ts で確かめる。
 // ここでは HTTP の扱い（認証・検証・ステータス・応答の形）だけを見る。
-vi.mock("@/lib/whiskies", () => ({ updateWhisky: vi.fn() }));
+vi.mock("@/lib/whiskies", () => ({
+  updateWhisky: vi.fn(),
+  deleteWhisky: vi.fn(),
+}));
 
 type Session = NonNullable<Awaited<ReturnType<typeof getSession>>>;
 
@@ -45,9 +44,7 @@ function del(id: string) {
 beforeEach(() => {
   vi.mocked(getSession).mockResolvedValue(session);
   vi.mocked(updateWhisky).mockReset().mockResolvedValue({ status: "updated" });
-  vi.mocked(prisma.bottle.deleteMany)
-    .mockReset()
-    .mockResolvedValue({ count: 1 });
+  vi.mocked(deleteWhisky).mockReset().mockResolvedValue({ status: "deleted" });
 });
 
 describe("PATCH /api/bottles/[id]", () => {
@@ -122,26 +119,25 @@ describe("DELETE /api/bottles/[id]", () => {
   it("未ログインなら 401 で、削除しない", async () => {
     vi.mocked(getSession).mockResolvedValue(null);
 
-    const response = await del("bottle_1");
+    const response = await del("whisky_1");
 
     expect(response.status).toBe(401);
-    expect(prisma.bottle.deleteMany).not.toHaveBeenCalled();
+    expect(deleteWhisky).not.toHaveBeenCalled();
   });
 
-  it("他人の/存在しない id は 404（自分の userId で絞るので該当 0 件）", async () => {
-    vi.mocked(prisma.bottle.deleteMany).mockResolvedValue({ count: 0 });
+  it("他人の/存在しない id は 404", async () => {
+    vi.mocked(deleteWhisky).mockResolvedValue({ status: "notFound" });
 
-    const response = await del("bottle_other");
+    const response = await del("whisky_other");
 
     expect(response.status).toBe(404);
   });
 
-  it("自分のボトルなら 200 で、自分の userId で絞って削除する（他人の id は削除できない＝認可）", async () => {
-    const response = await del("bottle_1");
+  it("自分の製品なら 200 で、自分の製品の削除に渡す", async () => {
+    const response = await del("whisky_1");
 
     expect(response.status).toBe(200);
-    expect(prisma.bottle.deleteMany).toHaveBeenCalledWith({
-      where: { id: "bottle_1", userId: "user_me" },
-    });
+    expect(await response.json()).toEqual({ ok: true });
+    expect(deleteWhisky).toHaveBeenCalledWith("user_me", "whisky_1");
   });
 });
