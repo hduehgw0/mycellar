@@ -30,6 +30,7 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
 
 // 「未選択」用の値。Radix の SelectItem は空文字の値を禁止するため、
 // 空でない値を持たせ、選んだら null に戻す（送信データには出さない）。
@@ -138,7 +139,14 @@ export function WhiskyForm({
                   if (next !== "スコットランド") setValue("region", null);
                 }}
               >
-                <SelectTrigger id="country" className="w-full">
+                <SelectTrigger
+                  id="country"
+                  // 「未選択」は値ではないので、入力欄の例の文と同じ薄い色にする（モック 05・06）。
+                  className={cn(
+                    "w-full",
+                    field.value == null && "text-muted-foreground",
+                  )}
+                >
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -169,7 +177,13 @@ export function WhiskyForm({
                     field.onChange(value === NONE ? null : value)
                   }
                 >
-                  <SelectTrigger id="region" className="w-full">
+                  <SelectTrigger
+                    id="region"
+                    className={cn(
+                      "w-full",
+                      field.value == null && "text-muted-foreground",
+                    )}
+                  >
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -223,7 +237,13 @@ export function WhiskyForm({
                     field.onChange(value === NONE ? null : value)
                   }
                 >
-                  <SelectTrigger id="caskType" className="w-full">
+                  <SelectTrigger
+                    id="caskType"
+                    className={cn(
+                      "w-full",
+                      field.value == null && "text-muted-foreground",
+                    )}
+                  >
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
