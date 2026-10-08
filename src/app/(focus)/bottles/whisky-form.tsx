@@ -1,15 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { Controller, useForm, type DefaultValues } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { MinusIcon, PlusIcon } from "lucide-react";
 import {
-  bottleSchema,
+  CASK_TYPES,
+  COUNTRIES,
   REGIONS,
-  type BottleInput,
-  type BottleValues,
-} from "@/lib/schemas/bottle";
+  whiskyFormSchema,
+  type WhiskyFormInput,
+  type WhiskyFormOutput,
+} from "@/lib/schemas/whisky";
 import { Button } from "@/components/ui/button";
 import {
   Field,
@@ -29,53 +31,51 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 
-// 送信結果。重複（409）は入力の誤りではなくトーストで既存ボトルを示すため、
-// フォーム内の文言を出す "failed" とは分ける。
-type SubmitOutcome = "ok" | "duplicate" | "failed";
-
-// 数値入力：空欄は「未入力」として undefined を渡す（zod 側で NAS／既定値の扱いを決める）。
-const asOptionalNumber = (value: unknown) =>
-  value === "" || value == null ? undefined : Number(value);
-
-// 産地の「未選択」用センチネル。Radix の SelectItem は空文字値を禁止するため、
-// 空でないダミー値を持たせ、選択時に null（＝クリア）へ正規化する（送信データには出さない）。
+// 「未選択」用の値。Radix の SelectItem は空文字の値を禁止するため、
+// 空でない値を持たせ、選んだら null に戻す（送信データには出さない）。
 const NONE = "__none__";
 
 const LABEL_CLASS = "gap-1.5 text-xs text-muted-foreground";
 
 const CARD_CLASS = "rounded-lg border border-input bg-input/30 p-2.5";
 
-// 登録・編集で共有するボトルフォーム（純粋な UI＋検証）。
+// 登録・編集で共有する製品のフォーム（UI と検証）。
 // 送信先・初期値・文言・遷移などの差分は、各ページのラッパーが props で渡す。
-export function BottleForm({
+export function WhiskyForm({
   defaultValues,
   submitLabel,
   submittingLabel,
   errorLabel,
   onSubmit,
 }: {
-  defaultValues: DefaultValues<BottleInput>;
+  defaultValues: WhiskyFormInput;
   submitLabel: string;
   submittingLabel: string;
   errorLabel: string;
-  onSubmit: (data: BottleValues) => Promise<SubmitOutcome>;
+  // 失敗の文言を出してほしいときだけ "failed" を返す。重複のトーストや遷移はラッパーが行う。
+  onSubmit: (data: WhiskyFormOutput) => Promise<"failed" | void>;
 }) {
   const [serverError, setServerError] = useState<string | null>(null);
   const {
     register,
     control,
+    setValue,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<BottleInput, unknown, BottleValues>({
-    resolver: zodResolver(bottleSchema),
+  } = useForm<WhiskyFormInput, unknown, WhiskyFormOutput>({
+    resolver: zodResolver(whiskyFormSchema),
     defaultValues,
+  });
+  const isScotland = useWatch({
+    control,
+    name: "country",
+    compute: (country) => country === "スコットランド",
   });
 
   const submit = handleSubmit(async (data) => {
     setServerError(null);
     try {
       // 想定内の失敗は "failed" が返る＝文言のみ。想定外の例外だけ catch でログする。
-      // "duplicate" は呼び出し側がトーストで知らせるので、ここでは何も出さない。
       if ((await onSubmit(data)) === "failed") setServerError(errorLabel);
     } catch (error) {
       console.error(error);
@@ -87,19 +87,19 @@ export function BottleForm({
     <form
       onSubmit={submit}
       noValidate
-      // 自動補完抑止の保険（Chrome の住所サジェストはこれを無視するため、本対策は銘柄名・地域の属性側）。
+      // 自動補完抑止の保険（Chrome の住所サジェストはこれを無視するため、本対策は製品名の属性側）。
       autoComplete="off"
     >
       <FieldGroup className="gap-4">
         {/*
-          銘柄名・地域は Chrome に氏名・住所と誤認され、autocomplete="off" だけでは
+          製品名は Chrome に氏名と誤認され、autocomplete="off" だけでは
           住所サジェストを抑止できない（Chrome は off を無視して name/id から用途を推測する）。
           認識されない name/id に変えるのが確実な回避策だが、register は DOM の name 属性に
-          依存するため、この 2 フィールドだけ Controller で接続して属性を自由にしている。
+          依存するため、この欄だけ Controller で接続して属性を自由にしている。
         */}
         <Field data-invalid={!!errors.name}>
-          <FieldLabel htmlFor="bottle-name" className={LABEL_CLASS}>
-            銘柄名<span className="text-destructive">*必須</span>
+          <FieldLabel htmlFor="whisky-name" className={LABEL_CLASS}>
+            製品名<span className="text-destructive">*必須</span>
           </FieldLabel>
           <Controller
             control={control}
@@ -107,40 +107,72 @@ export function BottleForm({
             render={({ field }) => (
               <Input
                 {...field}
-                id="bottle-name"
-                name="bottle-name"
+                id="whisky-name"
+                name="whisky-name"
                 autoComplete="off"
+                placeholder="例：ザ・マッカラン 12年 シェリーオーク"
                 aria-invalid={!!errors.name}
-                aria-describedby={errors.name ? "bottle-name-error" : undefined}
+                aria-describedby={errors.name ? "whisky-name-error" : undefined}
               />
             )}
           />
           {/* role="alert"（FieldError 既定）は出現時、aria-describedby はフォーカス時に
               読まれる。先頭のエラーは二重に読まれるが、role を外すと 2 件目以降が無音になる。 */}
-          <FieldError id="bottle-name-error" errors={[errors.name]} />
+          <FieldError id="whisky-name-error" errors={[errors.name]} />
         </Field>
 
-        <div className="grid grid-cols-2 gap-3">
+        <Field>
+          <FieldLabel htmlFor="country" className={LABEL_CLASS}>
+            国
+          </FieldLabel>
+          <Controller
+            control={control}
+            name="country"
+            render={({ field }) => (
+              <Select
+                value={field.value ?? NONE}
+                onValueChange={(value) => {
+                  const next = value === NONE ? null : value;
+                  field.onChange(next);
+                  // 地域はスコットランドの中の区分なので、他の国に変えたら消す。
+                  if (next !== "スコットランド") setValue("region", null);
+                }}
+              >
+                <SelectTrigger id="country" className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={NONE}>未選択</SelectItem>
+                  {COUNTRIES.map((country) => (
+                    <SelectItem key={country} value={country}>
+                      {country}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          />
+        </Field>
+
+        {isScotland && (
           <Field>
             <FieldLabel htmlFor="region" className={LABEL_CLASS}>
-              産地
+              地域
             </FieldLabel>
             <Controller
               control={control}
               name="region"
               render={({ field }) => (
                 <Select
-                  // null のときは「未選択」項目（NONE）を選択状態にする（プレースホルダではなくチェックを付ける）。
                   value={field.value ?? NONE}
                   onValueChange={(value) =>
                     field.onChange(value === NONE ? null : value)
                   }
                 >
-                  <SelectTrigger id="region">
+                  <SelectTrigger id="region" className="w-full">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {/* 「未選択」で産地をクリアできる（センチネル→null に正規化）。 */}
                     <SelectItem value={NONE}>未選択</SelectItem>
                     {REGIONS.map((region) => (
                       <SelectItem key={region} value={region}>
@@ -152,27 +184,7 @@ export function BottleForm({
               )}
             />
           </Field>
-
-          <Field>
-            <FieldLabel htmlFor="bottle-subregion" className={LABEL_CLASS}>
-              地域
-            </FieldLabel>
-            <Controller
-              control={control}
-              name="subRegion"
-              render={({ field }) => (
-                <Input
-                  {...field}
-                  value={field.value ?? ""}
-                  id="bottle-subregion"
-                  name="bottle-subregion"
-                  autoComplete="off"
-                  placeholder="任意"
-                />
-              )}
-            />
-          </Field>
-        </div>
+        )}
 
         <div className="grid grid-cols-2 gap-3">
           <Field data-invalid={!!errors.age}>
@@ -185,26 +197,46 @@ export function BottleForm({
             <Input
               id="age"
               type="number"
-              min={1}
+              min={0}
+              max={100}
+              placeholder="例：12"
               aria-invalid={!!errors.age}
               aria-describedby={errors.age ? "age-error" : undefined}
-              {...register("age", { setValueAs: asOptionalNumber })}
+              {...register("age", {
+                setValueAs: (value) => (value === "" ? null : Number(value)),
+              })}
             />
             <FieldError id="age-error" errors={[errors.age]} />
           </Field>
 
-          <Field data-invalid={!!errors.caskType}>
+          <Field>
             <FieldLabel htmlFor="caskType" className={LABEL_CLASS}>
               樽
             </FieldLabel>
-            <Input
-              id="caskType"
-              placeholder="任意"
-              aria-invalid={!!errors.caskType}
-              aria-describedby={errors.caskType ? "caskType-error" : undefined}
-              {...register("caskType")}
+            <Controller
+              control={control}
+              name="caskType"
+              render={({ field }) => (
+                <Select
+                  value={field.value ?? NONE}
+                  onValueChange={(value) =>
+                    field.onChange(value === NONE ? null : value)
+                  }
+                >
+                  <SelectTrigger id="caskType" className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={NONE}>未選択</SelectItem>
+                    {CASK_TYPES.map((caskType) => (
+                      <SelectItem key={caskType} value={caskType}>
+                        {caskType}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
             />
-            <FieldError id="caskType-error" errors={[errors.caskType]} />
           </Field>
         </div>
 
@@ -216,7 +248,7 @@ export function BottleForm({
             render={({ field }) => (
               <Switch
                 id="isLimited"
-                checked={field.value ?? false}
+                checked={field.value}
                 onCheckedChange={field.onChange}
               />
             )}
@@ -227,7 +259,7 @@ export function BottleForm({
           control={control}
           name="quantity"
           render={({ field }) => {
-            // UI からは 1 未満・小数を作れないので検証エラーの表示は置かない。
+            // UI からは 1〜99 の外や小数を作れないので検証エラーの表示は置かない。
             // 代わりに、DB 由来の初期値が不正だと送信が無言で止まる（文言が出ない）。
             const quantity = field.value ?? 1;
             return (
@@ -259,6 +291,7 @@ export function BottleForm({
                     // 増やす側だけ目立たせる（+ は primary の薄塗り＝accent、− は無彩色）。
                     className="bg-accent text-accent-foreground hover:bg-accent/70"
                     aria-label="1 本増やす"
+                    disabled={quantity >= 99}
                     onClick={() => field.onChange(quantity + 1)}
                   >
                     <PlusIcon />
@@ -269,17 +302,20 @@ export function BottleForm({
           }}
         />
 
-        <Field>
-          <FieldLabel htmlFor="note" className={LABEL_CLASS}>
+        <Field data-invalid={!!errors.memo}>
+          <FieldLabel htmlFor="memo" className={LABEL_CLASS}>
             メモ
           </FieldLabel>
           {/* 入力に合わせて伸びる（field-sizing-content）ので、手で掴む余地は残さない。 */}
           <Textarea
-            id="note"
-            placeholder="味わいや感想など（任意）"
+            id="memo"
+            placeholder="この製品についてのメモ（任意）"
             className="resize-none"
-            {...register("note")}
+            aria-invalid={!!errors.memo}
+            aria-describedby={errors.memo ? "memo-error" : undefined}
+            {...register("memo")}
           />
+          <FieldError id="memo-error" errors={[errors.memo]} />
         </Field>
 
         {serverError && (
