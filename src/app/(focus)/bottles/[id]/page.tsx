@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { BottlePlaceholder } from "@/components/illustrations/bottle-placeholder";
-import { DeleteBottleDialog } from "./delete-bottle-dialog";
+import { DeleteWhiskyDialog } from "./delete-whisky-dialog";
 
 export const metadata: Metadata = { title: "製品" };
 
@@ -109,7 +109,7 @@ export default async function WhiskyPage({
 
       <Separator />
 
-      <DeleteBottleDialog bottleId={whisky.id} bottleTitle={whisky.name} />
+      <DeleteWhiskyDialog whiskyId={whisky.id} />
     </div>
   );
 }
