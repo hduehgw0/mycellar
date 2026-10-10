@@ -22,16 +22,23 @@ export function showDuplicateWhiskyToast(whisky: DuplicateWhisky) {
     id: TOAST_ID,
     closeButton: true,
     duration: TOAST_DURATION_MS,
+    classNames: {
+      // sonner の CSS は属性セレクタで詳細度が高いので、上書きには ! が要る。
+      // 既定はアイコンを上下中央に置くので、カードを含む高さの真ん中に来る。見出しの行に揃える。
+      toast: "items-start!",
+      // 本文の枠は中身の幅まで広がるので、長い製品名がトーストからはみ出す。枠を残りの幅に収めて省略させる。
+      content: "min-w-0 flex-1 gap-3!",
+    },
     description: (
       <Link
         href={`/bottles/${whisky.id}`}
         onClick={dismissDuplicateWhiskyToast}
-        className="flex items-center gap-3 rounded-lg bg-muted p-3 text-foreground"
+        className="mr-6 flex items-center gap-3 rounded-lg border bg-card p-3 text-foreground"
       >
         <BottlePlaceholder className="h-10 w-auto shrink-0" />
         <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-          <span className="truncate font-medium">{whisky.name}</span>
-          <span className="truncate text-muted-foreground empty:hidden">
+          <span className="truncate text-sm font-bold">{whisky.name}</span>
+          <span className="truncate text-xs text-muted-foreground empty:hidden">
             {[whisky.country, whisky.age !== null && `${whisky.age}年`]
               .filter(Boolean)
               .join("・")}
