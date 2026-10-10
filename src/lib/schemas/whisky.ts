@@ -61,7 +61,8 @@ const regionNeedsScotland = ({
   region?: string | null;
 }) => region == null || country === "スコットランド";
 
-// 既定値と項目間のルールを持たない土台。zod は refine 済みのスキーマを .partial() できない。
+// 値のルールの土台。API とフォームのスキーマはここから作り、ルールを二重に書かない（→ CLAUDE.md アーキの鉄則）。
+// 既定値と項目間のルールは持たない。zod は refine 済みのスキーマを .partial() できない。
 const whiskyBaseSchema = z.object({
   name: z
     .string()
@@ -84,7 +85,7 @@ const whiskyBaseSchema = z.object({
     .nullish(),
 });
 
-// フォーム（クライアント）と Route Handler（サーバ再検証）で共有する（→ CLAUDE.md アーキの鉄則）。
+// 登録の API が受け取る値。送られなかった項目は既定値で埋めるか、値なしとして扱う。
 export const whiskyCreateSchema = whiskyBaseSchema
   .extend({
     isLimited: z.boolean().default(false),
@@ -111,3 +112,13 @@ export const whiskyUpdateSchema = whiskyBaseSchema
   .refine(regionNeedsScotland, { error: REGION_MESSAGE, path: ["region"] });
 
 export type WhiskyUpdateOutput = z.output<typeof whiskyUpdateSchema>;
+
+// 登録・編集で共有するフォームが持つ値。全項目をいつも持ち、任意の項目の空欄は null。
+// API と違い、項目が欠けていたら補わずに弾く。
+export const whiskyFormSchema = whiskyBaseSchema
+  .required()
+  .extend({ quantity: quantitySchema })
+  .refine(regionNeedsScotland, { error: REGION_MESSAGE, path: ["region"] });
+
+export type WhiskyFormInput = z.input<typeof whiskyFormSchema>;
+export type WhiskyFormOutput = z.output<typeof whiskyFormSchema>;

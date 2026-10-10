@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { whiskyCreateSchema, whiskyUpdateSchema } from "./whisky";
+import {
+  whiskyCreateSchema,
+  whiskyFormSchema,
+  whiskyUpdateSchema,
+} from "./whisky";
 
 describe("whiskyCreateSchema", () => {
   it("製品名だけで通り、既定値（本数1・限定版false）が入る", () => {
@@ -131,5 +135,50 @@ describe("whiskyUpdateSchema", () => {
   it("本数 0 は通らない（1〜99の整数）", () => {
     const result = whiskyUpdateSchema.safeParse({ quantity: 0 });
     expect(result.success).toBe(false);
+  });
+});
+
+describe("whiskyFormSchema", () => {
+  // フォームが持つ値。任意の項目の空欄は null。
+  const empty = {
+    name: "山崎 12年",
+    country: null,
+    region: null,
+    age: null,
+    caskType: null,
+    isLimited: false,
+    quantity: 1,
+    memo: null,
+  };
+
+  it("全項目がそろえば、空欄の null のまま通る", () => {
+    expect(whiskyFormSchema.parse(empty)).toEqual(empty);
+  });
+
+  it.each(["country", "isLimited", "quantity"])(
+    "項目（%s）が欠けていたら既定値で埋めずに通さない",
+    (key) => {
+      const missing: Partial<typeof empty> = { ...empty };
+      delete missing[key as keyof typeof empty];
+      expect(whiskyFormSchema.safeParse(missing).success).toBe(false);
+    },
+  );
+
+  it("値は API と同じルールで検査する", () => {
+    const result = whiskyFormSchema.safeParse({ ...empty, age: 101 });
+    expect(result.success).toBe(false);
+  });
+
+  it("国がスコットランドでなければ地域は通らない", () => {
+    const result = whiskyFormSchema.safeParse({
+      ...empty,
+      country: "日本",
+      region: "アイラ",
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("メモの空文字は値なし（null）になる", () => {
+    expect(whiskyFormSchema.parse({ ...empty, memo: "" }).memo).toBeNull();
   });
 });
