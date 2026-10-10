@@ -3,9 +3,9 @@
 import { useRouter } from "next/navigation";
 import { WhiskyForm } from "../whisky-form";
 import {
-  dismissDuplicateBottleToast,
-  showDuplicateBottleToast,
-} from "../duplicate-bottle-toast";
+  dismissDuplicateWhiskyToast,
+  showDuplicateWhiskyToast,
+} from "../duplicate-whisky-toast";
 
 // 登録用ラッパー：共有フォームに初期値・文言・送信処理（POST）を渡す。
 export function CreateWhiskyForm() {
@@ -26,7 +26,7 @@ export function CreateWhiskyForm() {
       submittingLabel="登録中…"
       errorLabel="登録に失敗しました。もう一度お試しください。"
       onSubmit={async (data) => {
-        dismissDuplicateBottleToast();
+        dismissDuplicateWhiskyToast();
         const response = await fetch("/api/bottles", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -35,7 +35,7 @@ export function CreateWhiskyForm() {
         // 重複は製品ページへ移らず、既存の製品を示して入力内容を残す。
         if (response.status === 409) {
           const { whisky } = await response.json();
-          showDuplicateBottleToast(whisky);
+          showDuplicateWhiskyToast(whisky);
           return;
         }
         if (!response.ok) return "failed";
