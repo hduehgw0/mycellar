@@ -94,7 +94,6 @@ export const whiskyCreateSchema = whiskyBaseSchema
   })
   .refine(regionNeedsScotland, { error: REGION_MESSAGE, path: ["region"] });
 
-export type WhiskyCreateInput = z.input<typeof whiskyCreateSchema>;
 export type WhiskyCreateOutput = z.output<typeof whiskyCreateSchema>;
 
 // 部分更新。送られてきた項目だけを変えるため、既定値を持たせない（既定値が送っていない項目を上書きする）。
