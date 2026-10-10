@@ -2,11 +2,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { requireSession } from "@/lib/session";
 import { Button } from "@/components/ui/button";
-import { CreateBottleForm } from "./create-bottle-form";
+import { CreateWhiskyForm } from "./create-whisky-form";
 
-export const metadata: Metadata = { title: "ボトル登録" };
+export const metadata: Metadata = { title: "製品登録" };
 
-export default async function NewBottlePage() {
+export default async function NewWhiskyPage() {
   await requireSession();
 
   return (
@@ -21,10 +21,10 @@ export default async function NewBottlePage() {
         >
           <Link href="/bottles">キャンセル</Link>
         </Button>
-        <h1 className="font-heading text-lg font-bold">ボトル登録</h1>
+        <h1 className="font-heading text-lg font-bold">製品登録</h1>
       </header>
 
-      <CreateBottleForm />
+      <CreateWhiskyForm />
     </>
   );
 }

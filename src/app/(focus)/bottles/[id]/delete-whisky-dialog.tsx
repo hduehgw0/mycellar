@@ -19,15 +19,9 @@ import {
 // 失敗時の共通文言（想定内失敗・想定外例外のどちらでも同じ）。
 const DELETE_ERROR = "削除に失敗しました。もう一度お試しください。";
 
-// 削除の確認ダイアログ（クライアント）。詳細ページ（Server Component）から分離。
-// 認可・実削除はサーバ（DELETE /api/bottles/[id] の where:{id,userId}）が担い、ここは UI と送信のみ。
-export function DeleteBottleDialog({
-  bottleId,
-  bottleTitle,
-}: {
-  bottleId: string;
-  bottleTitle: string;
-}) {
+// 削除の確認ダイアログ（クライアント）。製品ページ（Server Component）から分離。
+// 認可と削除はサーバー（DELETE /api/bottles/[id] → deleteWhisky）が担い、ここは UI と送信のみ。
+export function DeleteWhiskyDialog({ whiskyId }: { whiskyId: string }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -37,7 +31,7 @@ export function DeleteBottleDialog({
     setError(null);
     setIsDeleting(true);
     try {
-      const response = await fetch(`/api/bottles/${bottleId}`, {
+      const response = await fetch(`/api/bottles/${whiskyId}`, {
         method: "DELETE",
       });
       if (!response.ok) {
@@ -75,7 +69,7 @@ export function DeleteBottleDialog({
           // dark 固定（layout.tsx）なので dark: 側も上書きしないとホバーが灰色のままになる。
           className="text-destructive hover:bg-destructive/10 hover:text-destructive dark:hover:bg-destructive/10"
         >
-          このボトルを削除
+          この製品を削除
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent
@@ -91,10 +85,10 @@ export function DeleteBottleDialog({
             <Trash2Icon className="size-8 text-destructive" />
           </AlertDialogMedia>
           <AlertDialogTitle className="text-xl">
-            このボトルを削除しますか？
+            この製品を削除しますか？
           </AlertDialogTitle>
           <AlertDialogDescription>
-            「{bottleTitle}」を一覧から削除します。この操作は取り消せません。
+            所有しているボトルの記録も削除されます。この操作は取り消せません。
           </AlertDialogDescription>
         </AlertDialogHeader>
         {error && (

@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/session";
-import { prisma } from "@/lib/prisma";
-import { updateBottle } from "@/lib/bottles";
-import { bottleUpdateSchema } from "@/lib/schemas/bottle";
+import { deleteWhisky, updateWhisky } from "@/lib/whiskies";
+import { whiskyUpdateSchema } from "@/lib/schemas/whisky";
 
 export async function PATCH(
   request: Request,
@@ -15,8 +14,7 @@ export async function PATCH(
 
   const body = await request.json().catch(() => null);
   // クライアント側バリデーションは信用せず、共有スキーマでサーバでも再検証する。
-  // 更新は全項目そろっていることも要求する（空欄は null。→ ADR-0011）。
-  const parsed = bottleUpdateSchema.safeParse(body);
+  const parsed = whiskyUpdateSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json(
       { error: "入力内容に誤りがあります" },
@@ -25,19 +23,20 @@ export async function PATCH(
   }
 
   const { id } = await params;
-  const result = await updateBottle(session.user.id, id, parsed.data);
+  const result = await updateWhisky(session.user.id, id, parsed.data);
 
   if (result.status === "notFound") {
     return NextResponse.json(
-      { error: "ボトルが見つかりません" },
+      { error: "製品が見つかりません" },
       { status: 404 },
     );
   }
 
-  // 409：編集で別のボトルと同じ物になる場合。登録と同じ形で既存ボトルを返す。
+  // 409：製品名を変えて別の製品と重なった場合。
+  // whisky に入るのは id・name・country・age だけ（→ whiskies.ts の DUPLICATE_SELECT）。
   if (result.status === "duplicate") {
     return NextResponse.json(
-      { error: "同じボトルが既にあります", bottle: result.bottle },
+      { error: "この製品は既に登録されています", whisky: result.whisky },
       { status: 409 },
     );
   }
@@ -55,15 +54,11 @@ export async function DELETE(
   }
 
   const { id } = await params;
-  // 認可：where に userId を含めることで他人のボトルは削除できない。
-  // deleteMany は非一意フィルタで userId を AND でき、件数を返すため 404 判定に使える
-  // （所有権チェックと削除を 1 クエリでアトミックに。id が一意なので一致は最大 1 件）。
-  const { count } = await prisma.bottle.deleteMany({
-    where: { id, userId: session.user.id },
-  });
-  if (count === 0) {
+  const result = await deleteWhisky(session.user.id, id);
+
+  if (result.status === "notFound") {
     return NextResponse.json(
-      { error: "ボトルが見つかりません" },
+      { error: "製品が見つかりません" },
       { status: 404 },
     );
   }
