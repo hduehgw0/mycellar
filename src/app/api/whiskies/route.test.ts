@@ -22,7 +22,7 @@ const existing = {
 
 function post(body: unknown) {
   return POST(
-    new Request("http://localhost/api/bottles", {
+    new Request("http://localhost/api/whiskies", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: typeof body === "string" ? body : JSON.stringify(body),
@@ -37,7 +37,7 @@ beforeEach(() => {
     .mockResolvedValue({ status: "created", id: "whisky_1" });
 });
 
-describe("POST /api/bottles", () => {
+describe("POST /api/whiskies", () => {
   it("未ログインなら 401 で、保存しない", async () => {
     vi.mocked(getSession).mockResolvedValue(null);
 

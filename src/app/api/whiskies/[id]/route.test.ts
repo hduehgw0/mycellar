@@ -25,7 +25,7 @@ const existing = {
 
 function patch(id: string, body: unknown) {
   return PATCH(
-    new Request(`http://localhost/api/bottles/${id}`, {
+    new Request(`http://localhost/api/whiskies/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: typeof body === "string" ? body : JSON.stringify(body),
@@ -36,7 +36,7 @@ function patch(id: string, body: unknown) {
 
 function del(id: string) {
   return DELETE(
-    new Request(`http://localhost/api/bottles/${id}`, { method: "DELETE" }),
+    new Request(`http://localhost/api/whiskies/${id}`, { method: "DELETE" }),
     { params: Promise.resolve({ id }) },
   );
 }
@@ -47,7 +47,7 @@ beforeEach(() => {
   vi.mocked(deleteWhisky).mockReset().mockResolvedValue({ status: "deleted" });
 });
 
-describe("PATCH /api/bottles/[id]", () => {
+describe("PATCH /api/whiskies/[id]", () => {
   it("未ログインなら 401 で、更新しない", async () => {
     vi.mocked(getSession).mockResolvedValue(null);
 
@@ -115,7 +115,7 @@ describe("PATCH /api/bottles/[id]", () => {
   });
 });
 
-describe("DELETE /api/bottles/[id]", () => {
+describe("DELETE /api/whiskies/[id]", () => {
   it("未ログインなら 401 で、削除しない", async () => {
     vi.mocked(getSession).mockResolvedValue(null);
 

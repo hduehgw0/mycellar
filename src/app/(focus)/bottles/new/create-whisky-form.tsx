@@ -27,7 +27,7 @@ export function CreateWhiskyForm() {
       errorLabel="登録に失敗しました。もう一度お試しください。"
       onSubmit={async (data) => {
         dismissDuplicateWhiskyToast();
-        const response = await fetch("/api/bottles", {
+        const response = await fetch("/api/whiskies", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(data),

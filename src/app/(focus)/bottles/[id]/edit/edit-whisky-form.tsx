@@ -26,7 +26,7 @@ export function EditWhiskyForm({
       onSubmit={async (data) => {
         dismissDuplicateWhiskyToast();
         // API は部分更新だが、フォームの全項目を送る（国と地域はいつも組で届く）。
-        const response = await fetch(`/api/bottles/${id}`, {
+        const response = await fetch(`/api/whiskies/${id}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(data),

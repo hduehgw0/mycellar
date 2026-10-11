@@ -20,7 +20,7 @@ import {
 const DELETE_ERROR = "削除に失敗しました。もう一度お試しください。";
 
 // 削除の確認ダイアログ（クライアント）。製品ページ（Server Component）から分離。
-// 認可と削除はサーバー（DELETE /api/bottles/[id] → deleteWhisky）が担い、ここは UI と送信のみ。
+// 認可と削除はサーバー（DELETE /api/whiskies/[id] → deleteWhisky）が担い、ここは UI と送信のみ。
 export function DeleteWhiskyDialog({ whiskyId }: { whiskyId: string }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -31,7 +31,7 @@ export function DeleteWhiskyDialog({ whiskyId }: { whiskyId: string }) {
     setError(null);
     setIsDeleting(true);
     try {
-      const response = await fetch(`/api/bottles/${whiskyId}`, {
+      const response = await fetch(`/api/whiskies/${whiskyId}`, {
         method: "DELETE",
       });
       if (!response.ok) {
