@@ -217,7 +217,9 @@ export function WhiskyForm({
               aria-invalid={!!errors.age}
               aria-describedby={errors.age ? "age-error" : undefined}
               {...register("age", {
-                setValueAs: (value) => (value === "" ? null : Number(value)),
+                // 初期値の null もここを通る（Number(null) は 0 なので、NAS が 0年 になる）。
+                setValueAs: (value) =>
+                  value === "" || value == null ? null : Number(value),
               })}
             />
             <FieldError id="age-error" errors={[errors.age]} />
