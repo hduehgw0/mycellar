@@ -43,7 +43,7 @@ export function DeleteWhiskyDialog({ whiskyId }: { whiskyId: string }) {
       // 成功：この後の遷移でアンマウントされるため isDeleting は戻さない
       // （戻すと遷移前の一瞬ボタンが再有効化され、二重 DELETE→404 になる）。
       // 一覧は Server Component キャッシュのため、遷移＋refresh で削除を反映する。
-      router.push("/bottles");
+      router.push("/whiskies");
       router.refresh();
     } catch (e) {
       // 想定外の例外（ネットワーク断など）だけログして再操作を許す。

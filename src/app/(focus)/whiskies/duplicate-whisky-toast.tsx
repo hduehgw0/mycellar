@@ -24,7 +24,7 @@ export function showDuplicateWhiskyToast(whisky: DuplicateWhisky) {
     duration: TOAST_DURATION_MS,
     description: (
       <Link
-        href={`/bottles/${whisky.id}`}
+        href={`/whiskies/${whisky.id}`}
         onClick={dismissDuplicateWhiskyToast}
         className="flex items-center gap-3 rounded-lg bg-muted p-3 text-foreground"
       >

@@ -31,7 +31,7 @@ export default async function EditWhiskyPage({
           size="sm"
           className="absolute -left-2.5 text-muted-foreground"
         >
-          <Link href={`/bottles/${whisky.id}`}>キャンセル</Link>
+          <Link href={`/whiskies/${whisky.id}`}>キャンセル</Link>
         </Button>
         <h1 className="font-heading text-lg font-bold">製品編集</h1>
       </header>

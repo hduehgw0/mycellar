@@ -46,7 +46,7 @@ export default async function WhiskyPage({
             size="icon"
             className="size-11 rounded-full bg-background/60 hover:bg-background/80"
           >
-            <Link href="/bottles" aria-label="一覧へ戻る">
+            <Link href="/whiskies" aria-label="一覧へ戻る">
               <ChevronLeftIcon className="size-5" />
             </Link>
           </Button>
@@ -104,7 +104,7 @@ export default async function WhiskyPage({
         size="lg"
         className="border-foreground/30"
       >
-        <Link href={`/bottles/${whisky.id}/edit`}>編集する</Link>
+        <Link href={`/whiskies/${whisky.id}/edit`}>編集する</Link>
       </Button>
 
       <Separator />

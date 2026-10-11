@@ -13,9 +13,9 @@ import { cn } from "@/lib/utils";
 // 並びは正本どおり。「登録」（action）はタブではなくアクションで、行き先はタブバーを
 // 出さない画面のため現在地を持たない。常時アンバー・非太字で他と区別する。
 const ITEMS = [
-  { href: "/bottles", label: "コレクション", Icon: LayoutGrid },
+  { href: "/whiskies", label: "コレクション", Icon: LayoutGrid },
   { href: "/stats", label: "傾向", Icon: ChartNoAxesColumn },
-  { href: "/bottles/new", label: "登録", Icon: CirclePlus, action: true },
+  { href: "/whiskies/new", label: "登録", Icon: CirclePlus, action: true },
   { href: "/account", label: "アカウント", Icon: UserRound },
 ];
 

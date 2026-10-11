@@ -53,7 +53,7 @@ export default async function WhiskiesPage() {
             </p>
           </div>
           <Button asChild className="h-14 px-6 text-base">
-            <Link href="/bottles/new">
+            <Link href="/whiskies/new">
               <Plus />
               製品を登録
             </Link>
@@ -64,7 +64,7 @@ export default async function WhiskiesPage() {
           {whiskies.map((whisky) => (
             <li key={whisky.id}>
               <Link
-                href={`/bottles/${whisky.id}`}
+                href={`/whiskies/${whisky.id}`}
                 className="relative flex h-full flex-col rounded-lg border bg-linear-to-b from-muted to-card hover:border-ring"
               >
                 <div className="flex flex-1 items-center justify-center p-3.5">

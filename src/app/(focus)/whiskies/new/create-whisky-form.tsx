@@ -41,7 +41,7 @@ export function CreateWhiskyForm() {
         if (!response.ok) return "failed";
         // 登録した内容をその場で確かめられるよう、一覧ではなく製品ページへ移る（#105）。
         const { id } = await response.json();
-        router.push(`/bottles/${id}`);
+        router.push(`/whiskies/${id}`);
         router.refresh();
       }}
     />

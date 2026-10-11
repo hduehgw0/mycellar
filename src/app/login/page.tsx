@@ -9,7 +9,7 @@ export const metadata: Metadata = { title: "ログイン" };
 
 export default async function LoginPage() {
   const session = await getSession();
-  if (session) redirect("/bottles");
+  if (session) redirect("/whiskies");
 
   return (
     <main className="mx-auto flex min-h-dvh max-w-md flex-col gap-12 px-6 pt-10 pb-8">

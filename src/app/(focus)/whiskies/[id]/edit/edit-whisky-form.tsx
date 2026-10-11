@@ -38,7 +38,7 @@ export function EditWhiskyForm({
           return;
         }
         if (!response.ok) return "failed";
-        router.push(`/bottles/${id}`);
+        router.push(`/whiskies/${id}`);
         router.refresh();
       }}
     />

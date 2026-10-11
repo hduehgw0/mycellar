@@ -19,7 +19,7 @@ export default async function NewWhiskyPage() {
           size="sm"
           className="absolute -left-2.5 text-muted-foreground"
         >
-          <Link href="/bottles">キャンセル</Link>
+          <Link href="/whiskies">キャンセル</Link>
         </Button>
         <h1 className="font-heading text-lg font-bold">製品登録</h1>
       </header>
