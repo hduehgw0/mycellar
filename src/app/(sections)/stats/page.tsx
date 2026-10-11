@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "傾向" };
 
-// 丸めると、限定版があるのに 0%、通常版があるのに 100% と出うる。その境目だけ <1 と >99 で示す。
+// 0% と 100% は、限定版が 1 本も無いときと、全部が限定版のときだけ出す。
 function formatPercent(percent: number): string {
   if (percent > 0 && percent < 1) return "<1";
   if (percent > 99 && percent < 100) return ">99";

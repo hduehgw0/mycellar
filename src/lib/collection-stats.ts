@@ -90,7 +90,7 @@ export function summarizeCollection(
     limitedBottleCount,
     regularBottleCount: totalBottleCount - limitedBottleCount,
     // 丸めずに返す。整数に丸めると、限定版があるのに 0%、通常版があるのに 100% になりうる。
-    // 丸めは表示側で行い、その境目を <1% や >99% で示す。
+    // 丸め方は表示側で決める。
     limitedPercent:
       totalBottleCount === 0
         ? 0
