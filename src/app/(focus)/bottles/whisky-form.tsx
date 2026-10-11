@@ -283,7 +283,7 @@ export function WhiskyForm({
           render={({ field }) => {
             // UI からは 1〜99 の外や小数を作れないので検証エラーの表示は置かない。
             // 代わりに、DB 由来の初期値が不正だと送信が無言で止まる（文言が出ない）。
-            const quantity = field.value ?? 1;
+            const quantity = field.value;
             return (
               // Field が role="group" を持つので、名前だけ渡して内側は素の div。
               <Field
