@@ -22,6 +22,9 @@ export function showDuplicateWhiskyToast(whisky: DuplicateWhisky) {
     id: TOAST_ID,
     closeButton: true,
     duration: TOAST_DURATION_MS,
+    // sonner の中身の枠はトーストの横並びの子で、既定では製品名の全文の幅より細くならない。
+    // そのままだと長い製品名がトーストの外へはみ出し、truncate の「…」も効かない。
+    classNames: { content: "min-w-0" },
     description: (
       <Link
         href={`/whiskies/${whisky.id}`}
