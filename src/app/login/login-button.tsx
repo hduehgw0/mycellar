@@ -23,7 +23,7 @@ export function LoginButton() {
     try {
       const { error } = await authClient.signIn.social({
         provider: "google",
-        callbackURL: "/bottles",
+        callbackURL: "/whiskies",
       });
       // 成功時は Google へ遷移するため以降は実行されない。
       // 失敗時のみここに到達するので、理由を伝えて再操作可能に戻す。

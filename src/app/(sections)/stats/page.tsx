@@ -1,28 +1,30 @@
 import type { Metadata } from "next";
 import { requireSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
-import { summarizeBottles, type BottleForStats } from "@/lib/bottle-stats";
+import {
+  summarizeCollection,
+  WHISKY_STATS_SELECT,
+} from "@/lib/collection-stats";
 import { cn } from "@/lib/utils";
 
-// `bottle-stats.ts`で必要な列だけを取る。BottleForStats と過不足があれば型エラーになる。
-const BOTTLE_STATS_SELECT = {
-  name: true,
-  region: true,
-  isLimited: true,
-  quantity: true,
-} satisfies Record<keyof BottleForStats, true>;
-
 export const metadata: Metadata = { title: "傾向" };
+
+// 0% と 100% は、限定版が 1 本も無いときと、全部が限定版のときだけ出す。
+function formatPercent(percent: number): string {
+  if (percent > 0 && percent < 1) return "<1";
+  if (percent > 99 && percent < 100) return ">99";
+  return String(Math.round(percent));
+}
 
 export default async function StatsPage() {
   const session = await requireSession();
 
-  const bottles = await prisma.bottle.findMany({
+  const whiskies = await prisma.whisky.findMany({
     where: { userId: session.user.id },
-    select: BOTTLE_STATS_SELECT,
+    select: WHISKY_STATS_SELECT,
   });
 
-  const stats = summarizeBottles(bottles);
+  const stats = summarizeCollection(whiskies);
 
   return (
     <>
@@ -33,46 +35,42 @@ export default async function StatsPage() {
         </p>
       </div>
 
-      <dl className="flex items-end justify-between gap-4 rounded-lg border border-primary/20 bg-linear-to-br from-primary/10 to-card p-5">
-        <div className="flex flex-col gap-1">
-          <dt className="text-sm text-muted-foreground">総本数</dt>
-          <dd className="font-heading text-5xl font-bold">
-            {stats.totalQuantity}
-            <span className="text-base font-normal text-muted-foreground">
-              本
-            </span>
-          </dd>
-        </div>
+      {/* 3 桁になると、等分の幅では 360px の画面で単位が次の行に落ちる。そのときだけ列を中身の幅まで広げる。 */}
+      <dl className="grid grid-cols-[repeat(3,minmax(max-content,1fr))] gap-4 rounded-lg border border-primary/20 bg-linear-to-br from-primary/10 to-card p-5">
         {[
-          { label: "銘柄数", value: stats.brandCount },
-          { label: "産地数", value: stats.regionCount },
-        ].map(({ label, value }) => (
-          <div key={label} className="flex flex-col items-center gap-1">
+          { label: "総本数", value: stats.totalBottleCount, unit: "本" },
+          { label: "製品数", value: stats.whiskyCount, unit: "種" },
+          { label: "国", value: stats.countryCount, unit: "か国" },
+        ].map(({ label, value, unit }) => (
+          <div key={label} className="flex flex-col gap-1">
             <dt className="text-sm text-muted-foreground">{label}</dt>
-            <dd className="font-heading text-3xl font-bold text-primary">
+            <dd className="font-heading text-4xl font-bold whitespace-nowrap">
               {value}
+              <span className="text-base font-normal text-muted-foreground">
+                {unit}
+              </span>
             </dd>
           </div>
         ))}
       </dl>
 
-      {stats.totalQuantity === 0 ? (
+      {stats.totalBottleCount === 0 ? (
         <p className="text-sm leading-6 text-muted-foreground">
-          ボトルを登録すると、ここに傾向が出ます。
+          製品を登録すると、ここに傾向が出ます。
         </p>
       ) : (
         <>
           <section className="flex flex-col gap-4 rounded-lg border bg-card p-5">
             <div className="flex flex-col gap-1">
-              <h2 className="font-heading text-lg font-bold">産地別の本数</h2>
+              <h2 className="font-heading text-lg font-bold">国別の本数</h2>
               <p className="text-xs text-muted-foreground">本数の多い順</p>
             </div>
             <dl className="flex flex-col gap-3.5">
-              {stats.regionQuantities.map(({ region, quantity }) => {
-                const isUnset = region === null;
+              {stats.bottleCountsByCountry.map(({ country, bottleCount }) => {
+                const isUnset = country === null;
                 return (
                   <div
-                    key={region ?? "unset"}
+                    key={country ?? "unset"}
                     className="grid grid-cols-[1fr_auto] items-baseline gap-x-4 gap-y-1.5"
                   >
                     <dt
@@ -81,10 +79,10 @@ export default async function StatsPage() {
                         isUnset && "text-muted-foreground",
                       )}
                     >
-                      {region ?? "未設定"}
+                      {country ?? "未設定"}
                     </dt>
-                    <dd className="text-sm font-bold">{quantity}本</dd>
-                    {/* 長さは最も多い産地を 100% とする比率。全体に対する比率だと
+                    <dd className="text-sm font-bold">{bottleCount}本</dd>
+                    {/* 長さは最も多い国を 100% とする比率。全体に対する比率だと
                         差が潰れて偏りが見えない。
                         バーを 2 つ目の dd にするのは、dl 直下の div に置けるのが
                         dt と dd だけのため（col-span-2 で 2 行目の全幅になる）。 */}
@@ -98,7 +96,7 @@ export default async function StatsPage() {
                           isUnset ? "bg-chart-2" : "bg-chart-1",
                         )}
                         style={{
-                          width: `${(quantity / stats.maxRegionQuantity) * 100}%`,
+                          width: `${(bottleCount / stats.maxCountryBottleCount) * 100}%`,
                         }}
                       />
                     </dd>
@@ -112,7 +110,7 @@ export default async function StatsPage() {
             <div className="flex items-baseline justify-between gap-4">
               <h2 className="font-heading text-lg font-bold">限定版の割合</h2>
               <p className="font-heading text-4xl font-bold text-primary">
-                {stats.limitedPercent}
+                {formatPercent(stats.limitedPercent)}
                 <span className="text-base">%</span>
               </p>
             </div>
@@ -126,12 +124,12 @@ export default async function StatsPage() {
               {[
                 {
                   label: "限定版",
-                  value: stats.limitedQuantity,
+                  value: stats.limitedBottleCount,
                   color: "bg-chart-1",
                 },
                 {
                   label: "通常",
-                  value: stats.regularQuantity,
+                  value: stats.regularBottleCount,
                   color: "bg-chart-2",
                 },
               ].map(({ label, value, color }) => (

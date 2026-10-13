@@ -1,6 +1,6 @@
 import { TabBar } from "./tab-bar";
 
-// タブの行き先（/bottles・/stats・/account）を覆うシェル。タブバーが出るのはここだけ。
+// タブの行き先（/whiskies・/stats・/account）を覆うシェル。タブバーが出るのはここだけ。
 // 認証（requireSession）は各 page に残す：layout は同一 layout を共有するルート間の
 // クライアント遷移で再レンダリングされず、認証境界にならないため（→ ADR-0010）。
 export default function SectionsLayout({
