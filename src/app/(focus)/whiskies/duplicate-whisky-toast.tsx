@@ -22,8 +22,6 @@ export function showDuplicateWhiskyToast(whisky: DuplicateWhisky) {
     id: TOAST_ID,
     closeButton: true,
     duration: TOAST_DURATION_MS,
-    // 閉じるボタンは右上に重ねて置くので、その列を空けてカードの右端を × の手前で止める。
-    classNames: { content: "pr-6" },
     description: (
       <Link
         href={`/whiskies/${whisky.id}`}
