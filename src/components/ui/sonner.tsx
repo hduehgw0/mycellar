@@ -23,8 +23,9 @@ const Toaster = ({ ...props }: ToasterProps) => {
           // フォントはトーストに付ける。外枠には sonner が OS の標準フォントを指定している。
           // 幅は狭い画面では sonner が画面の幅に合わせ、広い画面では --width になる。
           // 閉じるボタンがあるときは、その押せる範囲（right-1 ＋ size-11 ＝ 48px）の分だけ右を空ける。
+          // 後ろに重なったトーストの中身は、sonner が既定の見た目でしか隠さないので、ここで隠す。
           toast:
-            "flex w-(--width) items-start gap-3 rounded-lg border border-primary/30 bg-popover p-4 font-sans text-popover-foreground shadow-lg has-[[data-close-button]]:pr-12",
+            "flex w-(--width) items-start gap-3 rounded-lg border border-primary/30 bg-popover p-4 font-sans text-popover-foreground shadow-lg has-[[data-close-button]]:pr-12 data-[expanded=false]:data-[front=false]:*:opacity-0",
           // 見出しの 1 行目（高さ 20px）の中央にアイコンを置く。
           icon: "flex h-5 shrink-0 items-center",
           // min-w-0 が無いと、本文の枠は中身の全文の幅より細くならず、長い製品名がはみ出す。
