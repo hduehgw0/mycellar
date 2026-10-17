@@ -12,8 +12,9 @@ import {
 // sonner の見た目は使わず（unstyled）、classNames でアプリのトークンから付ける。
 // sonner の CSS はカスケードレイヤーの外に入るので、同じ要素に既定の指定があると
 // Tailwind のクラスは詳細度に関係なく負ける。
-// theme は既定の light のままにする。dark にすると、unstyled でも閉じるボタンと
-// 説明文に sonner の色が付く。
+// sonner の theme は既定の light のままにする。theme は sonner の CSS にだけ効き、
+// 見た目は下のクラスでアプリのトークン（dark）から付ける。dark にすると、unstyled でも
+// 閉じるボタンと説明文に sonner の色が付く。
 const Toaster = ({ ...props }: ToasterProps) => {
   return (
     <Sonner
