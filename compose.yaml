@@ -5,7 +5,8 @@ services:
     image: postgres:17
     ports:
       # 手元で別の Postgres が 5432 を使っていても、ぶつからないようにする。
-      - "5433:5432"
+      # パスワードが固定なので、ほかの端末からはつながらないようにする。
+      - "127.0.0.1:5433:5432"
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
