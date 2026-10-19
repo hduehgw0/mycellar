@@ -1,0 +1,15 @@
+# テスト用の DB（→ docs/adr.md ADR-0020）。開発用の DB は Neon にある。
+services:
+  test-db:
+    # 本番の Neon と同じ版にする。
+    image: postgres:17
+    ports:
+      # 手元で別の Postgres が 5432 を使っていても、ぶつからないようにする。
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: mycellar_test
+    # テストのたびに表を空にするので、データはディスクに残さない。
+    tmpfs:
+      - /var/lib/postgresql/data
