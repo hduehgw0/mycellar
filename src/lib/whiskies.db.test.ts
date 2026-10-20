@@ -106,8 +106,14 @@ describe("createWhisky", () => {
     expect(result.status).toBe("created");
   });
 
-  it("重複以外のエラーは握り潰さない", async () => {
-    await expect(createWhisky("user_missing", input())).rejects.toThrow();
+  // 同じ製品名の製品が無いと、重複を探しても見つからず、元のエラーが投げ直されて通ってしまう。
+  // 年数は zod を通さずに、列の上限（32 ビットの整数）を超える値を渡し、DB に断らせる。
+  it("重複以外のエラーは、同じ製品名があっても重複にせず、そのまま投げる", async () => {
+    await seedWhisky(me);
+
+    await expect(
+      createWhisky(me, { ...input(), age: 2 ** 31 }),
+    ).rejects.toMatchObject({ code: "P2020" });
   });
 });
 
