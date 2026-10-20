@@ -83,7 +83,7 @@ pnpm lint          # ESLint
 pnpm format:check  # Prettier の差分（落ちたら pnpm format で直す）
 pnpm typecheck     # tsc --noEmit
 pnpm test          # Vitest（DB を使わないテスト）
-pnpm test:db       # Vitest（テスト用 DB を使うテスト。先に docker compose up -d）
+pnpm test:db       # Vitest（テスト用 DB を使うテスト。先に docker compose up -d --wait）
 ```
 
 > `pnpm build` は CI では実行しない（ビルドは Vercel 側で走る）。
