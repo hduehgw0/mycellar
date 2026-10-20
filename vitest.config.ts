@@ -1,7 +1,7 @@
 import path from "node:path";
 import { configDefaults, defineConfig } from "vitest/config";
 
-// compose.yaml と CI の services で立てる DB。.env の DB（Neon）には向けない。
+// compose.yaml で立てる DB（手元も CI も）。.env の DB（Neon）には向けない。
 const TEST_DATABASE_URL =
   "postgresql://postgres:postgres@localhost:5433/mycellar_test";
 

@@ -45,22 +45,6 @@ jobs:
 
   db-test:
     runs-on: ubuntu-latest
-    services:
-      # 手元の compose.yaml と同じ DB にして、接続先を vitest.config.ts の 1 つにそろえる。
-      postgres:
-        image: postgres:17
-        ports:
-          - 5433:5432
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: mycellar_test
-        # 起動しきる前にテストが始まらないよう、接続を受け付けるまで待つ。
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 2s
-          --health-timeout 5s
-          --health-retries 15
     steps:
       - uses: actions/checkout@v4
         with:
@@ -76,5 +60,8 @@ jobs:
           cache: pnpm
 
       - run: pnpm install --frozen-lockfile
+
+      # 手元と同じ compose.yaml で立て、手元の手順そのものを確かめる（→ ADR-0020）。
+      - run: docker compose up -d --wait
 
       - run: pnpm test:db
