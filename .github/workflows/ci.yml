@@ -13,13 +13,14 @@ concurrency:
 permissions:
   contents: read
 
+# prisma.config.ts が env() で必須化しているため、postinstall の prisma generate 用にダミーを渡す。
+# generate は DB へ接続しない。DB のテストの接続先は vitest.config.ts が決める。
+env:
+  DATABASE_URL_UNPOOLED: postgresql://user:password@localhost:5432/db
+
 jobs:
   static-analysis:
     runs-on: ubuntu-latest
-    env:
-      # prisma.config.ts が env() で必須化しているため、postinstall の prisma generate 用にダミーを渡す。
-      # generate は DB へ接続しないので実接続は不要。
-      DATABASE_URL_UNPOOLED: postgresql://user:password@localhost:5432/db
     steps:
       - uses: actions/checkout@v4
         with:
@@ -41,3 +42,26 @@ jobs:
       - run: pnpm format:check
       - run: pnpm typecheck
       - run: pnpm test
+
+  db-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # 手元と同じ compose.yaml で立て、手元の手順そのものを確かめる（→ ADR-0020）。
+      - run: docker compose up -d --wait
+
+      - run: pnpm test:db

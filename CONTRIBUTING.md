@@ -76,13 +76,14 @@
 
 ## プルリクエスト
 
-- PR 前に必ず通す（**CI が実行するものと同じ 4 つ**）：
+- PR 前に必ず通す（**CI が実行するものと同じ 5 つ**）：
 
 ```bash
 pnpm lint          # ESLint
 pnpm format:check  # Prettier の差分（落ちたら pnpm format で直す）
 pnpm typecheck     # tsc --noEmit
-pnpm test          # Vitest（単体・結合）
+pnpm test          # Vitest（DB を使わないテスト）
+pnpm test:db       # Vitest（テスト用 DB を使うテスト。先に docker compose up -d --wait）
 ```
 
 > `pnpm build` は CI では実行しない（ビルドは Vercel 側で走る）。

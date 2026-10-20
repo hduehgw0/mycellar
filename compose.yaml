@@ -1,0 +1,23 @@
+# テスト用の DB（→ docs/adr.md ADR-0020）。開発用の DB は Neon にある。
+services:
+  test-db:
+    # 本番の Neon と同じ版にする。
+    image: postgres:17
+    ports:
+      # 手元で別の Postgres が 5432 を使っていても、ぶつからないようにする。
+      # パスワードが固定なので、ほかの端末からはつながらないようにする。
+      - "127.0.0.1:5433:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: mycellar_test
+    # up --wait は、これが通るまで待つ。起動時の初期化用のサーバーはソケットでしか受け付けないので、
+    # -h localhost で TCP を見て、初期化を終えた本番のサーバーが立つまで待つ。
+    healthcheck:
+      test: pg_isready -h localhost -U postgres -d mycellar_test
+      interval: 1s
+      timeout: 5s
+      retries: 30
+    # テストのたびに表を空にするので、データはディスクに残さない。
+    tmpfs:
+      - /var/lib/postgresql/data
