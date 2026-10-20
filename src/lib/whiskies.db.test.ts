@@ -13,6 +13,8 @@ import {
 let me: string;
 let other: string;
 
+// 利用者は同時に作る。順に作ると DB への接続が 1 本しか開かず、
+// 二重送信のテストがロックなしでも通ってしまう。
 beforeEach(async () => {
   [me, other] = await Promise.all(
     [0, 1].map(async () => (await prisma.user.create({ data: {} })).id),
@@ -227,7 +229,8 @@ describe("updateWhisky の本数", () => {
   });
 
   // 製品の行をロックしないと、両方が 1 本と数えて 2 本ずつ足し、5 本になる。
-  it("同じ本数を二重に送っても、送った本数になる", async () => {
+  // 他の項目も送ると、製品の UPDATE が行をロックするので、FOR UPDATE が無くても通ってしまう。
+  it("本数だけを二重に送っても、送った本数になる", async () => {
     const id = await seedWhisky(me);
 
     await Promise.all([
