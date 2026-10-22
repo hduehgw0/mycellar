@@ -4,7 +4,6 @@ import type { whiskyCreateSchema } from "@/lib/schemas/whisky";
 
 type Sample = z.input<typeof whiskyCreateSchema>;
 
-// 実在する製品。年数と樽は、製品名やラベルに書かれているものだけを入れる。
 // 1 製品を 1 行にそろえて、表として読めるようにする。
 // prettier-ignore
 export const LARGE_SAMPLES = [
