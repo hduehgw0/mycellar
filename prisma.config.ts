@@ -5,6 +5,7 @@ export default defineConfig({
   schema: "prisma/schema.prisma",
   migrations: {
     path: "prisma/migrations",
+    seed: "tsx prisma/seed.ts",
   },
   datasource: {
     // CLI（migrate 等）専用の接続。スキーマ変更は PgBouncer（pooled）経由では
