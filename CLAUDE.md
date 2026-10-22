@@ -26,7 +26,8 @@
 - `pnpm shadcn add <name>` – UI 部品を `src/components/ui/` に追加
 - `pnpm prisma migrate dev` – DB マイグレーション（クライアント再生成も走る）
 - `pnpm prisma studio` – DB の中身を GUI で確認
-- `pnpm prisma db seed` – 開発用の DB に見本を 20 件ほど入れる（`-- --large` で 300 件）。`.env` の `SEED_USER_EMAIL` の利用者が持ち、その利用者の製品は入れ直すたびに消える。先に手元でそのアカウントでログインしておく
+- `pnpm db:seed` – 開発用の DB に見本を 20 件入れる
+- `pnpm db:seed:large` – 同じく 300 件
 
 ## Project Structure
 

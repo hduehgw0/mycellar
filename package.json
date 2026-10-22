@@ -17,7 +17,9 @@
     "test:db": "vitest run --project db",
     "test:watch": "vitest --project unit",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "db:seed": "prisma db seed",
+    "db:seed:large": "prisma db seed -- --large"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.4.0",
