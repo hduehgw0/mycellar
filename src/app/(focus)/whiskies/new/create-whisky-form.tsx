@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { WhiskyForm } from "../whisky-form";
 import {
@@ -10,6 +11,8 @@ import {
 // 登録用ラッパー：共有フォームに初期値・文言・送信処理（POST）を渡す。
 export function CreateWhiskyForm() {
   const router = useRouter();
+  // トーストは時間で消えないので、画面を離れたら消す。
+  useEffect(() => dismissDuplicateWhiskyToast, []);
   return (
     <WhiskyForm
       defaultValues={{

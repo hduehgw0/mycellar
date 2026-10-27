@@ -50,8 +50,14 @@ export default function RootLayout({
         {/* トーストの表示先。ここに無いと toast() が無反応になるが型も lint も通るため、
             レイアウトを組み替えるときも下げない（→ #59）。
             位置はモックに合わせて上部（sonner の既定は bottom-right）。下部は送信ボタンと
-            タブバー（#59）の定位置で、重ねると操作を塞ぐ。 */}
-        <Toaster position="top-center" />
+            タブバー（#59）の定位置で、重ねると操作を塞ぐ。
+            トーストは登録・編集の画面でしか出さないので、その見出しと「キャンセル」
+            （上端から 72px）の下に出す。 */}
+        <Toaster
+          position="top-center"
+          offset={{ top: 80 }}
+          mobileOffset={{ top: 80 }}
+        />
       </body>
     </html>
   );

@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import type { WhiskyFormInput } from "@/lib/schemas/whisky";
 import { WhiskyForm } from "../../whisky-form";
@@ -17,6 +18,8 @@ export function EditWhiskyForm({
   defaultValues: WhiskyFormInput;
 }) {
   const router = useRouter();
+  // トーストは時間で消えないので、画面を離れたら消す。
+  useEffect(() => dismissDuplicateWhiskyToast, []);
   return (
     <WhiskyForm
       defaultValues={defaultValues}

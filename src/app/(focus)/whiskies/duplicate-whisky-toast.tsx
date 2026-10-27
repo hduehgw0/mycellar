@@ -9,8 +9,6 @@ import type { DuplicateWhisky } from "@/lib/whiskies";
 
 const TOAST_ID = "duplicate-whisky";
 
-const TOAST_DURATION_MS = 6_000;
-
 export function dismissDuplicateWhiskyToast() {
   toast.dismiss(TOAST_ID);
 }
@@ -21,7 +19,8 @@ export function showDuplicateWhiskyToast(whisky: DuplicateWhisky) {
   toast.info("この製品は既に登録されています", {
     id: TOAST_ID,
     closeButton: true,
-    duration: TOAST_DURATION_MS,
+    // リンクを押す前に消えないよう、時間では消さない。
+    duration: Infinity,
     description: (
       <Link
         href={`/whiskies/${whisky.id}`}
