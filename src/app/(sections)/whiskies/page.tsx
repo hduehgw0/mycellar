@@ -67,7 +67,7 @@ export default async function WhiskiesPage() {
                 href={`/whiskies/${whisky.id}`}
                 className="relative flex h-full flex-col rounded-lg border bg-linear-to-b from-muted to-card hover:border-ring"
               >
-                <div className="flex flex-1 items-center justify-center p-3.5">
+                <div className="flex justify-center p-3.5">
                   <BottlePlaceholder className="h-26" />
                 </div>
                 <div className="flex flex-col gap-0.5 p-3">
