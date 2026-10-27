@@ -35,14 +35,14 @@ export default async function StatsPage() {
         </p>
       </div>
 
-      {/* 3 桁になると、等分の幅では 360px の画面で単位が次の行に落ちる。そのときだけ列を中身の幅まで広げる。 */}
-      <dl className="grid grid-cols-[repeat(3,minmax(max-content,1fr))] gap-4 rounded-lg border border-primary/20 bg-linear-to-br from-primary/10 to-card p-5">
+      {/* 1 行に入らないときは、数字を縮めずに次の行へ回す。 */}
+      <dl className="flex flex-wrap gap-x-4 gap-y-3 rounded-lg border border-primary/20 bg-linear-to-br from-primary/10 to-card p-5">
         {[
           { label: "総本数", value: stats.totalBottleCount, unit: "本" },
           { label: "製品数", value: stats.whiskyCount, unit: "種" },
           { label: "国", value: stats.countryCount, unit: "か国" },
         ].map(({ label, value, unit }) => (
-          <div key={label} className="flex flex-col gap-1">
+          <div key={label} className="flex min-w-max flex-1 flex-col gap-1">
             <dt className="text-sm text-muted-foreground">{label}</dt>
             <dd className="font-heading text-4xl font-bold whitespace-nowrap">
               {value}
