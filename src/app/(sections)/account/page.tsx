@@ -30,10 +30,6 @@ export default async function AccountPage() {
       </div>
 
       <LogoutButton />
-
-      <p className="text-center text-xs text-muted-foreground">
-        MyCellar · v1.0 (MVP)
-      </p>
     </>
   );
 }
