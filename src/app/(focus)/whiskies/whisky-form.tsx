@@ -38,7 +38,7 @@ const NONE = "__none__";
 
 const LABEL_CLASS = "gap-1.5 text-xs text-muted-foreground";
 
-const CARD_CLASS = "rounded-lg border border-input bg-input/30 p-2.5";
+const CARD_CLASS = "rounded-lg border border-input bg-input-fill/30 p-2.5";
 
 // 登録・編集で共有する製品のフォーム（UI と検証）。
 // 送信先・初期値・文言・遷移などの差分は、各ページのラッパーが props で渡す。

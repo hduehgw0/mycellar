@@ -13,7 +13,7 @@ export default async function AccountPage() {
     <>
       <h1 className="font-heading text-2xl font-bold">アカウント</h1>
 
-      <div className="flex items-center gap-4 rounded-lg border border-primary/10 bg-card p-5">
+      <div className="flex items-center gap-4 rounded-lg border border-primary/55 bg-card p-5">
         {/* 名前が隣に出るので画像は装飾（alt=""）。Google の画像が落ちたら人物アイコンに退く。 */}
         <Avatar className="size-15">
           <AvatarImage src={user.image ?? undefined} alt="" />
