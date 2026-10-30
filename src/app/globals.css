@@ -22,7 +22,10 @@
   --color-chart-1: var(--chart-1);
   --color-ring: var(--ring);
   --color-input: var(--input);
+  --color-input-fill: var(--input-fill);
   --color-border: var(--border);
+  /* 琥珀色の枠。背景との差が 3:1 を超える濃さ（WCAG 1.4.11）。 */
+  --color-primary-border: color-mix(in oklab, var(--primary) 55%, transparent);
   --color-destructive: var(--destructive);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent: var(--accent);
@@ -68,6 +71,7 @@
   --destructive: oklch(0.577 0.245 27.325);
   --border: oklch(0.922 0 0);
   --input: oklch(0.922 0 0);
+  --input-fill: oklch(0.922 0 0);
   --ring: oklch(0.708 0 0);
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
@@ -108,11 +112,14 @@
   --accent: oklch(0.683 0.111 64.9 / 22%);
   --accent-foreground: oklch(0.729 0.111 68.8);
   --destructive: oklch(0.649 0.123 30.7);
-  /* 枠は 2 段階。--input は shadcn が入力欄の塗り（dark:bg-input/30）にも使うため、
-     枠の値を入れるだけで塗りもモックと合う。 */
-  --border: oklch(0.931 0.019 80.1 / 8%);
-  --input: oklch(0.931 0.019 80.1 / 12%);
-  --ring: oklch(0.683 0.111 64.9 / 50%);
+  /* 枠は、暗い色の差を潰す画面（Pixel 8a など）でも見えるよう、背景との差を 3:1 以上にする
+     （WCAG 1.4.11）。入力欄の塗りは枠と別の値にする。shadcn は枠の --input を塗りにも
+     使う（bg-input/30）ので、そのままだと枠を濃くした分だけ塗りが白く曇る。 */
+  --border: oklch(0.931 0.019 80.1 / 40%);
+  --input: oklch(0.931 0.019 80.1 / 45%);
+  --input-fill: oklch(0.931 0.019 80.1 / 12%);
+  /* 普段の枠（--input）より薄いと、フォーカスした欄がかえって目立たなくなる。 */
+  --ring: oklch(0.683 0.111 64.9 / 80%);
   /* 傾向ページは産地バー（1）と「未設定」（2）しか使わない。3〜5 は消すと
      shadcn add chart で既定のグレースケールが追記されるため残す。 */
   --chart-1: oklch(0.729 0.111 68.8);
