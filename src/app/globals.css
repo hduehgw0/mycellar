@@ -24,6 +24,8 @@
   --color-input: var(--input);
   --color-input-fill: var(--input-fill);
   --color-border: var(--border);
+  /* 琥珀色の枠。背景との差が 3:1 を超える濃さ（WCAG 1.4.11）。 */
+  --color-primary-border: color-mix(in oklab, var(--primary) 55%, transparent);
   --color-destructive: var(--destructive);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent: var(--accent);

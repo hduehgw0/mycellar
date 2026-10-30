@@ -36,7 +36,7 @@ export default async function StatsPage() {
       </div>
 
       {/* 1 行に入らないときは、数字を縮めずに次の行へ回す。 */}
-      <dl className="flex flex-wrap gap-x-4 gap-y-3 rounded-lg border border-primary/55 bg-linear-to-br from-primary/10 to-card p-5">
+      <dl className="flex flex-wrap gap-x-4 gap-y-3 rounded-lg border border-primary-border bg-linear-to-br from-primary/10 to-card p-5">
         {[
           { label: "総本数", value: stats.totalBottleCount, unit: "本" },
           { label: "製品数", value: stats.whiskyCount, unit: "種" },
