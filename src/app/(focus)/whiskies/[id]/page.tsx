@@ -97,12 +97,12 @@ export default async function WhiskyPage({
         </dl>
       </div>
 
-      {/* 枠だけのボタン。outline は枠が薄く塗りも付くので ghost に枠を足す。 */}
+      {/* 枠だけのボタン。outline は塗りも付くので ghost に枠を足す。 */}
       <Button
         asChild
         variant="ghost"
         size="lg"
-        className="border-foreground/30"
+        className="border-foreground/45"
       >
         <Link href={`/whiskies/${whisky.id}/edit`}>編集する</Link>
       </Button>
