@@ -121,3 +121,14 @@ export const whiskyFormSchema = whiskyBaseSchema
 
 export type WhiskyFormInput = z.input<typeof whiskyFormSchema>;
 export type WhiskyFormOutput = z.output<typeof whiskyFormSchema>;
+
+// 数として読めない入力（「十二年」など）は NaN にして、検査でエラーにする（null だと黙って NAS になる）。
+// Number() に任せないのは、"1e1" や "0x10" も数にしてしまうため。
+export function parseAgeInput(value: unknown): number | null {
+  // 初期値（null や DB の数）もここを通る。
+  if (value == null) return null;
+  // type="text" の欄では、ブラウザは全角の数字を半角に直さない。
+  const text = String(value).normalize("NFKC").trim();
+  if (text === "") return null;
+  return /^\d+$/.test(text) ? Number(text) : NaN;
+}

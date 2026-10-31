@@ -7,6 +7,7 @@ import { MinusIcon, PlusIcon } from "lucide-react";
 import {
   CASK_TYPES,
   COUNTRIES,
+  parseAgeInput,
   REGIONS,
   whiskyFormSchema,
   type WhiskyFormInput,
@@ -208,19 +209,15 @@ export function WhiskyForm({
                 空欄＝NAS
               </span>
             </FieldLabel>
+            {/* type="number" は、数として読めない文字を空文字にして渡すので、
+                空欄（NAS）と見分けられない。文字の欄にして、parseAgeInput で読む。 */}
             <Input
               id="age"
-              type="number"
-              min={0}
-              max={100}
+              inputMode="numeric"
               placeholder="例：12"
               aria-invalid={!!errors.age}
               aria-describedby={errors.age ? "age-error" : undefined}
-              {...register("age", {
-                // 初期値の null もここを通る（Number(null) は 0 なので、NAS が 0年 になる）。
-                setValueAs: (value) =>
-                  value === "" || value == null ? null : Number(value),
-              })}
+              {...register("age", { setValueAs: parseAgeInput })}
             />
             <FieldError id="age-error" errors={[errors.age]} />
           </Field>

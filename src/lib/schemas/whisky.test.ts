@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  parseAgeInput,
   whiskyCreateSchema,
   whiskyFormSchema,
   whiskyUpdateSchema,
@@ -180,5 +181,48 @@ describe("whiskyFormSchema", () => {
 
   it("メモの空文字は値なし（null）になる", () => {
     expect(whiskyFormSchema.parse({ ...empty, memo: "" }).memo).toBeNull();
+  });
+});
+
+describe("parseAgeInput", () => {
+  it.each([
+    ["12", 12],
+    ["１２", 12],
+    [" 12 ", 12],
+    ["012", 12],
+    [12, 12],
+  ])("%j は %j になる", (input, expected) => {
+    expect(parseAgeInput(input)).toBe(expected);
+  });
+
+  it.each(["", "　", null, undefined])(
+    "空欄（%j）は NAS（null）になる",
+    (input) => {
+      expect(parseAgeInput(input)).toBeNull();
+    },
+  );
+
+  it.each(["十二年", "12年", "1e1", "0x10", "12.5", "-1"])(
+    "数字だけでない %j は NaN になる",
+    (input) => {
+      expect(parseAgeInput(input)).toBeNaN();
+    },
+  );
+
+  it("NaN はフォームの検査でエラーになる", () => {
+    const result = whiskyFormSchema.safeParse({
+      name: "山崎 12年",
+      country: null,
+      region: null,
+      age: parseAgeInput("十二年"),
+      caskType: null,
+      isLimited: false,
+      quantity: 1,
+      memo: null,
+    });
+    expect(result.error?.issues[0]).toMatchObject({
+      path: ["age"],
+      message: "年数は0〜100の整数で入力してください",
+    });
   });
 });
