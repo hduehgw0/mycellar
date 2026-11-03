@@ -9,8 +9,17 @@ export const auth = betterAuth({
   // Vercel（本番・Preview とも *.vercel.app）はリクエストのホストから baseURL を導出する。
   // これにより Preview（BETTER_AUTH_URL 未設定・動的 URL）でもビルド・描画が通る（→ Dynamic Base URL）。
   // allowedHosts は信頼する URL にもなる。preview の URL を外すと、OAuth Proxy がログインを preview に戻せない。
+  // *.vercel.app にすると、他人のアプリもログイン後の戻り先として通ってしまう。
+  // ここに無い URL で開くと、ログインの処理がエラーになる（独自ドメインを付けたら足す）。
   baseURL: process.env.VERCEL
-    ? { allowedHosts: ["*.vercel.app"], protocol: "https" }
+    ? {
+        allowedHosts: [
+          "mycellar-iota.vercel.app",
+          "mycellar-hduehgw0s-projects.vercel.app",
+          "mycellar-*-hduehgw0s-projects.vercel.app",
+        ],
+        protocol: "https",
+      }
     : requireEnv("BETTER_AUTH_URL"),
   // Better Auth は BETTER_AUTH_SECRET を暗黙 read するが、明示指定して未設定を fail-fast させる。
   secret: requireEnv("BETTER_AUTH_SECRET"),
