@@ -11,6 +11,7 @@ const vercel = process.env.VERCEL
       // Git から作ったデプロイにだけ入る
       branchHost: process.env.VERCEL_BRANCH_URL,
       deploymentHost: requireEnv("VERCEL_URL"),
+      isProduction: process.env.VERCEL_ENV === "production",
     }
   : null;
 const productionURL = vercel && `https://${vercel.productionHost}`;
@@ -43,12 +44,16 @@ export const auth = betterAuth({
     // DB セッションだが、cookie キャッシュで毎リクエストの DB リードを減らす（→ ADR-0010）。
     cookieCache: { enabled: true, maxAge: 5 * 60 },
   },
+  // 本番は中継のプロフィールを受け取らない。開けておくと、OAUTH_PROXY_SECRET を知る preview のコードが、本番で誰にでもなれる。
+  disabledPaths: vercel?.isProduction ? ["/oauth-proxy-callback"] : [],
   // preview の URL は毎回変わり Google に登録できないので、Google からの戻りは本番で受けて preview に渡す。
   // 手元は localhost を Google に登録済みなので、プラグインを通さない。
   plugins: productionURL
     ? [
         oAuthProxy({
           productionURL,
+          // 本番では、どのホストから来ても中継しない（中継の受け口は閉じている）。
+          currentURL: vercel?.isProduction ? productionURL : undefined,
           // 本番と preview で同じ値にする。BETTER_AUTH_SECRET は環境ごとに別のままにする。
           secret: requireEnv("OAUTH_PROXY_SECRET"),
         }),
