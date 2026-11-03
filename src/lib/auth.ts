@@ -5,12 +5,9 @@ import { prisma } from "@/lib/prisma";
 import { requireEnv } from "@/lib/env";
 
 export const auth = betterAuth({
-  // ローカルは BETTER_AUTH_URL（http://localhost:3000）を必須にして fail-fast。
-  // Vercel（本番・Preview とも *.vercel.app）はリクエストのホストから baseURL を導出する。
-  // これにより Preview（BETTER_AUTH_URL 未設定・動的 URL）でもビルド・描画が通る（→ Dynamic Base URL）。
-  // allowedHosts は信頼する URL にもなる。preview の URL を外すと、OAuth Proxy がログインを preview に戻せない。
-  // *.vercel.app にすると、他人のアプリもログイン後の戻り先として通ってしまう。
-  // ここに無い URL で開くと、ログインの処理がエラーになる（独自ドメインを付けたら足す）。
+  // Vercel は preview の URL が毎回変わるので、リクエストのホストから baseURL を作る。手元は BETTER_AUTH_URL。
+  // allowedHosts は信頼する URL も兼ねる。ここに無い URL で開くとログインが失敗する。
+  // *.vercel.app にしないのは、他人のアプリまでログイン後の戻り先として通してしまうため。
   baseURL: process.env.VERCEL
     ? {
         allowedHosts: [
@@ -35,7 +32,7 @@ export const auth = betterAuth({
     cookieCache: { enabled: true, maxAge: 5 * 60 },
   },
   // preview の URL は毎回変わり Google に登録できないので、Google からの戻りは本番で受けて preview に渡す。
-  // 手元は localhost を Google に登録済みなので通さない（通すと、手元のログインも本番を経由する）。
+  // 手元は localhost を Google に登録済みなので、プラグインを通さない。
   plugins: process.env.VERCEL
     ? [
         oAuthProxy({
