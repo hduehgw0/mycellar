@@ -4,18 +4,30 @@ import { oAuthProxy } from "better-auth/plugins/oauth-proxy";
 import { prisma } from "@/lib/prisma";
 import { requireEnv } from "@/lib/env";
 
+// Vercel が自動で入れる、このデプロイのホスト。
+const vercel = process.env.VERCEL
+  ? {
+      productionHost: requireEnv("VERCEL_PROJECT_PRODUCTION_URL"),
+      // Git から作ったデプロイにだけ入る
+      branchHost: process.env.VERCEL_BRANCH_URL,
+      deploymentHost: requireEnv("VERCEL_URL"),
+    }
+  : null;
+const productionURL = vercel && `https://${vercel.productionHost}`;
+
 export const auth = betterAuth({
   // Vercel は preview の URL が毎回変わるので、リクエストのホストから baseURL を作る。手元は BETTER_AUTH_URL。
-  // allowedHosts は信頼する URL も兼ねる。ここに無い URL で開くとログインが失敗する。
-  // *.vercel.app にしないのは、他人のアプリまでログイン後の戻り先として通してしまうため。
-  baseURL: process.env.VERCEL
+  // allowedHosts は信頼する URL も兼ねる。ワイルドカードにすると、他人の vercel.app まで当てはまってしまう。
+  // fallback が無いと、一覧に無いホストで開いたとき、ログイン状態を読むだけでも例外になる。
+  baseURL: vercel
     ? {
         allowedHosts: [
-          "mycellar-iota.vercel.app",
-          "mycellar-hduehgw0s-projects.vercel.app",
-          "mycellar-*-hduehgw0s-projects.vercel.app",
-        ],
+          vercel.productionHost,
+          vercel.branchHost,
+          vercel.deploymentHost,
+        ].filter((host) => host !== undefined),
         protocol: "https",
+        fallback: `https://${vercel.deploymentHost}`,
       }
     : requireEnv("BETTER_AUTH_URL"),
   // Better Auth は BETTER_AUTH_SECRET を暗黙 read するが、明示指定して未設定を fail-fast させる。
@@ -33,10 +45,10 @@ export const auth = betterAuth({
   },
   // preview の URL は毎回変わり Google に登録できないので、Google からの戻りは本番で受けて preview に渡す。
   // 手元は localhost を Google に登録済みなので、プラグインを通さない。
-  plugins: process.env.VERCEL
+  plugins: productionURL
     ? [
         oAuthProxy({
-          productionURL: `https://${requireEnv("VERCEL_PROJECT_PRODUCTION_URL")}`,
+          productionURL,
           // 本番と preview で同じ値にする。BETTER_AUTH_SECRET は環境ごとに別のままにする。
           secret: requireEnv("OAUTH_PROXY_SECRET"),
         }),
