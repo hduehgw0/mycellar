@@ -89,3 +89,4 @@ pnpm test:db       # Vitest（テスト用 DB を使うテスト。先に docker
 > `pnpm build` は CI では実行しない（ビルドは Vercel 側で走る）。
 
 - PR は `gh pr create` で作成する。本文テンプレート（`.github/pull_request_template.md`）が自動適用されるので、Issue の受け入れ条件をコピーしてセルフチェックする。
+- 画面を変えた PR は、マージする前に、Vercel が PR に貼る preview の URL を手元のスマホで開いて確かめる。iPhone では、画面が固まってから最後にまとめて確かめる。
