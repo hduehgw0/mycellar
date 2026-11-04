@@ -97,4 +97,6 @@ pnpm dev
 > - ローカル：`http://localhost:3000/api/auth/callback/google`
 > - 本番：`{BETTER_AUTH_URL}/api/auth/callback/google`（例：`https://<本番ドメイン>/api/auth/callback/google`）
 
+> **Vercel の環境変数**：本番と Preview に、同じ `OAUTH_PROXY_SECRET` を入れる（preview のログインを本番が中継するため → `src/lib/auth.ts`）。未設定だと、その環境のデプロイが起動時に落ちる。
+
 <!-- TODO（実装後）: ライセンス / 作者リンク など -->

@@ -1,15 +1,35 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
+import { oAuthProxy } from "better-auth/plugins/oauth-proxy";
 import { prisma } from "@/lib/prisma";
 import { requireEnv } from "@/lib/env";
 
+// Vercel が自動で入れる、このデプロイのホスト。
+const vercel = process.env.VERCEL
+  ? {
+      productionHost: requireEnv("VERCEL_PROJECT_PRODUCTION_URL"),
+      // Git から作ったデプロイにだけ入る
+      branchHost: process.env.VERCEL_BRANCH_URL,
+      deploymentHost: requireEnv("VERCEL_URL"),
+      isProduction: process.env.VERCEL_ENV === "production",
+    }
+  : null;
+const productionURL = vercel && `https://${vercel.productionHost}`;
+
 export const auth = betterAuth({
-  // ローカルは BETTER_AUTH_URL（http://localhost:3000）を必須にして fail-fast。
-  // Vercel（本番・Preview とも *.vercel.app）はリクエストのホストから baseURL を導出する。
-  // これにより Preview（BETTER_AUTH_URL 未設定・動的 URL）でもビルド・描画が通る（→ Dynamic Base URL）。
-  // ※ Preview での Google ログイン自体は callback を Google に登録できず不可（確認はローカル/本番）。
-  baseURL: process.env.VERCEL
-    ? { allowedHosts: ["*.vercel.app"], protocol: "https" }
+  // Vercel は preview の URL が毎回変わるので、リクエストのホストから baseURL を作る。手元は BETTER_AUTH_URL。
+  // allowedHosts は信頼する URL も兼ねる。ワイルドカードにすると、他人の vercel.app まで当てはまってしまう。
+  // fallback が無いと、一覧に無いホストで開いたとき、ログイン状態を読むだけでも例外になる。
+  baseURL: vercel
+    ? {
+        allowedHosts: [
+          vercel.productionHost,
+          vercel.branchHost,
+          vercel.deploymentHost,
+        ].filter((host) => host !== undefined),
+        protocol: "https",
+        fallback: `https://${vercel.deploymentHost}`,
+      }
     : requireEnv("BETTER_AUTH_URL"),
   // Better Auth は BETTER_AUTH_SECRET を暗黙 read するが、明示指定して未設定を fail-fast させる。
   secret: requireEnv("BETTER_AUTH_SECRET"),
@@ -24,4 +44,19 @@ export const auth = betterAuth({
     // DB セッションだが、cookie キャッシュで毎リクエストの DB リードを減らす（→ ADR-0010）。
     cookieCache: { enabled: true, maxAge: 5 * 60 },
   },
+  // 本番は中継のプロフィールを受け取らない。開けておくと、OAUTH_PROXY_SECRET を知る preview のコードが、本番で誰にでもなれる。
+  disabledPaths: vercel?.isProduction ? ["/oauth-proxy-callback"] : [],
+  // preview の URL は毎回変わり Google に登録できないので、Google からの戻りは本番で受けて preview に渡す。
+  // 手元は localhost を Google に登録済みなので、プラグインを通さない。
+  plugins: productionURL
+    ? [
+        oAuthProxy({
+          productionURL,
+          // 本番では、どのホストから来ても中継しない（中継の受け口は閉じている）。
+          currentURL: vercel?.isProduction ? productionURL : undefined,
+          // 本番と preview で同じ値にする。BETTER_AUTH_SECRET は環境ごとに別のままにする。
+          secret: requireEnv("OAUTH_PROXY_SECRET"),
+        }),
+      ]
+    : [],
 });
