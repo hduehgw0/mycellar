@@ -1,10 +1,13 @@
-# テスト用の DB（→ docs/adr.md ADR-0020）。開発用の DB は Neon にある。
+# テスト用の DB（→ docs/adr.md ADR-0020）。開発用の DB は compose.yaml。
+# 開発用と別のプロジェクトにして、片方の up や down がもう片方に触らないようにする。
+name: mycellar-test
+
 services:
   test-db:
     # 本番の Neon と同じ版にする。
     image: postgres:17
     ports:
-      # 手元で別の Postgres が 5432 を使っていても、ぶつからないようにする。
+      # 開発用の DB（5432）と同時に立てられるようにする。
       # パスワードが固定なので、ほかの端末からはつながらないようにする。
       - "127.0.0.1:5433:5432"
     environment:
