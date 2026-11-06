@@ -11,7 +11,17 @@ const { values } = parseArgs({
   options: { large: { type: "boolean", default: false } },
 });
 
+// seed は見本の持ち主の製品を消すので、手元の DB でなければ始めない。
+function assertLocalDatabase() {
+  const { hostname } = new URL(requireEnv("DATABASE_URL"));
+  if (hostname !== "localhost") {
+    throw new Error(`手元の DB ではないため、seed を止めました：${hostname}`);
+  }
+}
+
 async function main() {
+  assertLocalDatabase();
+
   const email = requireEnv("SEED_USER_EMAIL");
   const user = await prisma.user.findUnique({
     where: { email },
