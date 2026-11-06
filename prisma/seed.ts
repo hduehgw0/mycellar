@@ -36,7 +36,7 @@ async function main() {
 
   const now = Date.now();
   const bottles = await prisma.$transaction(async (tx) => {
-    // 開発用の DB は Preview と共有なので、消すのは見本の持ち主の製品だけにする。ボトルは製品と一緒に消える。
+    // 消すのは見本の持ち主の製品だけにする。ボトルは製品と一緒に消える。
     await tx.whisky.deleteMany({ where: { userId: user.id } });
 
     const created = await tx.whisky.createManyAndReturn({

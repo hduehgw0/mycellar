@@ -16,6 +16,7 @@
 ## Commands
 
 - `pnpm install` – 依存関係のインストール
+- `docker compose up -d --wait` – 開発用 DB を立てる（Docker Desktop の起動が要る）
 - `pnpm dev` – 開発サーバ
 - `pnpm lint` – ESLint
 - `pnpm format` – Prettier で整形（差分確認は `pnpm format:check`）

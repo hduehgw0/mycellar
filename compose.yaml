@@ -1,0 +1,25 @@
+# 開発用の DB（→ docs/adr.md ADR-0021）。テスト用の DB は compose.test.yaml。
+name: mycellar-dev
+
+services:
+  dev-db:
+    # 本番の Neon と同じ版にする。
+    image: postgres:17
+    ports:
+      # パスワードが固定なので、ほかの端末からはつながらないようにする。
+      - "127.0.0.1:5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: mycellar_dev
+    # -h localhost の理由は compose.test.yaml を参照。
+    healthcheck:
+      test: pg_isready -h localhost -U postgres -d mycellar_dev
+      interval: 1s
+      timeout: 5s
+      retries: 30
+    volumes:
+      - dev-db-data:/var/lib/postgresql/data
+
+volumes:
+  dev-db-data:
