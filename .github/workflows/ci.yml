@@ -61,7 +61,7 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      # 手元と同じ compose.yaml で立て、手元の手順そのものを確かめる（→ ADR-0020）。
-      - run: docker compose up -d --wait
+      # 手元と同じ compose.test.yaml で立て、手元の手順そのものを確かめる（→ ADR-0020）。
+      - run: docker compose -f compose.test.yaml up -d --wait
 
       - run: pnpm test:db

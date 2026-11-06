@@ -77,7 +77,7 @@ flowchart LR
 # 1. 依存をインストール
 pnpm install
 
-# 2. 環境変数：Vercel から取得（開発用の dev ブランチを指す値が入る）
+# 2. 環境変数：Vercel から取得（手元の開発用 DB を指す値が入る）
 #    書き出し先の .env は必ず指定する（省くと .env.local になり、Prisma CLI が読まない）
 pnpm dlx vercel link
 pnpm dlx vercel env pull .env
@@ -85,10 +85,13 @@ pnpm dlx vercel env pull .env
 # 3. 環境変数（認証）：Better Auth 系を .env に手動で追記 ※ 雛形は .env.example を参照
 #    GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET / BETTER_AUTH_SECRET / BETTER_AUTH_URL
 
-# 4. DB マイグレーション
+# 4. 開発用の DB を立てる（Docker Desktop の起動が要る）
+docker compose up -d --wait
+
+# 5. DB マイグレーション
 pnpm prisma migrate dev
 
-# 5. 開発サーバ起動
+# 6. 開発サーバ起動
 pnpm dev
 ```
 
