@@ -16,17 +16,18 @@
 ## Commands
 
 - `pnpm install` – 依存関係のインストール
+- `docker compose up -d --wait` – 開発用 DB を立てる（Docker Desktop の起動が要る）
 - `pnpm dev` – 開発サーバ
 - `pnpm lint` – ESLint
 - `pnpm format` – Prettier で整形（差分確認は `pnpm format:check`）
 - `pnpm typecheck` – 型チェック（`tsc --noEmit`）
 - `pnpm test` – Vitest（DB を使わないテスト）※ `test:watch` は終了しないので使わない
-- `pnpm test:db` – Vitest（テスト用 DB を使うテスト）。先に `docker compose up -d --wait` でテスト用 DB を立てる（Docker Desktop の起動が要る）
+- `pnpm test:db` – Vitest（テスト用 DB を使うテスト）。先に `docker compose -f compose.test.yaml up -d --wait` でテスト用 DB を立てる（Docker Desktop の起動が要る）
 - `pnpm build` – 本番ビルド（`prisma generate` 込み）。CI では実行せず Vercel が担う
 - `pnpm shadcn add <name>` – UI 部品を `src/components/ui/` に追加
 - `pnpm prisma migrate dev` – DB マイグレーション（クライアント再生成も走る）
 - `pnpm prisma studio` – DB の中身を GUI で確認
-- `pnpm db:seed` – 開発用の DB に見本を 20 件入れる
+- `pnpm db:seed` – 開発用の DB に見本を 20 件入れる（手元の DB でなければ止まる）
 - `pnpm db:seed:large` – 同じく 300 件
 
 ## Project Structure

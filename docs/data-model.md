@@ -73,16 +73,17 @@
 
 ### 環境ごとの DB とマイグレーション
 
-環境ごとに別の DB を見る（→ `docs/adr.md` ADR-0014）。
+環境ごとに別の DB を見る（→ `docs/adr.md` ADR-0021）。
 
-| 環境              | DB                                                    |
-| ----------------- | ----------------------------------------------------- |
-| ローカル・Preview | dev ブランチ                                          |
-| 本番              | 本番ブランチ                                          |
-| テスト            | テスト用 DB（手元も CI も Docker Compose → ADR-0020） |
+| 環境     | DB                                                         |
+| -------- | ---------------------------------------------------------- |
+| ローカル | 手元の Docker の開発用 DB（`compose.yaml`）                |
+| Preview  | Neon の preview ブランチ                                   |
+| 本番     | Neon の本番ブランチ                                        |
+| テスト   | テスト用 DB（手元も CI も `compose.test.yaml` → ADR-0020） |
 
-**開発**：`pnpm prisma migrate dev`。`.env` の値が dev ブランチを指すので、本番には届かない。
+**開発**：`pnpm prisma migrate dev`。`.env` の値が手元の DB を指すので、本番には届かない。
 
-**Preview**：ビルドのたびに dev ブランチへ適用される。マージせず閉じた PR の分が残ったら `neon branches reset dev --parent` で本番ブランチの状態に戻す（dev の開発用データも消える）。
+**Preview**：ビルドのたびに preview ブランチへ適用される。マージせず閉じた PR の分が残ったら `neon branches reset preview --parent` で本番ブランチの状態に戻す（preview のデータも消える）。
 
 **本番**：`main` にマージすると、本番ビルドの先頭で `prisma migrate deploy` が走る（`package.json` の `vercel-build`）。失敗するとビルドごと落ちるので、スキーマが古いまま新しいコードが公開されることはない。
