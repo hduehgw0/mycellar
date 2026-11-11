@@ -5,7 +5,7 @@ import { getSession } from "@/lib/session";
 import { createWhisky } from "@/features/whisky/mutations";
 
 vi.mock("@/lib/session", () => ({ getSession: vi.fn() }));
-// 保存の中身（nameKey・トランザクション・重複の判定）は whiskies.db.test.ts で確かめる。
+// 保存の中身（nameKey・トランザクション・重複の判定）は mutations.db.test.ts で確かめる。
 // ここでは HTTP の扱い（認証・検証・ステータス・応答の形）だけを見る。
 vi.mock("@/features/whisky/mutations", () => ({ createWhisky: vi.fn() }));
 
