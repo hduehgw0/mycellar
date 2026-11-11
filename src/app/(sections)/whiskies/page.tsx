@@ -7,7 +7,7 @@ import { listWhiskies } from "@/features/whisky/queries";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { BottlePlaceholder } from "@/components/illustrations/bottle-placeholder";
-import { EmptyCollection } from "@/components/illustrations/empty-collection";
+import { EmptyCollection } from "./empty-collection";
 
 export const metadata: Metadata = { title: "コレクション" };
 
