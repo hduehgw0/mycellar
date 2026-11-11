@@ -2,12 +2,12 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { DELETE, PATCH } from "./route";
 import { getSession } from "@/lib/session";
-import { deleteWhisky, updateWhisky } from "@/lib/whiskies";
+import { deleteWhisky, updateWhisky } from "@/features/whisky/mutations";
 
 vi.mock("@/lib/session", () => ({ getSession: vi.fn() }));
-// 保存の中身（部分更新・本数の増減・ロック・重複の判定・削除）は whiskies.db.test.ts で確かめる。
+// 保存の中身（部分更新・本数の増減・ロック・重複の判定・削除）は mutations.db.test.ts で確かめる。
 // ここでは HTTP の扱い（認証・検証・ステータス・応答の形）だけを見る。
-vi.mock("@/lib/whiskies", () => ({
+vi.mock("@/features/whisky/mutations", () => ({
   updateWhisky: vi.fn(),
   deleteWhisky: vi.fn(),
 }));

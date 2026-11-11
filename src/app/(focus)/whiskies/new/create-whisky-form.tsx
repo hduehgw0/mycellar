@@ -1,8 +1,8 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { WhiskyForm } from "../whisky-form";
-import { useDuplicateWhiskyToast } from "../duplicate-whisky-toast";
+import { WhiskyForm } from "@/features/whisky/components/whisky-form";
+import { useDuplicateWhiskyToast } from "@/features/whisky/components/duplicate-whisky-toast";
 
 // 登録用ラッパー：共有フォームに初期値・文言・送信処理（POST）を渡す。
 export function CreateWhiskyForm() {

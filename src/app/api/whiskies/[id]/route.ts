@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/session";
-import { deleteWhisky, updateWhisky } from "@/lib/whiskies";
-import { whiskyUpdateSchema } from "@/lib/schemas/whisky";
+import { deleteWhisky, updateWhisky } from "@/features/whisky/mutations";
+import { whiskyUpdateSchema } from "@/features/whisky/schema";
 
 export async function PATCH(
   request: Request,

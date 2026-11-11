@@ -32,7 +32,11 @@
 
 ## Project Structure
 
-- `src/app/` – 画面（Server / Client Components）と Route Handlers（`app/api/.../route.ts`）
+- `src/app/` – ルーティング（ページ・レイアウト）と Route Handlers（`app/api/.../route.ts`）。ページで機能を組み合わせる。1 つのページでしか使わない部品は、そのページの隣に置く
+- `src/features/<機能>/` – 機能ごとのコード（`queries.ts`・`mutations.ts`・`schema.ts`、2 つ以上のページで使う部品の `components/` など）。今は `whisky`・`stats`
+- `src/components/` – どの機能の知識も持たない共通の部品（`ui/` は shadcn/ui）
+- `src/lib/` – 外のライブラリやサービスに頼る共通のコード
+- `src/test/` – テスト用 DB の準備
 - `prisma/` – `schema.prisma` とマイグレーション
 - `docs/` – 設計ドキュメント
 

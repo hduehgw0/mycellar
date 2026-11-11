@@ -1,10 +1,7 @@
 import type { Metadata } from "next";
 import { requireSession } from "@/lib/session";
-import { prisma } from "@/lib/prisma";
-import {
-  summarizeCollection,
-  WHISKY_STATS_SELECT,
-} from "@/lib/collection-stats";
+import { summarizeCollection } from "@/features/stats/collection-stats";
+import { listWhiskiesForStats } from "@/features/stats/queries";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "傾向" };
@@ -19,10 +16,7 @@ function formatPercent(percent: number): string {
 export default async function StatsPage() {
   const session = await requireSession();
 
-  const whiskies = await prisma.whisky.findMany({
-    where: { userId: session.user.id },
-    select: WHISKY_STATS_SELECT,
-  });
+  const whiskies = await listWhiskiesForStats(session.user.id);
 
   const stats = summarizeCollection(whiskies);
 
