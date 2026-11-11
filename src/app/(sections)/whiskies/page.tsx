@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Plus } from "lucide-react";
 import { requireSession } from "@/lib/session";
-import { prisma } from "@/lib/prisma";
 import { countBottles } from "@/features/stats/collection-stats";
+import { listWhiskies } from "@/features/whisky/queries";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { BottlePlaceholder } from "@/components/illustrations/bottle-placeholder";
@@ -14,19 +14,7 @@ export const metadata: Metadata = { title: "コレクション" };
 export default async function WhiskiesPage() {
   const session = await requireSession();
 
-  const whiskies = await prisma.whisky.findMany({
-    where: { userId: session.user.id },
-    orderBy: { createdAt: "desc" },
-    select: {
-      id: true,
-      name: true,
-      country: true,
-      region: true,
-      age: true,
-      isLimited: true,
-      _count: { select: { bottles: true } },
-    },
-  });
+  const whiskies = await listWhiskies(session.user.id);
 
   return (
     <>

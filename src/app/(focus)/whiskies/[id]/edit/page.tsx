@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireSession } from "@/lib/session";
-import { getOwnedWhisky } from "@/features/whisky/mutations";
+import { getOwnedWhisky } from "@/features/whisky/queries";
 import type { WhiskyFormInput } from "@/features/whisky/schema";
 import { Button } from "@/components/ui/button";
 import { EditWhiskyForm } from "./edit-whisky-form";
