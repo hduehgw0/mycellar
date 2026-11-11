@@ -12,12 +12,13 @@
 
 ### ツールが強制（設定するだけ）
 
-| 目的     | ツール                                       | 補足                                                  |
-| -------- | -------------------------------------------- | ----------------------------------------------------- |
-| 整形     | Prettier（＋ `prettier-plugin-tailwindcss`） | 保存時に自動整形。Tailwind のクラス順も自動整列       |
-| 静的解析 | ESLint（`eslint-config-next`）               | React / Next / アクセシビリティ（jsx-a11y）ルール込み |
-| 競合回避 | `eslint-config-prettier`                     | 整形系ルールを ESLint 側で無効化し Prettier に委ねる  |
-| 型       | TypeScript（strict）                         | `create-next-app` の strict をそのまま使う            |
+| 目的     | ツール                                               | 補足                                                                                               |
+| -------- | ---------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| 整形     | Prettier（＋ `prettier-plugin-tailwindcss`）         | 保存時に自動整形。Tailwind のクラス順も自動整列                                                    |
+| 静的解析 | ESLint（`eslint-config-next`）                       | React / Next / アクセシビリティ（jsx-a11y）ルール込み                                              |
+| 競合回避 | `eslint-config-prettier`                             | 整形系ルールを ESLint 側で無効化し Prettier に委ねる                                               |
+| 型       | TypeScript（strict）                                 | `create-next-app` の strict をそのまま使う                                                         |
+| 構成     | ESLint（`no-restricted-imports`・`import/no-cycle`） | Prisma の import を `queries.ts`・`mutations.ts` に絞り、import の循環を止める（→ ADR-0023・0024） |
 
 - HTML/CSS 専用リンタ（markuplint / stylelint）は**使わない**（React/JSX ＋ Tailwind 構成では価値が薄い）。
 - CSS は基本書かない（Tailwind のクラスで完結）。`globals.css` のみ例外で、整形は Prettier・品質は目視で十分。
