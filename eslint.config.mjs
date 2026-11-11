@@ -33,6 +33,14 @@ const eslintConfig = defineConfig([
       ],
     },
   },
+  // 機能どうしも、機能の中も、import を循環させない（→ ADR-0024）。
+  {
+    files: ["src/**/*.{ts,tsx}"],
+    rules: { "import/no-cycle": "error" },
+    // node_modules の中まで解析すると、lint が 10 倍ほど遅くなる。
+    // 外のパッケージがこのリポジトリのコードを import することはないので、循環の検出には要らない。
+    settings: { "import/ignore": ["node_modules"] },
+  },
   // 整形系ルールを無効化し Prettier に委ねる（必ず最後に置く）
   eslintConfigPrettier,
   // Override default ignores of eslint-config-next.
