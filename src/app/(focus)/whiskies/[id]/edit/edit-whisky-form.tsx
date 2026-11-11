@@ -1,9 +1,9 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import type { WhiskyFormInput } from "@/lib/schemas/whisky";
-import { WhiskyForm } from "../../whisky-form";
-import { useDuplicateWhiskyToast } from "../../duplicate-whisky-toast";
+import type { WhiskyFormInput } from "@/features/whisky/schema";
+import { WhiskyForm } from "@/features/whisky/components/whisky-form";
+import { useDuplicateWhiskyToast } from "@/features/whisky/components/duplicate-whisky-toast";
 
 // 編集用ラッパー：共有フォームに既存値・文言・送信処理（PATCH）を渡す。
 export function EditWhiskyForm({

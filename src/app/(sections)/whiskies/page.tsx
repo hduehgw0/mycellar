@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Plus } from "lucide-react";
 import { requireSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
-import { countBottles } from "@/lib/collection-stats";
+import { countBottles } from "@/features/stats/collection-stats";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { BottlePlaceholder } from "@/components/illustrations/bottle-placeholder";

@@ -1,6 +1,6 @@
 import type { z } from "zod";
 
-import type { whiskyCreateSchema } from "@/lib/schemas/whisky";
+import type { whiskyCreateSchema } from "@/features/whisky/schema";
 
 type Sample = z.input<typeof whiskyCreateSchema>;
 

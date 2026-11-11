@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import {
   summarizeCollection,
   WHISKY_STATS_SELECT,
-} from "@/lib/collection-stats";
+} from "@/features/stats/collection-stats";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "傾向" };

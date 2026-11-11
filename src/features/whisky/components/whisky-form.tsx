@@ -12,7 +12,7 @@ import {
   whiskyFormSchema,
   type WhiskyFormInput,
   type WhiskyFormOutput,
-} from "@/lib/schemas/whisky";
+} from "@/features/whisky/schema";
 import { Button } from "@/components/ui/button";
 import {
   Field,

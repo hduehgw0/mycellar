@@ -1,10 +1,10 @@
 import { Prisma } from "@/generated/prisma/client";
-import { toNameKey } from "@/lib/name-key";
+import { toNameKey } from "@/features/whisky/name-key";
 import { prisma } from "@/lib/prisma";
 import type {
   WhiskyCreateOutput,
   WhiskyUpdateOutput,
-} from "@/lib/schemas/whisky";
+} from "@/features/whisky/schema";
 
 // 製品の書き込みと、URL の id で製品を引く読み取りはここを通す。
 // 直接 Prisma を呼ぶと、nameKey の設定や userId の条件を書き忘れるため。

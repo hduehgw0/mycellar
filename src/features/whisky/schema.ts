@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { toNameKey } from "@/lib/name-key";
+import { toNameKey } from "@/features/whisky/name-key";
 
 // 国・地域・樽の値域（→ docs/adr.md ADR-0017）。値の追加にマイグレーションは要らない。
 export const COUNTRIES = [

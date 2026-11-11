@@ -1,9 +1,9 @@
 import { parseArgs } from "node:util";
 
 import { requireEnv } from "@/lib/env";
-import { toNameKey } from "@/lib/name-key";
+import { toNameKey } from "@/features/whisky/name-key";
 import { prisma } from "@/lib/prisma";
-import { whiskyCreateSchema } from "@/lib/schemas/whisky";
+import { whiskyCreateSchema } from "@/features/whisky/schema";
 
 import { LARGE_SAMPLES, SMALL_SAMPLES } from "./seed/whiskies";
 

@@ -1,5 +1,5 @@
 import type { Prisma } from "@/generated/prisma/client";
-import { COUNTRIES } from "@/lib/schemas/whisky";
+import { COUNTRIES } from "@/features/whisky/schema";
 
 // 傾向ページはこの select で取る。型をここから作るので、集計が使う列を select から消すと型エラーになる。
 export const WHISKY_STATS_SELECT = {

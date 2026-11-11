@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ChevronLeftIcon } from "lucide-react";
 import { requireSession } from "@/lib/session";
-import { getOwnedWhisky } from "@/lib/whiskies";
+import { getOwnedWhisky } from "@/features/whisky/mutations";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";

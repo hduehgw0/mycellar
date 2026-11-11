@@ -5,7 +5,7 @@ import {
   whiskyCreateSchema,
   whiskyFormSchema,
   whiskyUpdateSchema,
-} from "./whisky";
+} from "./schema";
 
 describe("whiskyCreateSchema", () => {
   it("製品名だけで通り、既定値（本数1・限定版false）が入る", () => {

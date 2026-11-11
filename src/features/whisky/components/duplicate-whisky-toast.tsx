@@ -6,7 +6,7 @@ import { ChevronRightIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import { BottlePlaceholder } from "@/components/illustrations/bottle-placeholder";
-import type { DuplicateWhisky } from "@/lib/whiskies";
+import type { DuplicateWhisky } from "@/features/whisky/mutations";
 
 const TOAST_ID = "duplicate-whisky";
 

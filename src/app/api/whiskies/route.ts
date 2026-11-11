@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/session";
-import { createWhisky } from "@/lib/whiskies";
-import { whiskyCreateSchema } from "@/lib/schemas/whisky";
+import { createWhisky } from "@/features/whisky/mutations";
+import { whiskyCreateSchema } from "@/features/whisky/schema";
 
 export async function POST(request: Request) {
   const session = await getSession();

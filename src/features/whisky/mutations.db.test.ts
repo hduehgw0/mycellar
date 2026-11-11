@@ -1,14 +1,14 @@
 import { beforeEach, describe, expect, it } from "vitest";
 
-import { toNameKey } from "@/lib/name-key";
+import { toNameKey } from "@/features/whisky/name-key";
 import { prisma } from "@/lib/prisma";
-import { whiskyCreateSchema } from "@/lib/schemas/whisky";
+import { whiskyCreateSchema } from "@/features/whisky/schema";
 import {
   createWhisky,
   deleteWhisky,
   getOwnedWhisky,
   updateWhisky,
-} from "@/lib/whiskies";
+} from "@/features/whisky/mutations";
 
 let me: string;
 let other: string;
