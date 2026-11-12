@@ -23,7 +23,7 @@ const eslintConfig = defineConfig([
         {
           patterns: [
             {
-              regex: "(^@/|/)(lib/prisma|generated/prisma)(/|$)",
+              regex: "^(@|\\.{1,2})/(.*/)?prisma(/|$)",
               allowTypeImports: true,
               message:
                 "DB に触るのは features/<機能>/queries.ts・mutations.ts だけ。",
