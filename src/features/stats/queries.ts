@@ -1,3 +1,4 @@
+import "server-only";
 import { WHISKY_STATS_SELECT } from "@/features/stats/collection-stats";
 import { prisma } from "@/lib/prisma";
 
