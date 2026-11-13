@@ -1,3 +1,4 @@
+import "server-only";
 import { Prisma } from "@/generated/prisma/client";
 import { toNameKey } from "@/features/whisky/name-key";
 import { prisma } from "@/lib/prisma";
