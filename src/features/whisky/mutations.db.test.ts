@@ -214,6 +214,8 @@ describe("updateWhisky の本数", () => {
   // 他の項目も送ると、製品の UPDATE が行をロックするので、FOR UPDATE が無くても通ってしまう。
   it("本数だけを二重に送っても、送った本数になる", async () => {
     const id = await seedWhisky(me);
+    // 接続が 1 本だと 2 つの更新が順に走り、ロックが無くても通ってしまう。先に 2 本開いておく。
+    await Promise.all([prisma.$queryRaw`SELECT 1`, prisma.$queryRaw`SELECT 1`]);
 
     await Promise.all([
       updateWhisky(me, id, { quantity: 3 }),
