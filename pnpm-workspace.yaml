@@ -4,3 +4,4 @@ ignoredBuiltDependencies:
 onlyBuiltDependencies:
   - "@prisma/engines"
   - prisma
+engineStrict: true
