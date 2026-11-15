@@ -61,7 +61,7 @@ const regionNeedsScotland = ({
   region?: string | null;
 }) => region == null || country === "スコットランド";
 
-// 値のルールの土台。API とフォームのスキーマはここから作り、ルールを二重に書かない（→ CLAUDE.md アーキの鉄則）。
+// 値のルールの土台。アクションとフォームのスキーマはここから作り、ルールを二重に書かない（→ CLAUDE.md アーキの鉄則）。
 // 既定値と項目間のルールは持たない。zod は refine 済みのスキーマを .partial() できない。
 const whiskyBaseSchema = z.object({
   name: z
@@ -85,7 +85,7 @@ const whiskyBaseSchema = z.object({
     .nullish(),
 });
 
-// 登録の API が受け取る値。送られなかった項目は既定値で埋めるか、値なしとして扱う。
+// 登録のアクションが受け取る値。送られなかった項目は既定値で埋めるか、値なしとして扱う。
 export const whiskyCreateSchema = whiskyBaseSchema
   .extend({
     isLimited: z.boolean().default(false),
@@ -113,7 +113,7 @@ export const whiskyUpdateSchema = whiskyBaseSchema
 export type WhiskyUpdateOutput = z.output<typeof whiskyUpdateSchema>;
 
 // 登録・編集で共有するフォームが持つ値。全項目をいつも持ち、任意の項目の空欄は null。
-// API と違い、項目が欠けていたら補わずに弾く。
+// アクションと違い、項目が欠けていたら補わずに弾く。
 export const whiskyFormSchema = whiskyBaseSchema
   .required()
   .extend({ quantity: quantitySchema })

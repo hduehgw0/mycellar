@@ -29,14 +29,14 @@ flowchart LR
     U["父（モバイルブラウザ）"] --> APP
     subgraph APP["Next.js / App Router（Vercel にデプロイ）"]
       UI["Server / Client Components（画面）"]
-      API["Route Handlers（書き込みAPI・認可）"]
+      ACT["Server Actions（書き込み・認可）"]
     end
-    API --> P["Prisma"] --> DB[("PostgreSQL / Neon")]
+    ACT --> P["Prisma"] --> DB[("PostgreSQL / Neon")]
     UI --> P
     APP -. ログイン .-> AUTH["Better Auth + Google OAuth"]
 ```
 
-1 リポジトリ・1 デプロイ（Vercel）で完結。読み取りは Server Component が Prisma を直接呼び、書き込みは Route Handler が認可・バリデーション・DB アクセスを担う。
+1 リポジトリ・1 デプロイ（Vercel）で完結。読み取りは Server Component が Prisma を直接呼び、書き込みは Server Actions が認可・バリデーション・DB アクセスを担う。
 
 ## 技術選定
 
@@ -46,7 +46,7 @@ flowchart LR
 | ------------------------------------------------ | ------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
 | Next.js（App Router）                            | フロント＋API | 現状、フロントエンド領域で最も使用されているフレームワーク。フロントとAPIを1つに閉じられるのも魅力。現行標準（→ ADR-0002 / ADR-0008） |
 | TypeScript                                       | 言語          | 型安全で、フォーム〜API〜DB を一貫した型で繋ぐ                                                                                        |
-| Route Handlers                                   | バックエンド  | 書き込みAPIを自分で理解して実装できる点が魅力。読みは Server Component 直読み（→ ADR-0002）                                           |
+| Server Actions                                   | バックエンド  | 書き込みを呼ぶのはこのアプリの画面だけなので、公開する API を作らずに型付きで呼べる。読みは Server Component 直読み（→ ADR-0022）     |
 | Prisma                                           | ORM           | スキーマ駆動で型安全・マイグレーションが一貫しており、`schema.prisma`がそのまま正本となり宣言的なのもいい（→ ADR-0007）               |
 | PostgreSQL（Neon）                               | DB            | 定番のリレーショナル DB。サーバーレスで無料枠あり                                                                                     |
 | Better Auth 　　　　　　　　                     | 認証          | auth.jsの非推奨化やメンテナンスモード化を受け再選定（→ ADR-0010）                                                                     |

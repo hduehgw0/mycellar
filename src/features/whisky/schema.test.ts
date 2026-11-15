@@ -165,7 +165,7 @@ describe("whiskyFormSchema", () => {
     },
   );
 
-  it("値は API と同じルールで検査する", () => {
+  it("値はアクションと同じルールで検査する", () => {
     const result = whiskyFormSchema.safeParse({ ...empty, age: 101 });
     expect(result.success).toBe(false);
   });
