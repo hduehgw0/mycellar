@@ -35,7 +35,6 @@ const existing = {
 };
 
 beforeEach(() => {
-  vi.restoreAllMocks();
   vi.mocked(refresh).mockClear();
   vi.mocked(getSession).mockResolvedValue(session);
   vi.mocked(createWhisky)
@@ -47,8 +46,6 @@ beforeEach(() => {
 
 function logout() {
   vi.mocked(getSession).mockResolvedValue(null);
-  // next-safe-action が例外をログに出すので、テストの出力を汚さないよう黙らせる。
-  vi.spyOn(console, "error").mockImplementation(() => {});
 }
 
 describe("createWhiskyAction", () => {
