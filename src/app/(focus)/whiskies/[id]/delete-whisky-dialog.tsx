@@ -17,11 +17,8 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
-// 失敗時の共通文言（想定内失敗・想定外例外のどちらでも同じ）。
 const DELETE_ERROR = "削除に失敗しました。もう一度お試しください。";
 
-// 削除の確認ダイアログ（クライアント）。製品ページ（Server Component）から分離。
-// 認可と削除はサーバー（deleteWhiskyAction → deleteWhisky）が担い、ここは UI と送信のみ。
 export function DeleteWhiskyDialog({ whiskyId }: { whiskyId: string }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -34,7 +31,6 @@ export function DeleteWhiskyDialog({ whiskyId }: { whiskyId: string }) {
     try {
       const result = (await deleteWhiskyAction(whiskyId)).data;
       if (result?.status !== "deleted") {
-        // 想定内の失敗（未ログイン・見つからない等）はダイアログを開いたまま文言表示し、再操作を許す。
         setError(DELETE_ERROR);
         setIsDeleting(false);
         return;
@@ -45,7 +41,6 @@ export function DeleteWhiskyDialog({ whiskyId }: { whiskyId: string }) {
       // 消したページ（「見つかりません」）が一瞬見える。
       router.push("/whiskies");
     } catch (e) {
-      // 想定外の例外（ネットワーク断など）だけログして再操作を許す。
       console.error(e);
       setError(DELETE_ERROR);
       setIsDeleting(false);
@@ -96,11 +91,9 @@ export function DeleteWhiskyDialog({ whiskyId }: { whiskyId: string }) {
           </p>
         )}
         {/*
-          フッターは flex-col-reverse なので DOM 順（キャンセル→削除）で
-          モバイルは「削除する」が上に来る。既定フォーカスは先頭 = キャンセル
-          （破壊的操作に初期フォーカスを当てない）。
-          非同期削除は AlertDialogAction（クリックで即クローズ）ではなく
-          通常の Button で制御し、失敗時はダイアログを保持する。
+          DOM 順はキャンセル→削除のまま：初期フォーカスを破壊的操作に当てない
+          （モバイルでは flex-col-reverse で「削除する」が上に来る）。
+          AlertDialogAction は押すとすぐ閉じるので使わない（失敗したら開いたままにする）。
         */}
         <AlertDialogFooter>
           <AlertDialogCancel size="lg" disabled={isDeleting}>
