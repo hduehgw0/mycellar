@@ -1,16 +1,14 @@
 import { beforeEach, describe, expect, it } from "vitest";
 
 import { listWhiskiesForStats } from "@/features/stats/queries";
-import { prisma } from "@/lib/prisma";
-import { seedWhisky } from "@/test/seed";
+import { seedUser, seedWhisky } from "@/test/seed";
 
 let me: string;
 let other: string;
 
 beforeEach(async () => {
-  [me, other] = await Promise.all(
-    [0, 1].map(async () => (await prisma.user.create({ data: {} })).id),
-  );
+  me = await seedUser();
+  other = await seedUser();
 });
 
 describe("listWhiskiesForStats", () => {
