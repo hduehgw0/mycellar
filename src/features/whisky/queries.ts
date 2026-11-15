@@ -1,3 +1,4 @@
+import "server-only";
 import { prisma } from "@/lib/prisma";
 
 // 一覧ページ用。新しい順で、カードに出す項目と本数だけを取る。

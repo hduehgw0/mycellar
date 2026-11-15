@@ -1,3 +1,4 @@
+import "server-only";
 import { Prisma } from "@/generated/prisma/client";
 import { toNameKey } from "@/features/whisky/name-key";
 import { prisma } from "@/lib/prisma";
@@ -116,7 +117,7 @@ export async function deleteWhisky(
   userId: string,
   id: string,
 ): Promise<DeleteResult> {
-  // delete（id_userId）は対象が無いと例外になるので、件数を返す deleteMany で 404 を判定する。
+  // delete（id_userId）は対象が無いと例外になるので、件数を返す deleteMany で、見つからないことを判定する。
   const { count } = await prisma.whisky.deleteMany({ where: { id, userId } });
   return count === 0 ? { status: "notFound" } : { status: "deleted" };
 }
