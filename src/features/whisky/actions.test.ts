@@ -5,6 +5,7 @@ import {
   deleteWhiskyAction,
   updateWhiskyAction,
 } from "./actions";
+import { refresh } from "next/cache";
 import { getSession } from "@/lib/session";
 import {
   createWhisky,
@@ -12,6 +13,7 @@ import {
   updateWhisky,
 } from "@/features/whisky/mutations";
 
+vi.mock("next/cache", () => ({ refresh: vi.fn() }));
 vi.mock("@/lib/session", () => ({ getSession: vi.fn() }));
 // 保存の中身（nameKey・部分更新・ロック・重複の判定・削除）は mutations.db.test.ts で確かめる。
 // ここではアクションの入口（ログインの確認・検証・所有者・結果の形）だけを見る。
@@ -34,6 +36,7 @@ const existing = {
 
 beforeEach(() => {
   vi.restoreAllMocks();
+  vi.mocked(refresh).mockClear();
   vi.mocked(getSession).mockResolvedValue(session);
   vi.mocked(createWhisky)
     .mockReset()
@@ -69,6 +72,7 @@ describe("createWhiskyAction", () => {
     const result = await createWhiskyAction({ name: "山崎 12年", quantity: 2 });
 
     expect(result.data).toEqual({ status: "created", id: "whisky_1" });
+    expect(refresh).toHaveBeenCalledOnce();
     expect(createWhisky).toHaveBeenCalledWith("user_me", {
       name: "山崎 12年",
       quantity: 2,
@@ -85,6 +89,7 @@ describe("createWhiskyAction", () => {
     const result = await createWhiskyAction({ name: "ラフロイグ 10年" });
 
     expect(result.data).toEqual({ status: "duplicate", whisky: existing });
+    expect(refresh).not.toHaveBeenCalled();
   });
 
   it("他人の userId を送っても無視される（所有者はセッションが正）", async () => {
@@ -122,6 +127,7 @@ describe("updateWhiskyAction", () => {
     const result = await updateWhiskyAction("whisky_1", { age: 12 });
 
     expect(result.data).toEqual({ status: "updated" });
+    expect(refresh).toHaveBeenCalledOnce();
     expect(updateWhisky).toHaveBeenCalledWith("user_me", "whisky_1", {
       age: 12,
     });
@@ -142,6 +148,7 @@ describe("updateWhiskyAction", () => {
     const result = await updateWhiskyAction("whisky_other", { age: 12 });
 
     expect(result.data).toEqual({ status: "notFound" });
+    expect(refresh).not.toHaveBeenCalled();
   });
 
   it("製品名を変えて別の製品と重なると、既存の製品を返す", async () => {
@@ -155,6 +162,7 @@ describe("updateWhiskyAction", () => {
     });
 
     expect(result.data).toEqual({ status: "duplicate", whisky: existing });
+    expect(refresh).not.toHaveBeenCalled();
   });
 });
 
@@ -174,12 +182,14 @@ describe("deleteWhiskyAction", () => {
     const result = await deleteWhiskyAction("whisky_other");
 
     expect(result.data).toEqual({ status: "notFound" });
+    expect(refresh).not.toHaveBeenCalled();
   });
 
   it("自分の製品なら、自分の製品の削除に渡す", async () => {
     const result = await deleteWhiskyAction("whisky_1");
 
     expect(result.data).toEqual({ status: "deleted" });
+    expect(refresh).toHaveBeenCalledOnce();
     expect(deleteWhisky).toHaveBeenCalledWith("user_me", "whisky_1");
   });
 });

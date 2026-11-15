@@ -41,6 +41,8 @@ export function DeleteWhiskyDialog({ whiskyId }: { whiskyId: string }) {
       }
       // 成功：この後の遷移でアンマウントされるため isDeleting は戻さない
       // （戻すと遷移前の一瞬ボタンが再有効化され、二重に削除して失敗の文言が出る）。
+      // await の直後にすぐ移る。あいだで待つと、アクションの refresh() で作り直した
+      // 消したページ（「見つかりません」）が一瞬見える。
       router.push("/whiskies");
     } catch (e) {
       // 想定外の例外（ネットワーク断など）だけログして再操作を許す。
