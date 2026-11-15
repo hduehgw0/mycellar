@@ -1,6 +1,10 @@
 import { toNameKey } from "@/features/whisky/name-key";
 import { prisma } from "@/lib/prisma";
 
+export async function seedUser() {
+  return (await prisma.user.create({ data: {} })).id;
+}
+
 // テストの前提となる製品は、テストする関数を通さずに作る。
 export async function seedWhisky(
   userId: string,

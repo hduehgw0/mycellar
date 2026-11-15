@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 
 import { prisma } from "@/lib/prisma";
-import { seedWhisky } from "@/test/seed";
+import { seedUser, seedWhisky } from "@/test/seed";
 import { whiskyCreateSchema } from "@/features/whisky/schema";
 import {
   createWhisky,
@@ -12,12 +12,9 @@ import {
 let me: string;
 let other: string;
 
-// 利用者は同時に作る。順に作ると DB への接続が 1 本しか開かず、
-// 二重送信のテストがロックなしでも通ってしまう。
 beforeEach(async () => {
-  [me, other] = await Promise.all(
-    [0, 1].map(async () => (await prisma.user.create({ data: {} })).id),
-  );
+  me = await seedUser();
+  other = await seedUser();
 });
 
 const input = (over: Record<string, unknown> = {}) =>
