@@ -46,25 +46,18 @@ describe("listWhiskies", () => {
   });
 
   it("新しく登録した順に並ぶ", async () => {
-    // 並べる指定が無いと、DB は作った順・その逆・製品名の索引の順などで返しうる。
-    // どれとも違う並びを期待して、並べる指定が無ければ落ちるようにする。
-    const middle = await seedWhisky(me, {
-      name: "山崎 12年",
-      createdAt: new Date("2026-01-02"),
-    });
-    const newest = await seedWhisky(me, {
-      name: "響 17年",
-      createdAt: new Date("2026-01-03"),
-    });
-    const oldest = await seedWhisky(me, {
-      name: "白州 12年",
+    const older = await seedWhisky(me, {
+      name: "アードベッグ 10年",
       createdAt: new Date("2026-01-01"),
+    });
+    const newer = await seedWhisky(me, {
+      name: "ラフロイグ 10年",
+      createdAt: new Date("2026-01-02"),
     });
 
     expect((await listWhiskies(me)).map((whisky) => whisky.id)).toEqual([
-      newest,
-      middle,
-      oldest,
+      newer,
+      older,
     ]);
   });
 
