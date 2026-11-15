@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from "vitest";
 
-import { getOwnedWhisky } from "@/features/whisky/queries";
+import { getOwnedWhisky, listWhiskies } from "@/features/whisky/queries";
 import { prisma } from "@/lib/prisma";
 import { seedWhisky } from "@/test/seed";
 
@@ -34,5 +34,46 @@ describe("getOwnedWhisky", () => {
     const id = await seedWhisky(other);
 
     expect(await getOwnedWhisky(me, id)).toBeNull();
+  });
+});
+
+describe("listWhiskies", () => {
+  it("自分の製品だけを返し、他人の製品は出ない", async () => {
+    const id = await seedWhisky(me);
+    await seedWhisky(other);
+
+    expect((await listWhiskies(me)).map((whisky) => whisky.id)).toEqual([id]);
+  });
+
+  it("新しく登録した順に並ぶ", async () => {
+    const older = await seedWhisky(me, {
+      name: "アードベッグ 10年",
+      createdAt: new Date("2026-01-01"),
+    });
+    const newer = await seedWhisky(me, {
+      name: "ラフロイグ 10年",
+      createdAt: new Date("2026-01-02"),
+    });
+
+    expect((await listWhiskies(me)).map((whisky) => whisky.id)).toEqual([
+      newer,
+      older,
+    ]);
+  });
+
+  it("カードに出す項目と本数だけを返す", async () => {
+    const id = await seedWhisky(me, { country: "日本", age: 12, quantity: 2 });
+
+    expect(await listWhiskies(me)).toEqual([
+      {
+        id,
+        name: "山崎 12年",
+        country: "日本",
+        region: null,
+        age: 12,
+        isLimited: false,
+        _count: { bottles: 2 },
+      },
+    ]);
   });
 });
