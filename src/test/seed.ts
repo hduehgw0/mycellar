@@ -8,7 +8,13 @@ export async function seedWhisky(
     name = "山崎 12年",
     quantity = 1,
     ...fields
-  }: { name?: string; quantity?: number; country?: string; age?: number } = {},
+  }: {
+    name?: string;
+    quantity?: number;
+    country?: string;
+    age?: number;
+    createdAt?: Date;
+  } = {},
 ) {
   const { id } = await prisma.whisky.create({
     data: {
