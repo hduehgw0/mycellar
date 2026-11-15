@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { prisma } from "@/lib/prisma";
 import { seedUser, seedWhisky } from "@/test/seed";
@@ -29,6 +29,19 @@ const bottleIds = async (whiskyId: string) =>
       select: { id: true },
     })
   ).map(({ id }) => id);
+
+// DB のテストは 1 ファイルずつ流れるので、DB の中のロック待ちは、このテストの更新だけ。
+// 待つ期限は、トランザクションが打ち切られる 5 秒より短くする。
+const waitForLockWaiters = (count: number) =>
+  vi.waitFor(
+    async () => {
+      const [{ n }] = await prisma.$queryRaw<[{ n: number }]>`
+        SELECT count(*)::int AS n FROM pg_stat_activity
+        WHERE datname = current_database() AND wait_event_type = 'Lock'`;
+      expect(n).toBe(count);
+    },
+    { timeout: 3000 },
+  );
 
 describe("createWhisky", () => {
   it("nameKey と所有者を付け、本数分のボトルと一緒に作る", async () => {
@@ -209,16 +222,31 @@ describe("updateWhisky の本数", () => {
 
   // 製品の行をロックしないと、両方が 1 本と数えて 2 本ずつ足し、5 本になる。
   // 他の項目も送ると、製品の UPDATE が行をロックするので、FOR UPDATE が無くても通ってしまう。
+  // 先に製品の行を押さえ、2 つの更新が両方待ったところで放すと、必ず重なる。
+  // ロックが無くても、ボトルを足すときの外部キーの確認で待つので、両方が本数を数え終えてから止まる。
   it("本数だけを二重に送っても、送った本数になる", async () => {
     const id = await seedWhisky(me);
-    // 接続が 1 本だと 2 つの更新が順に走り、ロックが無くても通ってしまう。先に 2 本開いておく。
-    await Promise.all([prisma.$queryRaw`SELECT 1`, prisma.$queryRaw`SELECT 1`]);
+    let updates: Promise<unknown>[] = [];
 
-    await Promise.all([
-      updateWhisky(me, id, { quantity: 3 }),
-      updateWhisky(me, id, { quantity: 3 }),
+    try {
+      await prisma.$transaction(async (tx) => {
+        await tx.$queryRaw`SELECT id FROM whisky WHERE id = ${id} FOR UPDATE`;
+        updates = [
+          updateWhisky(me, id, { quantity: 3 }),
+          updateWhisky(me, id, { quantity: 3 }),
+        ];
+        await waitForLockWaiters(2);
+      });
+    } finally {
+      // 失敗しても更新を走らせたままにせず、次のテストの片づけとぶつけない。
+      // allSettled にするのは、更新の失敗で、try の失敗を上書きしないため。
+      await Promise.allSettled(updates);
+    }
+
+    expect(await Promise.all(updates)).toEqual([
+      { status: "updated" },
+      { status: "updated" },
     ]);
-
     expect(await bottleIds(id)).toHaveLength(3);
   });
 });
