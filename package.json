@@ -2,8 +2,9 @@
   "name": "mycellar",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "pnpm@10.34.9",
   "engines": {
-    "node": ">=22.12"
+    "node": "26.x"
   },
   "scripts": {
     "dev": "next dev",
@@ -43,7 +44,7 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
-    "@types/node": "^20",
+    "@types/node": "^26.6.6",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "dotenv": "^17.4.2",

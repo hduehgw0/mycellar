@@ -5,8 +5,8 @@
 
 ## 前提ツール
 
-- **Node.js**：v22 以上（`nvm` 推奨）
-- **パッケージマネージャ**：**pnpm**（`corepack enable` で有効化）。`npm` / `yarn` は使わない（ロックファイル競合防止）。
+- **Node.js**：版は `.nvmrc`。`nvm install` で入れ、`nvm use` で切り替える。版が合わないと `pnpm install` やスクリプトが止まる（`pnpm exec` は止まらない）
+- **パッケージマネージャ**：**pnpm**（`npm install -g pnpm` で入れる。nvm で Node のメジャー版を変えたら入れ直す）。版は `package.json` の `packageManager` で、pnpm が自分で切り替える。`npm` / `yarn` は使わない（ロックファイル競合防止）。
 
 ## コードスタイル
 

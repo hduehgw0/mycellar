@@ -11,7 +11,7 @@
 - shadcn/ui
 - react-hook-form + **zod 4**
 - テスト：**Vitest 4**
-- Deploy: Vercel ／ Package manager: pnpm（Node 22.12+）
+- Deploy: Vercel ／ Package manager: pnpm（版は `package.json` の `packageManager`）／ Node.js（版は `.nvmrc` と `engines`）
 
 ## Commands
 
