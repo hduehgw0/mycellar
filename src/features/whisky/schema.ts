@@ -46,6 +46,7 @@ export const CASK_TYPES = [
 const AGE_MESSAGE = "年数は0〜100の整数で入力してください";
 const QUANTITY_MESSAGE = "本数は1〜99の整数で入力してください";
 const REGION_MESSAGE = "地域は国がスコットランドのときだけ選べます";
+const NAS_MESSAGE = "NAS の製品には年数を入れられません";
 
 // 1 本 = 1 行なので、上限が無いと 1 回の要求で行を際限なく作れる。
 const quantitySchema = z
@@ -61,6 +62,14 @@ const regionNeedsScotland = ({
   region?: string | null;
 }) => region == null || country === "スコットランド";
 
+const nasHasNoAge = ({
+  age,
+  isNas,
+}: {
+  age?: number | null;
+  isNas?: boolean;
+}) => age == null || !isNas;
+
 // 値のルールの土台。アクションとフォームのスキーマはここから作り、ルールを二重に書かない（→ CLAUDE.md アーキの鉄則）。
 // 既定値と項目間のルールは持たない。zod は refine 済みのスキーマを .partial() できない。
 const whiskyBaseSchema = z.object({
@@ -74,6 +83,7 @@ const whiskyBaseSchema = z.object({
   country: z.enum(COUNTRIES).nullish(),
   region: z.enum(REGIONS).nullish(),
   age: z.int(AGE_MESSAGE).min(0, AGE_MESSAGE).max(100, AGE_MESSAGE).nullish(),
+  isNas: z.boolean(),
   caskType: z.enum(CASK_TYPES).nullish(),
   isLimited: z.boolean(),
   memo: z
@@ -88,11 +98,13 @@ const whiskyBaseSchema = z.object({
 // 登録のアクションが受け取る値。送られなかった項目は既定値で埋めるか、値なしとして扱う。
 export const whiskyCreateSchema = whiskyBaseSchema
   .extend({
+    isNas: z.boolean().default(false),
     isLimited: z.boolean().default(false),
     // 登録時にまとめて作るボトルの数。
     quantity: quantitySchema.default(1),
   })
-  .refine(regionNeedsScotland, { error: REGION_MESSAGE, path: ["region"] });
+  .refine(regionNeedsScotland, { error: REGION_MESSAGE, path: ["region"] })
+  .refine(nasHasNoAge, { error: NAS_MESSAGE, path: ["age"] });
 
 export type WhiskyCreateOutput = z.output<typeof whiskyCreateSchema>;
 
@@ -108,7 +120,11 @@ export const whiskyUpdateSchema = whiskyBaseSchema
     ({ country, region }) => (country === undefined) === (region === undefined),
     { error: "国と地域は組で送ってください" },
   )
-  .refine(regionNeedsScotland, { error: REGION_MESSAGE, path: ["region"] });
+  .refine(({ age, isNas }) => (age === undefined) === (isNas === undefined), {
+    error: "年数と NAS は組で送ってください",
+  })
+  .refine(regionNeedsScotland, { error: REGION_MESSAGE, path: ["region"] })
+  .refine(nasHasNoAge, { error: NAS_MESSAGE, path: ["age"] });
 
 export type WhiskyUpdateOutput = z.output<typeof whiskyUpdateSchema>;
 
@@ -117,7 +133,8 @@ export type WhiskyUpdateOutput = z.output<typeof whiskyUpdateSchema>;
 export const whiskyFormSchema = whiskyBaseSchema
   .required()
   .extend({ quantity: quantitySchema })
-  .refine(regionNeedsScotland, { error: REGION_MESSAGE, path: ["region"] });
+  .refine(regionNeedsScotland, { error: REGION_MESSAGE, path: ["region"] })
+  .refine(nasHasNoAge, { error: NAS_MESSAGE, path: ["age"] });
 
 export type WhiskyFormInput = z.input<typeof whiskyFormSchema>;
 export type WhiskyFormOutput = z.output<typeof whiskyFormSchema>;

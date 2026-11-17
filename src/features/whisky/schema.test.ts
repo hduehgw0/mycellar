@@ -8,11 +8,12 @@ import {
 } from "./schema";
 
 describe("whiskyCreateSchema", () => {
-  it("製品名だけで通り、既定値（本数1・限定版false）が入る", () => {
+  it("製品名だけで通り、既定値（本数1・NAS false・限定版false）が入る", () => {
     const result = whiskyCreateSchema.parse({ name: "山崎 12年" });
     expect(result).toEqual({
       name: "山崎 12年",
       quantity: 1,
+      isNas: false,
       isLimited: false,
     });
   });
@@ -23,6 +24,7 @@ describe("whiskyCreateSchema", () => {
       country: "スコットランド",
       region: "アイラ",
       age: 10,
+      isNas: false,
       caskType: "バーボン樽",
       isLimited: true,
       quantity: 2,
@@ -73,6 +75,24 @@ describe("whiskyCreateSchema", () => {
     expect(result.success).toBe(false);
   });
 
+  it("NAS なら年数が空で通る", () => {
+    const result = whiskyCreateSchema.safeParse({
+      name: "山崎",
+      age: null,
+      isNas: true,
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("年数が入っていて NAS は通らない", () => {
+    const result = whiskyCreateSchema.safeParse({
+      name: "山崎",
+      age: 12,
+      isNas: true,
+    });
+    expect(result.error?.issues[0]?.path).toEqual(["age"]);
+  });
+
   it.each([1, 99])("本数 %d は通る（1〜99）", (quantity) => {
     const result = whiskyCreateSchema.safeParse({
       name: "山崎 12年",
@@ -104,7 +124,9 @@ describe("whiskyCreateSchema", () => {
 
 describe("whiskyUpdateSchema", () => {
   it("送った項目だけが残り、既定値で埋めない", () => {
-    expect(whiskyUpdateSchema.parse({ age: 12 })).toEqual({ age: 12 });
+    expect(whiskyUpdateSchema.parse({ memo: "甘い" })).toEqual({
+      memo: "甘い",
+    });
   });
 
   it("送った項目は登録と同じルールで検査する", () => {
@@ -133,6 +155,19 @@ describe("whiskyUpdateSchema", () => {
     expect(result.success).toBe(false);
   });
 
+  it.each([{ age: 12 }, { isNas: false }])(
+    "年数と NAS の片方だけ（%j）は通らない",
+    (input) => {
+      const result = whiskyUpdateSchema.safeParse(input);
+      expect(result.success).toBe(false);
+    },
+  );
+
+  it("組で送っても、年数が入っていて NAS は通らない", () => {
+    const result = whiskyUpdateSchema.safeParse({ age: 12, isNas: true });
+    expect(result.success).toBe(false);
+  });
+
   it("本数 0 は通らない（1〜99の整数）", () => {
     const result = whiskyUpdateSchema.safeParse({ quantity: 0 });
     expect(result.success).toBe(false);
@@ -146,6 +181,7 @@ describe("whiskyFormSchema", () => {
     country: null,
     region: null,
     age: null,
+    isNas: false,
     caskType: null,
     isLimited: false,
     quantity: 1,
@@ -175,6 +211,15 @@ describe("whiskyFormSchema", () => {
       ...empty,
       country: "日本",
       region: "アイラ",
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("年数が入っていて NAS は通らない", () => {
+    const result = whiskyFormSchema.safeParse({
+      ...empty,
+      age: 12,
+      isNas: true,
     });
     expect(result.success).toBe(false);
   });
@@ -215,6 +260,7 @@ describe("parseAgeInput", () => {
       country: null,
       region: null,
       age: parseAgeInput("十二年"),
+      isNas: false,
       caskType: null,
       isLimited: false,
       quantity: 1,
