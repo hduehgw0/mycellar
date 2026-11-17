@@ -163,6 +163,13 @@ describe("whiskyUpdateSchema", () => {
     },
   );
 
+  it("年数を空にして NAS にする組は通る", () => {
+    expect(whiskyUpdateSchema.parse({ age: null, isNas: true })).toEqual({
+      age: null,
+      isNas: true,
+    });
+  });
+
   it("組で送っても、年数が入っていて NAS は通らない", () => {
     const result = whiskyUpdateSchema.safeParse({ age: 12, isNas: true });
     expect(result.success).toBe(false);
@@ -213,6 +220,11 @@ describe("whiskyFormSchema", () => {
       region: "アイラ",
     });
     expect(result.success).toBe(false);
+  });
+
+  it("年数が空で NAS なら通る", () => {
+    const nas = { ...empty, isNas: true };
+    expect(whiskyFormSchema.parse(nas)).toEqual(nas);
   });
 
   it("年数が入っていて NAS は通らない", () => {
