@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { requireSession } from "@/lib/session";
 import { getOwnedWhisky } from "@/features/whisky/queries";
 import type { WhiskyFormInput } from "@/features/whisky/schema";
-import { PageHeader } from "@/components/page-header";
+import { FormPageHeader } from "@/components/form-page-header";
 import { EditWhiskyForm } from "./edit-whisky-form";
 
 export const metadata: Metadata = { title: "製品編集" };
@@ -22,7 +22,7 @@ export default async function EditWhiskyPage({
 
   return (
     <>
-      <PageHeader title="製品編集" cancelHref={`/whiskies/${whisky.id}`} />
+      <FormPageHeader title="製品編集" cancelHref={`/whiskies/${whisky.id}`} />
 
       <EditWhiskyForm
         id={whisky.id}
