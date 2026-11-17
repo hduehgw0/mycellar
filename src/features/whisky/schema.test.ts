@@ -196,7 +196,7 @@ describe("parseAgeInput", () => {
   });
 
   it.each(["", "　", null, undefined])(
-    "空欄（%j）は NAS（null）になる",
+    "空欄（%j）は値なし（null）になる",
     (input) => {
       expect(parseAgeInput(input)).toBeNull();
     },

@@ -122,7 +122,7 @@ export const whiskyFormSchema = whiskyBaseSchema
 export type WhiskyFormInput = z.input<typeof whiskyFormSchema>;
 export type WhiskyFormOutput = z.output<typeof whiskyFormSchema>;
 
-// 数として読めない入力（「十二年」など）は NaN にして、検査でエラーにする（null だと黙って NAS になる）。
+// 数として読めない入力（「十二年」など）は NaN にして、検査でエラーにする（null だと黙って空欄になる）。
 // Number() に任せないのは、"1e1" や "0x10" も数にしてしまうため。
 export function parseAgeInput(value: unknown): number | null {
   // 初期値（null や DB の数）もここを通る。
