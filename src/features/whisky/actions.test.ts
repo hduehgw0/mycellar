@@ -32,6 +32,7 @@ const existing = {
   name: "ラフロイグ 10年",
   country: "スコットランド",
   age: 10,
+  isNas: false,
 };
 
 beforeEach(() => {

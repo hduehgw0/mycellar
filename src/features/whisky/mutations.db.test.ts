@@ -78,7 +78,13 @@ describe("createWhisky", () => {
     expect(result).toEqual({
       status: "duplicate",
       // 重複のカードに出す項目だけを返す。
-      whisky: { id: existing, name: "山崎 12年", country: "日本", age: 12 },
+      whisky: {
+        id: existing,
+        name: "山崎 12年",
+        country: "日本",
+        age: 12,
+        isNas: false,
+      },
     });
     expect(await prisma.whisky.count()).toBe(1);
     expect(await prisma.userBottle.count()).toBe(1);
@@ -149,7 +155,13 @@ describe("updateWhisky", () => {
 
     expect(result).toEqual({
       status: "duplicate",
-      whisky: { id: existing, name: "山崎 12年", country: null, age: null },
+      whisky: {
+        id: existing,
+        name: "山崎 12年",
+        country: null,
+        age: null,
+        isNas: false,
+      },
     });
     expect(await findWhisky(id)).toMatchObject({ name: "白州", age: null });
   });
