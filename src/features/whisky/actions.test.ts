@@ -32,6 +32,7 @@ const existing = {
   name: "ラフロイグ 10年",
   country: "スコットランド",
   age: 10,
+  isNas: false,
 };
 
 beforeEach(() => {
@@ -73,6 +74,7 @@ describe("createWhiskyAction", () => {
     expect(createWhisky).toHaveBeenCalledWith("user_me", {
       name: "山崎 12年",
       quantity: 2,
+      isNas: false,
       isLimited: false,
     });
   });
@@ -106,7 +108,7 @@ describe("updateWhiskyAction", () => {
   it("未ログインなら失敗で、更新しない", async () => {
     logout();
 
-    const result = await updateWhiskyAction("whisky_1", { age: 12 });
+    const result = await updateWhiskyAction("whisky_1", { memo: "甘い" });
 
     expect(result.serverError).toBeDefined();
     expect(updateWhisky).not.toHaveBeenCalled();
@@ -121,20 +123,21 @@ describe("updateWhiskyAction", () => {
 
   // 部分更新：送っていない項目を既定値で埋めると、その項目を上書きしてしまう。
   it("一部の項目だけを送ると、送った項目だけを自分の製品の更新に渡す", async () => {
-    const result = await updateWhiskyAction("whisky_1", { age: 12 });
+    const result = await updateWhiskyAction("whisky_1", { memo: "甘い" });
 
     expect(result.data).toEqual({ status: "updated" });
     expect(refresh).toHaveBeenCalledOnce();
     expect(updateWhisky).toHaveBeenCalledWith("user_me", "whisky_1", {
-      age: 12,
+      memo: "甘い",
     });
   });
 
   it("任意項目を null や空欄で送ると、値を消す（null を渡す）", async () => {
-    await updateWhiskyAction("whisky_1", { age: null, memo: "" });
+    await updateWhiskyAction("whisky_1", { age: null, isNas: false, memo: "" });
 
     expect(updateWhisky).toHaveBeenCalledWith("user_me", "whisky_1", {
       age: null,
+      isNas: false,
       memo: null,
     });
   });
@@ -142,7 +145,7 @@ describe("updateWhiskyAction", () => {
   it("他人の/存在しない id は notFound を返す", async () => {
     vi.mocked(updateWhisky).mockResolvedValue({ status: "notFound" });
 
-    const result = await updateWhiskyAction("whisky_other", { age: 12 });
+    const result = await updateWhiskyAction("whisky_other", { memo: "甘い" });
 
     expect(result.data).toEqual({ status: "notFound" });
     expect(refresh).not.toHaveBeenCalled();

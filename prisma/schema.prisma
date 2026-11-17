@@ -50,8 +50,10 @@ model Whisky {
   /// 地域。固定リスト（zod の REGIONS）。country がスコットランドのときだけ入力できる。
   region    String?
   /// ラベルに書かれた年数。並べ替え・フィルタ用。name にも年数が含まれうるが、
-  /// 機械で扱える値として別に持つ。空欄は NAS と未確認を区別しない（→ #121）。
+  /// 機械で扱える値として別に持つ。空欄は、isNas が true なら NAS、false なら未確認。
   age       Int?
+  /// ラベルに年数表記が無いと確認できた（NAS）。true のとき age は空（zod で守る）。
+  isNas     Boolean      @default(false)
   /// 樽の種類。固定リスト（zod の CASK_TYPES）。多重熟成は「その他」。
   caskType  String?
   isLimited Boolean      @default(false)

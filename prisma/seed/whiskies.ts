@@ -30,7 +30,7 @@ export const LARGE_SAMPLES = [
   { name: "グレンファークラス 10年", country: "スコットランド", region: "スペイサイド", age: 10, caskType: "シェリー樽" },
   { name: "グレンファークラス 15年", country: "スコットランド", region: "スペイサイド", age: 15, caskType: "シェリー樽" },
   { name: "グレンファークラス 25年", country: "スコットランド", region: "スペイサイド", age: 25, caskType: "シェリー樽" },
-  { name: "グレンファークラス 105", country: "スコットランド", region: "スペイサイド", caskType: "シェリー樽" },
+  { name: "グレンファークラス 105", country: "スコットランド", region: "スペイサイド", isNas: true, caskType: "シェリー樽" },
   { name: "アベラワー 12年 ダブルカスク", country: "スコットランド", region: "スペイサイド", age: 12, caskType: "その他" },
   { name: "アベラワー 16年 ダブルカスク", country: "スコットランド", region: "スペイサイド", age: 16, caskType: "その他" },
   { name: "アベラワー 18年 ダブルカスク", country: "スコットランド", region: "スペイサイド", age: 18, caskType: "その他" },
@@ -218,7 +218,7 @@ export const LARGE_SAMPLES = [
   { name: "サントリー ローヤル", country: "日本" },
   { name: "サントリー スペシャルリザーブ", country: "日本" },
   { name: "サントリー トリス クラシック", country: "日本" },
-  { name: "ニッカ シングルモルト 余市", country: "日本" },
+  { name: "ニッカ シングルモルト 余市", country: "日本", isNas: true },
   { name: "ニッカ シングルモルト 宮城峡", country: "日本" },
   { name: "ニッカ 竹鶴 ピュアモルト", country: "日本" },
   { name: "ニッカ フロム・ザ・バレル", country: "日本" },
@@ -341,7 +341,7 @@ function pick(
   return { ...sample, ...extra };
 }
 
-// 画面の確認用。国・地域・年数なし・限定版・メモ・複数本・長い製品名が、一通り出るように選ぶ。
+// 画面の確認用。国・地域・年数なし（NAS・未確認）・限定版・メモ・複数本・長い製品名が、一通り出るように選ぶ。
 export const SMALL_SAMPLES: Sample[] = [
   pick("ザ・マッカラン 12年 シェリーオークカスク", {
     quantity: 2,

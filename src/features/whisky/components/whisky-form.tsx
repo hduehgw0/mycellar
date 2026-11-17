@@ -14,6 +14,7 @@ import {
   type WhiskyFormOutput,
 } from "@/features/whisky/schema";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Field,
   FieldError,
@@ -62,6 +63,7 @@ export function WhiskyForm({
     register,
     control,
     setValue,
+    clearErrors,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<WhiskyFormInput, unknown, WhiskyFormOutput>({
@@ -73,6 +75,7 @@ export function WhiskyForm({
     name: "country",
     compute: (country) => country === "スコットランド",
   });
+  const isNas = useWatch({ control, name: "isNas" });
 
   const submit = handleSubmit(async (data) => {
     setServerError(null);
@@ -205,59 +208,102 @@ export function WhiskyForm({
           <Field data-invalid={!!errors.age}>
             <FieldLabel htmlFor="age" className={LABEL_CLASS}>
               年数
-              <span className="font-normal text-muted-foreground/70">
-                空欄＝NAS
-              </span>
             </FieldLabel>
-            {/* type="number" は、数として読めない文字を空文字にして渡すので、
-                空欄（NAS）と見分けられない。文字の欄にして、parseAgeInput で読む。 */}
-            <Input
-              id="age"
-              inputMode="numeric"
-              placeholder="例：12"
-              aria-invalid={!!errors.age}
-              aria-describedby={errors.age ? "age-error" : undefined}
-              {...register("age", { setValueAs: parseAgeInput })}
-            />
+            <div className="relative">
+              {/* type="number" は、数として読めない文字を空文字にして渡すので、
+                  空欄と見分けられない。文字の欄にして、parseAgeInput で読む。 */}
+              <Input
+                id="age"
+                inputMode="numeric"
+                placeholder={isNas ? "NAS" : "例：12"}
+                disabled={isNas}
+                className="pr-10"
+                aria-invalid={!!errors.age}
+                aria-describedby={errors.age ? "age-error" : undefined}
+                {...register("age", { setValueAs: parseAgeInput })}
+              />
+              {!isNas && (
+                <span
+                  aria-hidden
+                  className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-sm text-muted-foreground"
+                >
+                  年
+                </span>
+              )}
+            </div>
             <FieldError id="age-error" errors={[errors.age]} />
           </Field>
 
-          <Field>
-            <FieldLabel htmlFor="caskType" className={LABEL_CLASS}>
-              樽
-            </FieldLabel>
+          <Field aria-labelledby="nas-label">
+            <FieldTitle id="nas-label" className={LABEL_CLASS}>
+              NAS
+            </FieldTitle>
             <Controller
               control={control}
-              name="caskType"
+              name="isNas"
               render={({ field }) => (
-                <Select
-                  value={field.value ?? NONE}
-                  onValueChange={(value) =>
-                    field.onChange(value === NONE ? null : value)
-                  }
+                <FieldLabel
+                  htmlFor="isNas"
+                  className={cn(
+                    CARD_CLASS,
+                    "h-12 w-full items-center gap-3 px-4 text-base font-normal md:text-sm",
+                  )}
                 >
-                  <SelectTrigger
-                    id="caskType"
-                    className={cn(
-                      "w-full",
-                      field.value == null && "text-muted-foreground",
-                    )}
-                  >
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value={NONE}>未選択</SelectItem>
-                    {CASK_TYPES.map((caskType) => (
-                      <SelectItem key={caskType} value={caskType}>
-                        {caskType}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  <Checkbox
+                    id="isNas"
+                    checked={field.value}
+                    onCheckedChange={(checked) => {
+                      const next = checked === true;
+                      field.onChange(next);
+                      // 年数が入っていて NAS、という矛盾を画面でも作らせない。
+                      if (next) {
+                        setValue("age", null);
+                        clearErrors("age");
+                      }
+                    }}
+                  />
+                  年数表記なし
+                </FieldLabel>
               )}
             />
           </Field>
         </div>
+
+        <Field>
+          <FieldLabel htmlFor="caskType" className={LABEL_CLASS}>
+            樽
+          </FieldLabel>
+          <Controller
+            control={control}
+            name="caskType"
+            render={({ field }) => (
+              <Select
+                value={field.value ?? NONE}
+                onValueChange={(value) =>
+                  field.onChange(value === NONE ? null : value)
+                }
+              >
+                <SelectTrigger
+                  id="caskType"
+                  className={cn(
+                    "w-full",
+                    field.value == null && "text-muted-foreground",
+                  )}
+                >
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={NONE}>未選択</SelectItem>
+                  {CASK_TYPES.map((caskType) => (
+                    <SelectItem key={caskType} value={caskType}>
+                      {caskType}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          />
+        </Field>
 
         <Field orientation="horizontal" className={CARD_CLASS}>
           <FieldLabel htmlFor="isLimited">限定版</FieldLabel>

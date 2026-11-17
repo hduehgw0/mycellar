@@ -6,6 +6,7 @@ import { ChevronRightIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import { BottlePlaceholder } from "@/components/illustrations/bottle-placeholder";
+import { ageLabel } from "@/features/whisky/age-label";
 import type { DuplicateWhisky } from "@/features/whisky/mutations";
 
 const TOAST_ID = "duplicate-whisky";
@@ -32,9 +33,7 @@ function showDuplicateWhiskyToast(whisky: DuplicateWhisky) {
         <span className="flex min-w-0 flex-1 flex-col gap-0.5">
           <span className="truncate text-sm font-bold">{whisky.name}</span>
           <span className="truncate text-xs text-muted-foreground empty:hidden">
-            {[whisky.country, whisky.age !== null && `${whisky.age}年`]
-              .filter(Boolean)
-              .join("・")}
+            {[whisky.country, ageLabel(whisky)].filter(Boolean).join("・")}
           </span>
         </span>
         <ChevronRightIcon className="size-4 shrink-0 text-muted-foreground" />

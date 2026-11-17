@@ -24,7 +24,7 @@ export function EditWhiskyForm({
       errorLabel="保存に失敗しました。もう一度お試しください。"
       onSubmit={async (data) => {
         duplicateToast.dismiss();
-        // アクションは部分更新だが、フォームの全項目を送る（国と地域はいつも組で届く）。
+        // アクションは部分更新だが、フォームの全項目を送る（国と地域、年数と NAS はいつも組で届く）。
         const result = (await updateWhiskyAction(id, data)).data;
         // 重複は製品ページへ戻らず、衝突した既存の製品を示して入力内容を残す。
         if (result?.status === "duplicate") {

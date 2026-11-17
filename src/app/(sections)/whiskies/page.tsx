@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Plus } from "lucide-react";
 import { requireSession } from "@/lib/session";
 import { countBottles } from "@/features/stats/collection-stats";
+import { ageLabel } from "@/features/whisky/age-label";
 import { listWhiskies } from "@/features/whisky/queries";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -63,11 +64,7 @@ export default async function WhiskiesPage() {
                     {whisky.name}
                   </span>
                   <span className="text-xs text-muted-foreground empty:hidden">
-                    {[
-                      whisky.country,
-                      whisky.region,
-                      whisky.age !== null && `${whisky.age}年`,
-                    ]
+                    {[whisky.country, whisky.region, ageLabel(whisky)]
                       .filter(Boolean)
                       .join("・")}
                   </span>

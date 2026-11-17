@@ -15,6 +15,7 @@ const DUPLICATE_SELECT = {
   name: true,
   country: true,
   age: true,
+  isNas: true,
 } satisfies Prisma.WhiskySelect;
 
 export type DuplicateWhisky = Prisma.WhiskyGetPayload<{

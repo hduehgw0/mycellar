@@ -44,6 +44,7 @@ export default async function EditWhiskyPage({
           country: whisky.country as WhiskyFormInput["country"],
           region: whisky.region as WhiskyFormInput["region"],
           age: whisky.age,
+          isNas: whisky.isNas,
           caskType: whisky.caskType as WhiskyFormInput["caskType"],
           isLimited: whisky.isLimited,
           quantity: whisky._count.bottles,

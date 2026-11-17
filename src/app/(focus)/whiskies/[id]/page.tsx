@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ChevronLeftIcon } from "lucide-react";
 import { requireSession } from "@/lib/session";
+import { ageLabel } from "@/features/whisky/age-label";
 import { getOwnedWhisky } from "@/features/whisky/queries";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -29,7 +30,7 @@ export default async function WhiskyPage({
   const details = [
     { label: "国", value: whisky.country },
     { label: "地域", value: whisky.region },
-    { label: "年数", value: whisky.age !== null ? `${whisky.age}年` : null },
+    { label: "年数", value: ageLabel(whisky) },
     { label: "樽", value: whisky.caskType },
   ];
 

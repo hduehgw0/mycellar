@@ -16,6 +16,7 @@ export function CreateWhiskyForm() {
         country: null,
         region: null,
         age: null,
+        isNas: false,
         caskType: null,
         isLimited: false,
         quantity: 1,
