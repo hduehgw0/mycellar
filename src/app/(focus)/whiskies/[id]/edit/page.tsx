@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireSession } from "@/lib/session";
 import { getOwnedWhisky } from "@/features/whisky/queries";
 import type { WhiskyFormInput } from "@/features/whisky/schema";
-import { Button } from "@/components/ui/button";
+import { FormPageHeader } from "@/components/form-page-header";
 import { EditWhiskyForm } from "./edit-whisky-form";
 
 export const metadata: Metadata = { title: "製品編集" };
@@ -23,18 +22,7 @@ export default async function EditWhiskyPage({
 
   return (
     <>
-      {/* 見出しは中央、離脱は左上。 */}
-      <header className="relative flex items-center justify-center">
-        <Button
-          asChild
-          variant="ghost"
-          size="sm"
-          className="absolute -left-2.5 text-muted-foreground"
-        >
-          <Link href={`/whiskies/${whisky.id}`}>キャンセル</Link>
-        </Button>
-        <h1 className="font-heading text-lg font-bold">製品編集</h1>
-      </header>
+      <FormPageHeader title="製品編集" cancelHref={`/whiskies/${whisky.id}`} />
 
       <EditWhiskyForm
         id={whisky.id}
