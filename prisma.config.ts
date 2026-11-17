@@ -1,8 +1,8 @@
 import "dotenv/config";
 import { defineConfig, env } from "prisma/config";
 
-// Neon は眠らせた DB を起こすのにたまに 4〜5 秒かかり、CLI の既定の 5 秒では
-// 待ちきれずにビルドの migrate deploy が落ちる（→ #188）。
+// Neon は眠った DB を起こすのに 5 秒を超えることがあり、CLI の既定の 5 秒では落ちる（→ #188）。
+// 15 秒は Neon の資料の例。後ろに足した値が効くので、URL に書いた値があっても 15 になる。
 function withConnectTimeout(url: string): string {
   return `${url}${url.includes("?") ? "&" : "?"}connect_timeout=15`;
 }
