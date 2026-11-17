@@ -222,12 +222,14 @@ export function WhiskyForm({
                 aria-describedby={errors.age ? "age-error" : undefined}
                 {...register("age", { setValueAs: parseAgeInput })}
               />
-              <span
-                aria-hidden
-                className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-sm text-muted-foreground"
-              >
-                年
-              </span>
+              {!isNas && (
+                <span
+                  aria-hidden
+                  className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-sm text-muted-foreground"
+                >
+                  年
+                </span>
+              )}
             </div>
             <FieldError id="age-error" errors={[errors.age]} />
           </Field>
