@@ -1,6 +1,12 @@
 import "dotenv/config";
 import { defineConfig, env } from "prisma/config";
 
+// Neon は眠った DB を起こすのに 5 秒を超えることがあり、CLI の既定の 5 秒では落ちる（→ #188）。
+// 15 秒は Neon の資料の例。後ろに足した値が効くので、URL に書いた値があっても 15 になる。
+function withConnectTimeout(url: string): string {
+  return `${url}${url.includes("?") ? "&" : "?"}connect_timeout=15`;
+}
+
 export default defineConfig({
   schema: "prisma/schema.prisma",
   migrations: {
@@ -12,6 +18,6 @@ export default defineConfig({
     // 動かないため direct（-pooler なし）を使う。
     // アプリ実行時の接続は pooled（DATABASE_URL）をクライアント初期化側で指定する。
     // env() は未設定時に変数名付きで即 throw する（fail-fast）。
-    url: env("DATABASE_URL_UNPOOLED"),
+    url: withConnectTimeout(env("DATABASE_URL_UNPOOLED")),
   },
 });
